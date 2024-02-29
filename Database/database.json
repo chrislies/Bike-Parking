@@ -1,0 +1,9 @@
+{
+    "development" : {
+        "username" : "vnlrqegp", 
+        "password" : "dr9j9guuWvWILpn9yflG2VsfbLv6R6CP",
+        "database" : "vnlrqegp",
+        "host" : "otto.db.elephantsql.com",
+        "dialect" : "postgres"
+    }
+}
