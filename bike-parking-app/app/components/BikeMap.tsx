@@ -29,13 +29,8 @@ if (typeof document !== "undefined") {
 }
 
 interface DataItem {
-  camis: string;
-  dba: string;
   longitude: string;
   latitude: string;
-  violation_code: string;
-  violation_description: string;
-  inspection_date: string;
 }
 
 export default function BikeMap() {
