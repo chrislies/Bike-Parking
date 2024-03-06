@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const axios = require('axios');
+const {Op} = require("sequelize")
 
 
 const Location = require('./Database/Model/location');
@@ -14,23 +15,25 @@ async function fetchAPI() {
     const apiData = response.data;
 
     for (const location of apiData) {
+ 
+
       // Check if the record already exists in the database
-      const existedData = await Location.findOne({
+      const duplicateData = await Location.findOne({
         where: {
           x_coordinate: location.x,
           y_coordinate: location.y,
         },
       });
 
-      if (!existedData) {
+      if (!duplicateData) {
         await Location.create({
           x_coordinate: location.x,
           y_coordinate: location.y,
         });
-      }
+      } 
     }
 
-    //console.log('Data populated successfully.');
+    console.log('Data populated successfully.');
   } catch (error) {
     console.error('Error populating data:', error.message);
   }
