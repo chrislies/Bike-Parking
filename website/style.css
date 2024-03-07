@@ -67,11 +67,12 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url('hentai.jpg') no-repeat;
     background-size: cover;
     background-position: center;
     overflow: hidden;
-    animation: changeBackground 20s infinite alternate;
+    background-image: url('Design_a_cool_and_engaging_background_for_a_websit.jpg');
+    animation: changeBackground  20s infinite alternate;
+    animation-delay: 5s; /* Delay the animation for 5 seconds */
 }
 
 .wrapper {
@@ -164,17 +165,22 @@ body {
     margin-top: 20px;
 }
 
+/*
+text-decoration: none;: Removes the default underline decoration from the hyperlink text.
+font-weight: 600;: Sets the font weight of the hyperlink text to 600, making it bold.
+*/
 .register-link p a {
     color: #fff;
     text-decoration: none;
     font-weight: 600;
 }
-
+/* This CSS rule underlines the text of a hyperlink inside a paragraph when the mouse hovers over it,  */
 .register-link p a:hover {
     text-decoration: underline;
 }
+    /* alters the background image of the body element at different points in time. */
 
-@keyframes changeBackground{
+@keyframes changeBackground   {
     0%{
         background-image: url('Design_a_cool_and_engaging_background_for_a_websit.jpg');
     }
