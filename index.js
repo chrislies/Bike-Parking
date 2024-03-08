@@ -7,6 +7,7 @@ const {Op} = require("sequelize")
 
 
 const Location = require('./Database/Model/location');
+const UserInfo = require('./Database/Model/UserInfo');
 
 const LIMIT = 40000; 
 async function fetchAPI() {
@@ -48,6 +49,7 @@ app.use(cors());
 
 
 app.use("/", require("./Route/location"));
+app.use("/info", require("./Route/UserInfo"));
 
 db.authenticate()
   .then(() => {
