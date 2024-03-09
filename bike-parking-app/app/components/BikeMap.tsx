@@ -9,6 +9,10 @@ import Point from "ol/geom/Point";
 import { Vector as VectorLayer } from "ol/layer";
 import { Vector as VectorSource } from "ol/source";
 import {
+  DragRotateAndZoom,
+  defaults as defaultInteractions,
+} from 'ol/interaction.js';
+import {
   Style,
   Icon,
   Circle as CircleStyle,
@@ -41,6 +45,7 @@ export default function BikeMap() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState("");
   const [mapLoading, setMapLoading] = useState<boolean>(true);
+  const [fetchLoading, setFetchLoading] = useState(true);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -122,6 +127,8 @@ export default function BikeMap() {
           // Initialize the map
           const centerCoordinates = fromLonLat([-73.920935, 40.780229]);
           const map = new Map({
+            interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
+
             target: "map",
             layers: [
               new TileLayer({
@@ -160,6 +167,7 @@ export default function BikeMap() {
         }
       };
 
+      // fetchData().then(() => {setFetchLoading(false)});
       fetchData();
     }
   }, [overlay]);
@@ -181,7 +189,7 @@ export default function BikeMap() {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-100">
-      {mapLoading || !dataArray || !overlay ? (
+      {mapLoading || !dataArray || !overlay  ? (
         <div>
           <h1>Loading...</h1>
         </div>
