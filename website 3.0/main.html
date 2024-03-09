@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BikOU</title>
+    <link rel="stylesheet" href="style.css"> <!-- Make sure the path to style.css is correct -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="preload" href="Design_a_cool_and_engaging_background_for_a_websit.jpg" as="image">
+    <link rel="preload" href="hentai.jpg" as="image">
+    <link rel="preload" href="hentai2.jpg" as="image">
+    <link rel="preload" href="hentai3.jpg" as="image">
+    <link rel="preload" href="hentai4.jpg" as="image">
+    <link rel="preload" href="hentai5.jpg" as="image">
+    <link rel="preload" href="nothentai" as="image">
+    <link rel="preload" href="nothentai2" as="image">
+    <link rel="preload" href="nothentai3" as="image">
+    <link rel="preload" href="nothentai4" as="image">
+    <link rel="preload" href="nothentai5" as="image">
+
+</head>
+
+        <!-- Body Section -->
+<body>
+        <!-- Main Section -->
+    <div id="mainSection" class="section"> 
+        <!-- Div is a block-level element -->
+        <!-- Main section is a element of section-->
+        <header>
+        <!--Header for the purpose of header-->
+            <h2 class="logo">BikOU</h2>
+
+                    <nav class="navigation">
+                        <button class="btnLogin-popup" onclick="showSection('loginSection')">Login</button>
+                    </nav>
+            </nav>
+        </header>
+    </div>
+
+
+
+<div id="loginSection" class="section" style="display: none;">
+    <div class="wrapper">
+
+        <span class="icon-close" onclick="showSection('mainSection')">
+            <i class='bx bx-x'></i>
+        </span>
+        <!-- Login Form Content -->
+        <form action="" method="POST">
+            <h1>Login</h1>
+
+            <div class="input-box">
+                <input type="text" placeholder="Username" maxlength="13" required>
+                <i class='bx bxs-user'></i>
+            </div>
+
+            <div class="input-box">
+                <input type="password" placeholder="Password" maxlength="13" required>
+                <i class='bx bxs-lock'></i>
+            </div>
+
+            <div class="remember-forgot">
+                <label><input type="checkbox" id="rememberMe"> Remember me</label>
+                <a href="#" onclick="showSection('forgotPasswordSection')">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn">Submit</button>
+
+            <div class="register-link">
+                <p>Don't have an account? <a href="#" onclick="showSection('registerSection')">Register</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+<div id="registerSection" class="section" style="display: none;">
+    <div class="wrapper">
+        <span class="icon-return" onclick="showSection('loginSection')">
+            <i class='bx bx-share' ></i>
+        </span>
+
+        <div class="form-box register">
+            <!-- Registration Form Content -->
+            <h2>Registration</h2>
+            <form action="" method="POST"> 
+                <div class="input-box">
+                    <input type="text" placeholder="Username" maxlength="13" required>
+                    <i class='bx bx-envelope'></i>
+                </div>
+
+                <div class="input-box">
+                    <input type="email" placeholder="Email" maxlength="13" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" placeholder="Password" maxlength="13" required>
+                    <i class='bx bxs-lock'></i>
+                </div>
+                <div class="remember-forgot">
+                    <p> <input type="checkbox" required> Don't have an account? <a href="#" onclick="showSection('TermAndConditionSection')">I agree to the terms & conditions?</a></p>
+                </div>
+
+                <button type="submit" class="btn">Register</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div id="forgotPasswordSection" class="section" style="display: none;">
+    <div class="wrapper">
+
+        <span class="icon-return" onclick="showSection('loginSection')">
+            <i class='bx bx-share' ></i>
+        </span>
+
+        <div class="form-box">
+            <!-- Forgot Password Form Content -->
+            <h2>Forgot Password</h2>
+            <p>Please enter your email address. You will receive a link to create a new password via email.</p>
+            <form action="" method="POST">
+                <div class="input-box">
+                    <input type="email" placeholder="Email" maxlength="13" required>
+                    <i class='bx bx-envelope'></i>
+                </div>
+
+                <button type="submit" class="btn">Send Reset Link</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="TermAndConditionSection" class="section" style="display: none;">
+    <div class="wrapper">
+        <span class="icon-return" onclick="showSection('registerSection')">
+            <i class='bx bx-share' ></i>
+        </span>
+
+        <div class="form-box register">
+            <!-- Registration Form Content -->
+            <h2>Registration</h2>
+            <form action="" method="POST"> 
+                <div class="input-box">
+                    <input type="text" placeholder="Username" maxlength="13" required>
+                    <i class='bx bx-envelope'></i>
+                </div>
+
+                <div class="input-box">
+                    <input type="email" placeholder="Email" maxlength="13" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" placeholder="Password" maxlength="13" required>
+                    <i class='bx bxs-lock'></i>
+                </div>
+
+                <div class="remember-forgot">
+                    <label><input type="checkbox" required> I agree to the terms & conditions</label>
+                </div>
+                <button type="submit" class="btn">Register</button>
+            </form>
+        </div>
+    </div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
