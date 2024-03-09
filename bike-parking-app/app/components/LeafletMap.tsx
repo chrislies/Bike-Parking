@@ -1,18 +1,27 @@
-import React, { useState, useEffect, useRef, FC } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet'
+import React, { useState, useEffect, useRef, FC } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+  useMap,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 // import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
 // import "leaflet-defaulticon-compatibility";
+import getCoordinates from "../lib/getCoordinates";
+import { FALSE } from "ol/functions";
 
 interface MarkerData {
   coordinates: [number, number];
   title: string;
 }
 
-//3. Loader component for showing loading animation.
+// Loader component for showing loading animation
 const Loader = () => {
   return (
-    <div className="absolute z-[10000] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+    <div className="absolute select-none flex flex-col justify-center items-center gap-5 z-[10000] h-screen w-screen bg-black bg-opacity-50">
       <svg
         aria-hidden="true"
         className="w-24 h-24 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
@@ -29,31 +38,56 @@ const Loader = () => {
           fill="currentFill"
         />
       </svg>
+      <p className="font-mono text-2xl text-white tracking-wide font-semibold">
+        Loading...
+      </p>
     </div>
   );
 };
 
 const MapComponent: FC = () => {
-  //5. Initialize local state.
+  // Initialize local state
   const [markerData, setMarkerData] = useState<MarkerData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  //6. Declare useRef to reference map.
+  // Declare useRef to reference map
   const mapRef = useRef<any | null>(null);
 
   const maxZoom = 20;
 
-  //17. Return the JSX for rendering.
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          const data = await getCoordinates();
+          // setMarkerData(data);
+          console.log(data);
+        } catch (error) {
+          console.error(error);
+        }
+        setLoading(false);
+      };
+
+      fetchData();
+    }
+  }, []);
+
+  // Return the JSX for rendering
   return (
     <>
-      {/* 18. Show the loader if loading. */}
       {loading && <Loader />}
-      {/* 20. Add the map container. */}
-      
-      <MapContainer center={[40.71151957593488, -73.88017135962203]} zoom={11} maxZoom={maxZoom} style={{ height: "100vh", width: "100vw" }}>
-        {/* 21. Set the tile layer for the map. */}
-        
-        <TileLayer maxZoom={maxZoom} url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        {/* 22. Conditionally render the marker. */}
+      <MapContainer
+        attributionControl={false}
+        center={[40.71151957593488, -73.88017135962203]}
+        zoom={11}
+        maxZoom={maxZoom}
+        style={{ height: "100vh", width: "100vw" }}
+      >
+        <TileLayer
+          maxZoom={maxZoom}
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {/* Conditionally render the marker */}
         {markerData && markerData.coordinates && (
           <Marker position={markerData.coordinates}>
             <Popup>{markerData.title}</Popup>
