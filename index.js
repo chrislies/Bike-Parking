@@ -3,36 +3,35 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const axios = require('axios');
-const {Op} = require("sequelize")
-
+const { Op } = require("sequelize");
 
 const Location = require('./Database/Model/location');
 const UserInfo = require('./Database/Model/UserInfo');
 
-const LIMIT = 40000; 
+const LIMIT = 40000;
+
 async function fetchAPI() {
   try {
     const response = await axios.get(`https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=${LIMIT}`);
     const apiData = response.data;
 
-    for (const location of apiData) {
- 
+    const coordinates = apiData.map(location => ({
+      x_coordinate: parseFloat(location.x),  // Convert to number
+      y_coordinate: parseFloat(location.y),  // Convert to number
+    }));
 
-      // Check if the record already exists in the database
-      const duplicateData = await Location.findOne({
-        where: {
-          x_coordinate: location.x,
-          y_coordinate: location.y,
-        },
-      });
+    const existingRecords = await Location.findAll();
+    // Filter out duplicate coordinates
+    const uniqueCoordinates = coordinates.filter(coord => {
+      const isDuplicate = existingRecords.some(record =>
+        record.x_coordinate === coord.x_coordinate &&
+        record.y_coordinate === coord.y_coordinate
+      );
+      return !isDuplicate;
+    });
 
-      if (!duplicateData) {
-        await Location.create({
-          x_coordinate: location.x,
-          y_coordinate: location.y,
-        });
-      } 
-    }
+    // Bulk insert unique coordinates
+    await Location.bulkCreate(uniqueCoordinates);
 
     console.log('Data populated successfully.');
   } catch (error) {
@@ -46,7 +45,6 @@ const PORT = 3001;
 
 app.use(express.json());
 app.use(cors());
-
 
 app.use("/", require("./Route/location"));
 app.use("/info", require("./Route/UserInfo"));
