@@ -11,3 +11,14 @@ function showSection(sectionId) {
         document.getElementById('mainSection').style.display = 'block'; // Show main section by default
     }
 }
+
+function proceedAfterAgreement() {
+    if(document.getElementById('agreeTerms').checked) {
+        // Code to handle the agreement, possibly submitting the form or moving to the next section
+        alert('Thank you for agreeing to the terms. Proceeding...');
+        // Hide the Terms and Conditions section again
+        document.getElementById('TermAndConditionSection').style.display = 'none';
+    } else {
+        alert('You must agree to the terms and conditions to continue.');
+    }
+}

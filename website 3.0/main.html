@@ -18,11 +18,12 @@
     <link rel="preload" href="nothentai3" as="image">
     <link rel="preload" href="nothentai4" as="image">
     <link rel="preload" href="nothentai5" as="image">
-
+    <!--Too many images, Delete later-->
 </head>
 
         <!-- Body Section -->
 <body>
+
         <!-- Main Section -->
     <div id="mainSection" class="section"> 
         <!-- Div is a block-level element -->
@@ -30,14 +31,13 @@
         <header>
         <!--Header for the purpose of header-->
             <h2 class="logo">BikOU</h2>
-
                     <nav class="navigation">
+                        <img src="1.png" alt="BikOU Logo" class="logo" width="100">
                         <button class="btnLogin-popup" onclick="showSection('loginSection')">Login</button>
                     </nav>
             </nav>
         </header>
     </div>
-
 
 
 <div id="loginSection" class="section" style="display: none;">
@@ -102,7 +102,7 @@
                     <i class='bx bxs-lock'></i>
                 </div>
                 <div class="remember-forgot">
-                    <p> <input type="checkbox" required> Don't have an account? <a href="#" onclick="showSection('TermAndConditionSection')">I agree to the terms & conditions?</a></p>
+                    <p> <input type="checkbox" required> <a href="#" onclick="showSection('TermAndConditionSection')">I agree to the terms & conditions?</a></p>
                 </div>
 
                 <button type="submit" class="btn">Register</button>
@@ -136,39 +136,32 @@
 </div>
 
 
-
 <div id="TermAndConditionSection" class="section" style="display: none;">
     <div class="wrapper">
         <span class="icon-return" onclick="showSection('registerSection')">
-            <i class='bx bx-share' ></i>
+            <i class='bx bx-share'></i>
         </span>
 
-        <div class="form-box register">
-            <!-- Registration Form Content -->
-            <h2>Registration</h2>
-            <form action="" method="POST"> 
-                <div class="input-box">
-                    <input type="text" placeholder="Username" maxlength="13" required>
-                    <i class='bx bx-envelope'></i>
-                </div>
+        <h2>Terms and Conditions</h2>
 
-                <div class="input-box">
-                    <input type="email" placeholder="Email" maxlength="13" required>
-                    <i class='bx bxs-user'></i>
-                </div>
+        <p>Please read these terms and conditions carefully before using Our Service.</p>
 
-                <div class="input-box">
-                    <input type="password" placeholder="Password" maxlength="13" required>
-                    <i class='bx bxs-lock'></i>
-                </div>
+        <div class="terms-content">
+            <h3>1. Agreement to Terms</h3>
+            <p>By accessing and using Our Service, you agree to be bound by these Terms and Conditions and Our Privacy Policy.</p>
+            <h3>2. Changes to Terms</h3>
+            <p>We reserve the right to modify these terms at any time, so please review them frequently.</p>
+            <h3>3. User Accounts</h3>
+            <p>When you create an account with us, you must provide us with information that is accurate, complete, and current at all times.</p>
 
-                <div class="remember-forgot">
-                    <label><input type="checkbox" required> I agree to the terms & conditions</label>
-                </div>
-                <button type="submit" class="btn">Register</button>
-            </form>
         </div>
+        <div class="agree-section">
+            <input type="checkbox" id="agreeTerms" name="agreeTerms">
+            <label for="agreeTerms">I agree to the terms and conditions</label>
+        </div>
+        <button type="button" onclick="proceedAfterAgreement()">Agree and Continue</button>
     </div>
+</div>
 
 <script src="script.js"></script>
 
