@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "leaflet-defaulticon-compatibility": "^0.1.2",
     "next": "14.1.0",
     "ol": "^8.2.0",
     "ol-ext": "^4.0.14",
