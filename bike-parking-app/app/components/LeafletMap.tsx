@@ -12,6 +12,7 @@
   // import "leaflet-defaulticon-compatibility";
   import getCoordinates from "../lib/getCoordinates";
   import getUserCoordinates from "../lib/getUserCoordinates";
+import { Layers } from "./svgs";
 
   interface MarkerData {
     coordinates: [number, number];
@@ -54,7 +55,7 @@
     const [markerData, setMarkerData] = useState<MarkerData | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const mapRef = useRef<any | null>(null);  // Declare useRef to reference map
-    const maxZoom = 20;
+    const maxZoom = 21;
 
     useEffect(() => {
       const fetchUserCoords = async () => {
@@ -84,7 +85,7 @@
           setLoading(false);
         };
 
-        fetchData();
+        // fetchData();
       }
     }, []);
 
@@ -107,6 +108,13 @@
     return (
       <>
         {loading && <Loader />}
+        <div>
+          <button title="Toggle Layers" aria-label="Toggle Layers" aria-disabled="false" className="z-[999] pointer-events-none absolute bottom-0 w-[50px] h-[50px] m-3 p-0 bg-white text-black rounded-md border-2 border-black/30d border-[rgba(0,0,0,0.2)] shadow-md">
+            <span className="absolute top-[-9px] left-[-9px] scale-50">
+              <Layers />
+            </span>
+          </button>
+        </div>
         <MapContainer
           attributionControl={false}
           center={[40.71151957593488, -73.88017135962203]}
@@ -117,6 +125,8 @@
           <TileLayer
             maxZoom={maxZoom}
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            // url='https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
+            // subdomains={['mt1','mt2','mt3']}
           />
           {/* Conditionally render the marker */}
           {markerData && markerData.coordinates && (
@@ -129,5 +139,5 @@
       </>
     );
   };
-  //25. Export the MapComponent.
+
   export default MapComponent;
