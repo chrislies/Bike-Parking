@@ -87,7 +87,7 @@ const MapComponent: FC = () => {
         setLoading(false);
       };
 
-      // fetchData();
+      fetchData();
     }
   }, []);
 
