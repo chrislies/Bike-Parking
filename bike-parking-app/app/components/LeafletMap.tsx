@@ -57,14 +57,24 @@
     const maxZoom = 20;
 
     useEffect(() => {
+      const fetchUserCoords = async () => {
+        try {
+          const userCoords = await getUserCoordinates();
+          console.log("User coordinates:", userCoords);
+          setUserCoordinates(userCoords);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      fetchUserCoords();
+    }, []);
+
+    useEffect(() => {
       if (typeof window !== "undefined") {
         const fetchData = async () => {
           setLoading(true);
           try {
-            const userCoords = await getUserCoordinates();
-            console.log("User coordinates:", userCoords);
-            setUserCoordinates(userCoords);
-
             const data = await getCoordinates();
             console.log(data);
             // setMarkerData(data);
