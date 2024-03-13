@@ -1,18 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap");
 
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap");
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
+    font-family: "Bai Jamjuree", sans-serif;
 }
 
-
-header{
+header {
     position: fixed;
     top: 0;
     left: 0;
-    width:100%;
+    width: 100%;
     padding: 20px 100px;
     display: flex;
     justify-content: space-between;
@@ -20,86 +19,159 @@ header{
     z-index: 99;
 }
 
-.logo{
-    font-size:2em;
-    color: #fff;
-    user-select: none;
+.logo {
+    font-size: 2em;  /* Logo font size */
+    color: #fff;  /* Logo color */
+    user-select: none;  /* Disable text selection */
+    position: relative;  /* Positioning context */
+    left: 1em;  /* Move logo 1em to the right from its normal position */
 }
 
-body{
+.navigation a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 100%;
+    height: 3px;
+    background: #fff;
+    border-radius: 5px;
+    transform: scaleX(0);
+    transition: transform .5s;  /* Smooth transition for the underline */
+}
+.navigation a:hover::after {
+    transform: scaleX(1);
+}
+
+.navigation .btnLogin-popup {
+    width: 130px;
+    height: 50px;
+    background: transparent;
+    border: 2px solid #fff;
+    outline: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    color: #fff;
+    font-weight: 500;
+    margin-left: 40px;
+    transition: .5s;
+}
+
+.navigation .btnLogin-popup:hover {
+    background: #fff;
+    color: #162938;
+}
+
+body {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url('Design_a_cool_and_engaging_background_for_a_websit.jpg') no-repeat;
     background-size: cover;
     background-position: center;
-
+    overflow: hidden;
+    background-image: url('Design_a_cool_and_engaging_background_for_a_websit.jpg');
+    animation: changeBackground  20s infinite alternate;
+    animation-delay: 5s;
 }
 
-.wrapper{
-width: 440px;
-background:transparent;
-border: 2px solid rgba(255,255,255,.2);
-color: #fff;
-border-radius: 10px;
-padding:30px 40px;
-backdrop-filter:blur(20px);
+.wrapper {
+    width: 440px;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, .2);
+    color: #fff;
+    border-radius: 10px;
+    padding: 30px 40px;
+    backdrop-filter: blur(20px);
 }
 
-.wrapper h1{
-    font-size:36px;
+.wrapper h1 {
+    font-size: 36px;
     text-align: center;
-    }
+}
 
-.wrapper .input-box{
+.wrapper .input-box {
     width: 100%;
     height: 50px;
     margin: 30px 0;
 }
 
-.wrapper .form-box.login{
+.wrapper .form-box.login {
     display: none;
 }
 
-
-.input-box input{
+.input-box input {
     width: 100%;
     height: 100%;
     background: transparent;
     border: none;
     outline: none;
-    border: 2px solid rgba(255,255,255,.2);
-    border-radius:40px;
-    font-size:16px;
+    border: 2px solid rgba(255, 255, 255, .2);
+    border-radius: 40px;
+    font-size: 16px;
     color: #fff;
-    padding:20px 45px 20px 20px;
+    padding: 20px 45px 20px 20px;
 }
 
 .input-box input::placeholder {
     color: #fff;
 }
 
-.input-box i{
+.input-box i {
     position: absolute;
-    right:60px;
+    right: 60px;
     font-size: 1.2em;
-    line-height:55px;
+    line-height: 55px;
 }
 
-.wrapper .remember-forgot{
+.wrapper .remember-forgot {
     display: flex;
     justify-content: space-between;
     font-size: 14.5px;
     margin: -15px 0 15px;
 }
 
-.remember-forgot label input{
+.wrapper .icon-close{
+    position: absolute;
+    top:0;
+    right: 0;
+    width: 45px;
+    height: 45px;
+    font-size: 2em;
+    color: white;
+    display:flex;
+    justify-content : center;
+    align-items: center;
+    overflow:hidden;
+    border-bottom-left-radius: 20px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.wrapper .icon-return{
+    position: absolute;
+    top:0;
+    right: 0;
+    width: 45px;
+    height: 45px;
+    font-size: 2em;
+    color: white;
+    display:flex;
+    justify-content : center;
+    align-items: center;
+    overflow:hidden;
+    border-bottom-left-radius: 20px;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.remember-forgot label input {
     accent-color: #fff;
     margin-right: 3px;
 }
 
-.remember-forgot a{
+.remember-forgot a {
     color: #fff;
     text-decoration: none;
 }
@@ -108,32 +180,73 @@ backdrop-filter:blur(20px);
     text-decoration: underline;
 }
 
-.wrapper .btn{
+.wrapper .btn {
     width: 100%;
     height: 45px;
     background: #fff;
-    border:none;
+    border: none;
     outline: none;
     border-radius: 40px;
-    box-shadow: 0 0 10px rgba(0,0,0,.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
     cursor: pointer;
     font-size: 16px;
     color: #333;
     font-weight: 600;
 }
 
-.wrapper .register-link{
+.wrapper .register-link {
     font-size: 15px;
     text-align: center;
     margin-top: 20px;
 }
 
-.register-link p a{
-    color:#fff;
+/*
+text-decoration: none;: Removes the default underline decoration from the hyperlink text.
+font-weight: 600;: Sets the font weight of the hyperlink text to 600, making it bold.
+*/
+.register-link p a {
+    color: #fff;
     text-decoration: none;
     font-weight: 600;
 }
-
-.register-link p a:hover{
+/* This CSS rule underlines the text of a hyperlink inside a paragraph when the mouse hovers over it,  */
+.register-link p a:hover {
     text-decoration: underline;
+}
+    /* alters the background image of the body element at different points in time. */
+
+@keyframes changeBackground {
+    0%{
+        background-image: url('Design_a_cool_and_engaging_background_for_a_websit.jpg');
+    }
+    10% {
+        background-image: url('hentai.jpg');
+    }
+    20%{
+        background-image: url('hentai2.jpg');
+    }
+    30% {
+        background-image: url('hentai9.jpg');
+    }
+    40%{
+        background-image: url('hentai8.jpg');
+    }
+    50% {
+        background-image: url('hentai5.jpg');
+    }
+    60% {
+        background-image: url('nothentai.jpg');
+    }
+    70% {
+        background-image: url('nothentai2.jpg');
+    }
+    80% {
+        background-image: url('nothentai3.jpg');
+    }
+    90% {
+        background-image: url('nothentai4.jpg');
+    }
+    100% {
+        background-image: url('nothentai5.jpg');
+    }
 }
