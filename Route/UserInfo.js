@@ -8,7 +8,7 @@ router.get("/", async (req, res) => {
     const info = await UserInfo.findAll();
 
     // Extract x_coordinate and y_coordinate from each location
-    const user_email = user_email.map((info) => {
+    const user_email = info.map((info) => {
       return {
        user_email: info.user_email,
       };

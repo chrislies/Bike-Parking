@@ -3,7 +3,7 @@ const db = require("../Connect");
 
 const UserInfo = db.define('userinfo', {
 
-    User_email: {
+    user_email: {
         type: DataTypes.STRING,
         allowNull: false,
     },
@@ -11,7 +11,8 @@ const UserInfo = db.define('userinfo', {
 },
 
     {
-        timestamps: false
+        timestamps: false,
+        tableName: 'userinfo'
     }
 );
 

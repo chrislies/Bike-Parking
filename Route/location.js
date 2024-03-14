@@ -16,8 +16,8 @@ router.get("/", async (req, res) => {
 
     // Filter locations based on the condition
     const filteredLocations = locations.filter(location => {
-      const withinXRange = Math.abs(location.x_coordinate - X) <= .05;
-      const withinYRange = Math.abs(location.y_coordinate - Y) <= .05;
+      const withinXRange = Math.abs(location.x_coordinate - X) <= .005;
+      const withinYRange = Math.abs(location.y_coordinate - Y) <= .005;
       return withinXRange && withinYRange;
     });
 
