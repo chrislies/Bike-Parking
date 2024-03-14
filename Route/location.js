@@ -4,17 +4,28 @@ const Location = require("../Database/Model/location");
 
 router.get("/", async (req, res) => {
   try {
-    // Fetch all locations from the database
-    const locations = await Location.findAll();
+    
+   const locations = await Location.findAll();
+    const X = parseFloat(req.query.X);
+    const Y = parseFloat(req.query.Y);
 
-    // Extract x_coordinate and y_coordinate from each location
-    const coordinates = locations.map((location) => {
-      return {
-        x_coordinate: location.x_coordinate,
-        y_coordinate: location.y_coordinate,
-       
-      };
+    if (isNaN(X) || isNaN(Y)) {
+      return res.status(400).json({ error: "Invalid coordinates provided" });
+    }
+
+
+    // Filter locations based on the condition
+    const filteredLocations = locations.filter(location => {
+      const withinXRange = Math.abs(location.x_coordinate - X) <= .05;
+      const withinYRange = Math.abs(location.y_coordinate - Y) <= .05;
+      return withinXRange && withinYRange;
     });
+
+    // Extract x_coordinate and y_coordinate from each filtered location
+    const coordinates = filteredLocations.map(location => ({
+      x_coordinate: location.x_coordinate,
+      y_coordinate: location.y_coordinate
+    }));
 
     // Send the coordinates as a JSON response
     return res.json(coordinates);
@@ -23,6 +34,7 @@ router.get("/", async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 router.post("/",async(req,res)=>{
   let newlocation=await Location.create(req.body);
