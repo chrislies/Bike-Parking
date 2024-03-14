@@ -16,11 +16,12 @@ async function fetchAPI() {
     const apiData = response.data;
 
     const coordinates = apiData.map(location => ({
-      x_coordinate: parseFloat(location.x),  // Convert to number
-      y_coordinate: parseFloat(location.y),  // Convert to number
+      x_coordinate: parseFloat(location.x),  
+      y_coordinate: parseFloat(location.y),  
     }));
 
     const existingRecords = await Location.findAll();
+    
     // Filter out duplicate coordinates
     const uniqueCoordinates = coordinates.filter(coord => {
       const isDuplicate = existingRecords.some(record =>
@@ -46,7 +47,7 @@ const PORT = 3001;
 app.use(express.json());
 app.use(cors());
 
-app.use("/", require("./Route/location"));
+app.use("/Parking_data", require("./Route/location"));
 app.use("/info", require("./Route/UserInfo"));
 
 db.authenticate()
