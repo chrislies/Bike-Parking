@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const db = require("../Connect");
 
-const UserInfo = db.define('userinfo', {
+const UserInfo = db.define('User', {
 
     user_email: {
         type: DataTypes.STRING,
@@ -12,7 +12,7 @@ const UserInfo = db.define('userinfo', {
 
     {
         timestamps: false,
-        tableName: 'userinfo'
+        tableName: '"User"'
     }
 );
 
