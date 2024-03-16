@@ -173,10 +173,20 @@ const MapComponent: FC = () => {
     // console.log(mapLayer);
   };
 
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js';
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   // Return the JSX for rendering
   return (
     <>
-      <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
       {loading && <Loader />}
       <div>
         <button
