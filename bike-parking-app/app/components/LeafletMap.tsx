@@ -100,12 +100,7 @@ function UserLocationMarker() {
     <Marker position={position}>
       {/* <Marker position={position} icon={userMarkerIcon}> */}
       <Popup>
-        You are here. <br />
-        Map bbox: <br />
-        <b>Southwest lng</b>: {bbox[0]} <br />
-        <b>Southwest lat</b>: {bbox[1]} <br />
-        <b>Northeast lng</b>: {bbox[2]} <br />
-        <b>Northeast lat</b>: {bbox[3]}
+        You are in this area.
       </Popup>
     </Marker>
   );
@@ -199,17 +194,21 @@ const MapComponent: FC = () => {
         attributionControl={false}
         center={[40.71151957593488, -73.88017135962203]}
         zoom={11}
-        maxZoom={maxZoom}
+        // maxZoom={maxZoom}
         style={{ height: "100vh", width: "100vw" }}
       >
         {mapLayer === "street" ? (
           <TileLayer
-            maxZoom={maxZoom}
+            // maxZoom={maxZoom}
+            maxZoom={24}
+            maxNativeZoom={19}
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
         ) : (
           <TileLayer
-            maxZoom={maxZoom}
+            // maxZoom={maxZoom}
+            maxZoom={24}
+            maxNativeZoom={18}
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           />
         )}
