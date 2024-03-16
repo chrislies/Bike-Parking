@@ -8,11 +8,12 @@ import {
   useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-// import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
-// import "leaflet-defaulticon-compatibility";
+import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
+import "leaflet-defaulticon-compatibility";
 import getCoordinates from "../lib/getCoordinates";
 import getUserCoordinates from "../lib/getUserCoordinates";
 import { Layers } from "./svgs";
+import L from "leaflet";
 
 interface MarkerData {
   coordinates: [number, number];
@@ -50,6 +51,61 @@ const Loader = () => {
   );
 };
 
+// function LocationMarker() {
+//   const [position, setPosition] = useState<[number, number] | null>(null);
+//   const map = useMapEvents({
+//     click() {
+//       map.locate();
+//     },
+//     locationfound(e) {
+//       const { lat, lng } = e.latlng;
+//       setPosition([lat, lng]);
+//       map.flyTo(e.latlng, 18, { animate: true, duration: 1.5 });
+//     },
+//     locationerror: (err) => {
+//       console.error(err);
+//     },
+//   });
+//   return position === null ? null : (
+//     <Marker position={position}>
+//       <Popup>You are here</Popup>
+//     </Marker>
+//   );
+// }
+
+const currentLocationIcon = new L.Icon({
+  // iconUrl: require(""),
+  // https://www.svgrepo.com/svg/333873/current-location
+});
+
+function UserLocationMarker() {
+  const [position, setPosition] = useState<[number, number] | null>(null);
+  const [bbox, setBbox] = useState<string[]>([]);
+
+  const map = useMap();
+
+  useEffect(() => {
+    map.locate().on("locationfound", function (e) {
+      const { lat, lng } = e.latlng;
+      setPosition([lat, lng]);
+      map.flyTo(e.latlng, 18, { animate: true, duration: 1.5 });
+      const radius = e.accuracy;
+      const circle = L.circle(e.latlng, radius);
+      circle.addTo(map);
+      setBbox(e.bounds.toBBoxString().split(","));
+    });
+  }, [map]);
+
+  return position === null ? null : (
+    <Marker position={position}>
+      {/* <Marker position={position} icon={userMarkerIcon}> */}
+      <Popup>
+        You are in this area.
+      </Popup>
+    </Marker>
+  );
+}
+
 const MapComponent: FC = () => {
   const [userCoordinates, setUserCoordinates] =
     useState<UserCoordinatesItem | null>(null);
@@ -63,7 +119,7 @@ const MapComponent: FC = () => {
     const fetchUserCoords = async () => {
       try {
         const userCoords = await getUserCoordinates();
-        console.log("User coordinates:", userCoords);
+        // console.log("User coordinates:", userCoords);
         setUserCoordinates(userCoords);
       } catch (error) {
         console.error(error);
@@ -87,28 +143,34 @@ const MapComponent: FC = () => {
         setLoading(false);
       };
 
-      fetchData();
+      // fetchData();
     }
   }, []);
 
   const ZoomHandler: FC = () => {
     const map = useMap();
 
-    useEffect(() => {
-      if (userCoordinates) {
-        map.flyTo([userCoordinates.latitude, userCoordinates.longitude], 18, {
+    const flyToMarker = (coordinates: [number, number], zoom: number) => {
+      if (coordinates && typeof coordinates[0] !== "undefined") {
+        map.flyTo(coordinates, zoom, {
           animate: true,
           duration: 1.5,
         });
       }
-    }, [map, userCoordinates]);
+    };
+
+    // useEffect(() => {
+    //   if (userCoordinates) {
+    //     flyToMarker([userCoordinates.latitude, userCoordinates.longitude], 18);
+    //   }
+    // }, [userCoordinates]);
 
     return null;
   };
 
   const toggleLayer = () => {
     setMapLayer(mapLayer === "street" ? "satellite" : "street");
-    console.log(mapLayer);
+    // console.log(mapLayer);
   };
 
   // Return the JSX for rendering
@@ -132,24 +194,23 @@ const MapComponent: FC = () => {
         attributionControl={false}
         center={[40.71151957593488, -73.88017135962203]}
         zoom={11}
-        maxZoom={maxZoom}
+        // maxZoom={maxZoom}
         style={{ height: "100vh", width: "100vw" }}
       >
         {mapLayer === "street" ? (
           <TileLayer
-            maxZoom={maxZoom}
+            // maxZoom={maxZoom}
+            maxZoom={24}
+            maxNativeZoom={19}
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
         ) : (
           <TileLayer
-            maxZoom={maxZoom}
+            // maxZoom={maxZoom}
+            maxZoom={24}
+            maxNativeZoom={18}
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           />
-          // <TileLayer
-          //   maxZoom={maxZoom}
-          //   url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-          //   subdomains={["mt1", "mt2", "mt3"]}
-          // />
         )}
         {/* <TileLayer
           maxZoom={maxZoom}
@@ -162,6 +223,7 @@ const MapComponent: FC = () => {
             <Popup>{markerData.title}</Popup>
           </Marker>
         )}
+        <UserLocationMarker />
         <ZoomHandler />
       </MapContainer>
     </>
