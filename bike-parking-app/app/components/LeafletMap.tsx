@@ -176,6 +176,7 @@ const MapComponent: FC = () => {
   // Return the JSX for rendering
   return (
     <>
+      <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
       {loading && <Loader />}
       <div>
         <button
