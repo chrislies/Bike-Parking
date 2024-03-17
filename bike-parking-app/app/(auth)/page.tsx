@@ -1,10 +1,10 @@
-import Link from "next/link";
-import AuthModal from "@/components/AuthModal";
+import AuthLayout from "./layout";
+import LoginModal from "@/components/auth/LoginModal";
 
 export default function AuthPage() {
   return (
-    <div>
-      <AuthModal />
-    </div>
+    <AuthLayout>
+      <LoginModal />
+    </AuthLayout>
   );
 }
