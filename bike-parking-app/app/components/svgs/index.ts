@@ -1,1 +1,0 @@
-export { default as Layers } from "./Layers.svg";

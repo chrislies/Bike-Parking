@@ -1,10 +1,10 @@
 "use client";
-import AccessScreen from "./accessScreen/page";
+import AccessPage from "./(auth)/page";
 
 export default function Home() {
   return (
     <>
-      <AccessScreen />
+      <AccessPage />
     </>
   );
 }
