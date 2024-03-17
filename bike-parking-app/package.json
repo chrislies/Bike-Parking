@@ -16,6 +16,7 @@
     "ol-ext": "^4.0.14",
     "react": "^18",
     "react-dom": "^18",
+    "react-icons": "^5.0.1",
     "react-leaflet": "^4.2.1",
     "swr": "^2.2.5"
   },
