@@ -16,7 +16,8 @@ const Admin = db.define('admin', {
 },
 
     {
-        timestamps: false
+        timestamps: false,
+        tableName: '"admin"'
     }
 );
 

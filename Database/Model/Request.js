@@ -11,6 +11,7 @@ const Request = db.define(
   },
   {
     timestamps: false, // Set timestamps to false to disable createdAt and updatedAt columns
+    tableName: 'request'
 
   }
 );

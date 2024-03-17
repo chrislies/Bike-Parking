@@ -24,4 +24,32 @@ router.get("/", async (req, res) => {
   }
 });
 
+
+router.post("/",async(req,res)=>{
+  let newlocation=await Pending.create(req.body);
+  res.status(200).json(newlocation);
+
+});
+
+router.delete("/:id", async (req, res) => {
+  await Pending.destroy({
+    where: {
+      id: req.params.id,
+    },
+  });
+  res.status(200).json("Pending Location deleted");
+});
+
+
+router.delete("/", async (req, res) => {
+  await Pending.destroy({
+    where: {
+      x_coordinate: req.parms.x_coordinate,
+      y_coordinate: req.params.y_coordinate,
+      request_type: req.params.request_type,
+    },
+  });
+  res.status(200).json("Pending Location deleted");
+});
+
 module.exports = router;

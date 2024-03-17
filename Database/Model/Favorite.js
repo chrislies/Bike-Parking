@@ -1,30 +1,32 @@
 const { DataTypes } = require("sequelize");
 const db = require("../Connect");
+const location = require("./location");
+const UserInfo = require("./UserInfo");
 
 const Favorite = db.define(
   "Favorites", 
   {
-    Location: {
-        type:DataTypes.INTEGER,
-        allowNull: false,
-        references:{
-            model:location,
-            key:'id',
-        }
-    },
-
-    User: {
+    location_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references:{
-            model:UserInfo,
+            model: location, 
+            key: 'id',
+        }
+    },
+
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references:{
+            model: UserInfo,
             key: 'id',
         }
     },
   },
   {
-    timestamps: false, // Set timestamps to false to disable createdAt and updatedAt columns
-
+    timestamps: false,
+    tableName: 'favorites'
   }
 );
 

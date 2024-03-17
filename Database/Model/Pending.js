@@ -12,7 +12,7 @@ const Pending = db.define(
       type: DataTypes.DOUBLE,
       allowNull: false,
     },
-    reuqest_type: {
+    request_type: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -23,6 +23,7 @@ const Pending = db.define(
   },
   {
     timestamps: false, // Set timestamps to false to disable createdAt and updatedAt columns
+    tableName: 'pending'
 
   }
 );

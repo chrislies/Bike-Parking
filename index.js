@@ -7,6 +7,10 @@ const { Op } = require("sequelize");
 
 const Location = require('./Database/Model/location');
 const UserInfo = require('./Database/Model/UserInfo');
+const Admin = require('./Database/Model/Admin');
+const Favorite = require('./Database/Model/Favorite');
+const Pedning = require('./Database/Model/Pending');
+const Request = require('./Database/Model/Request');
 
 const LIMIT = 40000;
 
@@ -49,6 +53,10 @@ app.use(cors());
 
 app.use("/Parking_data", require("./Route/location"));
 app.use("/info", require("./Route/UserInfo"));
+app.use("/admin", require("./Route/Admin"));
+app.use("/pending", require("./Route/Pending"));
+app.use("/favorite", require("./Route/Favorite"));
+app.use("/request", require("./Route/Request"));
 
 db.authenticate()
   .then(() => {
