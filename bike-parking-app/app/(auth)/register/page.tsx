@@ -1,8 +1,8 @@
-import React from 'react'
+import RegisterModal from '@/components/auth/RegisterModal'
 
 function RegisterPage() {
   return (
-    <div>RegisterPage</div>
+    <RegisterModal />
   )
 }
 
