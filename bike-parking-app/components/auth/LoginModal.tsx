@@ -5,12 +5,12 @@ const LoginModal = () => {
   return ( 
     <div className="w-full max-w-sm">
     <form className="bg-white shadow-md rounded px-8 py-6">
-      <h1 className='text-center text-2xl pb-4 font-bold'>Log In</h1>
+      <h1 className='text-center text-2xl pb-3 font-bold'>Log In</h1>
       <div className="mb-4">
-        <label htmlFor="username" className='block text-gray-700 text-sm font-bold mb-1'>
-          Username
+        <label htmlFor="email" className='block text-gray-700 text-sm font-bold mb-1'>
+          Email
         </label>
-        <input className="shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline" type="text" id="username" placeholder='Username' />
+        <input className="shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline" type="text" id="email" placeholder='Email' />
         <p className="hidden text-red-500 text-xs italic">Please choose a password.</p>
       </div>
       <div className="mb-5 relative">
