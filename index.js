@@ -54,7 +54,9 @@ const PORT = 3001;
 
 app.use(express.json());
 app.use(cors());
-
+res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');  // Include any other methods you need
+res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Include any other headers you need
 
 app.use("/Parking_data", require("./Route/location"));
 app.use("/info", require("./Route/UserInfo"));
