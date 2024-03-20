@@ -119,7 +119,7 @@ const MapComponent: FC = () => {
     const fetchUserCoords = async () => {
       try {
         const userCoords = await getUserCoordinates();
-        // console.log("User coordinates:", userCoords);
+        console.log("User coordinates:", userCoords);
         setUserCoordinates(userCoords);
       } catch (error) {
         console.error(error);
