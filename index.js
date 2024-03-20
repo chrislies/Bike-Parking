@@ -53,7 +53,7 @@ fetchAPI();
 const PORT = 3001;
 
 app.use(express.json());
-app.use(cors());
+app.use(cors('*'));
 
 app.use("/Parking_data", require("./Route/location"));
 app.use("/info", require("./Route/UserInfo"));
