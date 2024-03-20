@@ -53,15 +53,14 @@ fetchAPI();
 const PORT = 3001;
 
 app.use(express.json());
-app.use(
-  cors({
-    allowedHeaders: ["authorization", "Content-Type"], 
-    exposedHeaders: ["authorization"], 
-    origin: "*",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    preflightContinue: false
-  });
-);
+app.use(function(req,res,next){
+  res.header("Access-Control-Allow-Origin","*");
+  res.header("Access-Control-Allow-Methods","GET,POST,DELETE,PUT");
+  res.header("Access-Control-Allowo-Headers","Origin,X-Requested-With, Content-Type,Accepct,Authorization"
+  );
+  next();
+})
+
 
 app.use("/Parking_data", require("./Route/location"));
 app.use("/info", require("./Route/UserInfo"));
