@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Location = require("../Database/Model/location");
+const cors = require("cors"); // Import the CORS middleware
+
+// Enable CORS for all routes in this router
+router.use(cors());
 
 router.get("/", async (req, res) => {
   try {
