@@ -54,7 +54,7 @@ const PORT = 3001;
 
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000",  // Or specific origins you want to allow
+    origin: "http://127.0.0.1:5500/testin.html",  // Or specific origins you want to allow
     methods: "GET, POST, OPTIONS",
     headers: "Content-Type, Authorization"
 }));
