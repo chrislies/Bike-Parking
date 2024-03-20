@@ -60,6 +60,12 @@ res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Ty
 
   next();
 })
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  })
+);
 
 
 app.use("/Parking_data", require("./Route/location"));
