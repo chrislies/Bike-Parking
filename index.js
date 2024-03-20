@@ -12,6 +12,14 @@ const Favorite = require('./Database/Model/Favorite');
 const Pedning = require('./Database/Model/Pending');
 const Request = require('./Database/Model/Request');
 
+app.use(
+  cors({
+    origin: "http://127.0.0.1:5500",
+    credentials: true,
+  })
+);
+
+
 const LIMIT = 40000;
 
 async function fetchAPI() {
@@ -52,20 +60,15 @@ fetchAPI();
 
 const PORT = 3001;
 
-app.use(express.json());
-app.use(function(req,res,next){
-  res.header('Access-Control-Allow-Origin',"http://127.0.0.1:5500");
-  res.header("Access-Control-Allow-Methods","GET,POST,DELETE,PUT");
-res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+// app.use(express.json());
+// app.use(function(req,res,next){
+//   res.header('Access-Control-Allow-Origin',"http://127.0.0.1:5500");
+//   res.header("Access-Control-Allow-Methods","GET,POST,DELETE,PUT");
+// res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
-  next();
-})
-app.use(
-  cors({
-    origin: "http://127.0.0.1:5500",
-    credentials: true,
-  })
-);
+//   next();
+// })
+
 
 
 app.use("/Parking_data", require("./Route/location"));
