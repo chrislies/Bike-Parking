@@ -53,10 +53,11 @@ fetchAPI();
 const PORT = 3001;
 
 app.use(express.json());
-app.use(cors());
-res.header('Access-Control-Allow-Origin', '*')
-res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');  // Include any other methods you need
-res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Include any other headers you need
+app.use(cors({
+    origin: "http://localhost:3000",  // Or specific origins you want to allow
+    methods: "GET, POST, OPTIONS",
+    headers: "Content-Type, Authorization"
+}));
 
 app.use("/Parking_data", require("./Route/location"));
 app.use("/info", require("./Route/UserInfo"));
