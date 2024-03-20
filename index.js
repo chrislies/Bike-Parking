@@ -54,9 +54,7 @@ const PORT = 3001;
 
 app.use(express.json());
 app.use(cors({
-    origin: "http://127.0.0.1:5500/testin.html",  // Or specific origins you want to allow
-    methods: "GET, POST, OPTIONS",
-    headers: "Content-Type, Authorization"
+    origin: "*"
 }));
 
 app.use("/Parking_data", require("./Route/location"));
