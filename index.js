@@ -54,7 +54,7 @@ const PORT = 3001;
 
 app.use(express.json());
 app.use(cors());
-res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+res.header('Access-Control-Allow-Origin', '*')
 res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');  // Include any other methods you need
 res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Include any other headers you need
 
