@@ -19,24 +19,25 @@ async function fetchAPI() {
     const response = await axios.get(`https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=${LIMIT}`);
     const apiData = response.data;
 
-    const coordinates = apiData.map(location => ({
-      x_coordinate: parseFloat(location.x),  
-      y_coordinate: parseFloat(location.y),  
+  
+    const locationsData = apiData.map(location => ({
+      x_coordinate: parseFloat(location.x),
+      y_coordinate: parseFloat(location.y),
+      site_id: location.site_id,  
+      ifoaddress: location.ifoaddress,  
     }));
 
     const existingRecords = await Location.findAll();
     
-    // Filter out duplicate coordinates
-    const uniqueCoordinates = coordinates.filter(coord => {
-      const isDuplicate = existingRecords.some(record =>
-        record.x_coordinate === coord.x_coordinate &&
-        record.y_coordinate === coord.y_coordinate
-      );
-      return !isDuplicate;
+    // Filter out duplicates based on site_id
+    const uniqueLocations = locationsData.filter(newLocation => {
+      return !existingRecords.some(existing => existing.site_id === newLocation.site_id);
     });
 
-    // Bulk insert unique coordinates
-    await Location.bulkCreate(uniqueCoordinates);
+    // Bulk insert unique locations
+    await Location.bulkCreate(uniqueLocations);
+
+    
 
     console.log('Data populated successfully.');
   } catch (error) {
@@ -44,7 +45,10 @@ async function fetchAPI() {
   }
 }
 
+
 fetchAPI();
+
+
 
 const PORT = 3001;
 

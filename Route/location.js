@@ -24,7 +24,9 @@ router.get("/", async (req, res) => {
     // Extract x_coordinate and y_coordinate from each filtered location
     const coordinates = filteredLocations.map(location => ({
       x_coordinate: location.x_coordinate,
-      y_coordinate: location.y_coordinate
+      y_coordinate: location.y_coordinate,
+      site_id: location.site_id,  
+      ifoaddress: location.ifoaddress,
     }));
 
     // Send the coordinates as a JSON response

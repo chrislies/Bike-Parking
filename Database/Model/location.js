@@ -12,9 +12,17 @@ const Location = db.define(
       type: DataTypes.DOUBLE,
       allowNull: false,
     },
+    site_id:{
+      type: DataTypes.STRING,
+      allowNull :false,
+    },
+    ifoaddress:{
+      type: DataTypes.STRING,
+      allowNull :false,
+    }
   },
   {
-    timestamps: false, // Set timestamps to false to disable createdAt and updatedAt columns
+    timestamps: false, // Set timestamps to false to disable createdAt and updsatedAt columns
 
   }
 );
