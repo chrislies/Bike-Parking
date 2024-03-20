@@ -55,6 +55,7 @@ const PORT = 3001;
 app.use(express.json());
 app.use(cors());
 
+app.use(cors({ origin: "http://localhost:3000" }));
 app.use("/Parking_data", require("./Route/location"));
 app.use("/info", require("./Route/UserInfo"));
 app.use("/admin", require("./Route/Admin"));
