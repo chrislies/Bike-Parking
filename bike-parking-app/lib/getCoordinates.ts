@@ -3,44 +3,23 @@ interface DataItem {
   latitude: string;
 }
 
-// Utilize parallel data fetching
 async function getCoordinates(): Promise<DataItem[]> {
   try {
-    let allData: DataItem[] = [];
-    let offset = 0;
-    let hasMoreData = true;
-
-    while (hasMoreData) {
-      const [bikeRacksResponse, streetSignsResponse] = await Promise.all([
-        fetch(
-          `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
-        ),
-        fetch(
-          `https://data.cityofnewyork.us/resource/nfid-uabd.json?$limit=50000&$offset=${offset}`
-        ),
-      ]);
-
-      const [bikeRacksData, streetSignsData] = await Promise.all([
-        bikeRacksResponse.json(),
-        streetSignsResponse.json(),
-      ]);
-
-      const combinedData: DataItem[] = [
-        ...bikeRacksData.map((item: DataItem) => ({ ...item })),
-        ...streetSignsData.map((item: DataItem) => ({ ...item })),
-      ];
-
-      if (combinedData.length === 0) {
-        hasMoreData = false;
-      } else {
-        allData = [...allData, ...combinedData];
-        offset += 50000;
-      }
+    const response = await fetch(` http://bike-parking.onrender.com/Parking_data/?X=-73.941009&Y=40.618406`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
+    const data = await response.json();
+    
+    // Assuming the response data is an array of objects with 'longitude' and 'latitude' properties
+    const coordinates: DataItem[] = data.map((item: any) => ({
+      longitude: item.longitude,
+      latitude: item.latitude,
+    }));
 
-    return allData;
+    return coordinates;
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching data:', error);
     throw new Error("Failed to fetch data");
   }
 }
