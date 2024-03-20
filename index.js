@@ -53,9 +53,15 @@ fetchAPI();
 const PORT = 3001;
 
 app.use(express.json());
-app.use(cors({
-    origin: "*"
-}));
+app.use(
+  cors({
+    allowedHeaders: ["authorization", "Content-Type"], 
+    exposedHeaders: ["authorization"], 
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false
+  });
+);
 
 app.use("/Parking_data", require("./Route/location"));
 app.use("/info", require("./Route/UserInfo"));
