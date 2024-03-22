@@ -6,6 +6,7 @@ import {
   Popup,
   useMapEvents,
   useMap,
+  Circle,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
@@ -78,33 +79,98 @@ const currentLocationIcon = new L.Icon({
   // https://www.svgrepo.com/svg/333873/current-location
 });
 
+type GeolocationPosition = {
+  lat: number;
+  lng: number;
+};
+type LocationStatus = "accessed" | "denied" | "unknown" | "error";
+
 function UserLocationMarker() {
-  const [position, setPosition] = useState<[number, number] | null>(null);
-  const [bbox, setBbox] = useState<string[]>([]);
+  const [locationStatus, setLocationStatus] =
+    useState<LocationStatus>("unknown");
+  const [position, setPosition] = useState<GeolocationPosition | null>(null);
+  const [accuracy, setAccuracy] = useState<number | null>(null);
 
   const map = useMap();
 
   useEffect(() => {
-    map.locate().on("locationfound", function (e) {
-      const { lat, lng } = e.latlng;
-      setPosition([lat, lng]);
-      map.flyTo(e.latlng, 18, { animate: true, duration: 1.5 });
-      const radius = e.accuracy;
-      const circle = L.circle(e.latlng, radius);
-      circle.addTo(map);
-      setBbox(e.bounds.toBBoxString().split(","));
-    });
-  }, [map]);
+    let watchId: number | null = null;
+    // check for geolocation support in browser
+    if ("geolocation" in navigator) {
+      watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude, accuracy } = position.coords;
+          setPosition({ lat: latitude, lng: longitude });
+          setAccuracy(accuracy);
 
+          map.flyTo([position.coords.latitude, position.coords.longitude], 19, {
+            animate: true,
+            duration: 1.5,
+          });
+          setLocationStatus("accessed");
+        },
+        (error) => {
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              setLocationStatus("denied");
+              break;
+            case error.POSITION_UNAVAILABLE:
+              setLocationStatus("unknown");
+              break;
+            case error.TIMEOUT:
+              setLocationStatus("error");
+              break;
+            default:
+              setLocationStatus("error");
+              break;
+          }
+        }
+      );
+      return () => {
+        if (watchId) {
+          navigator.geolocation.clearWatch(watchId);
+        }
+      };
+    }
+  }, [map]);
   return position === null ? null : (
-    <Marker position={position}>
-      {/* <Marker position={position} icon={userMarkerIcon}> */}
-      <Popup>
-        You are in this area.
-      </Popup>
-    </Marker>
+    <>
+      <Marker position={position}>
+        <Popup>You are in this area.</Popup>
+      </Marker>
+      {accuracy !== null && (
+        <Circle
+          center={[position.lat, position.lng]}
+          radius={accuracy}
+          // pathOptions={{ color: "blue", fillColor: "blue" }}
+        />
+      )}
+    </>
   );
 }
+// function UserLocationMarker() {
+//   const [position, setPosition] = useState<[number, number] | null>(null);
+
+//   const map = useMap();
+
+//   useEffect(() => {
+//     map.locate().on("locationfound", function (e) {
+//       const { lat, lng } = e.latlng;
+//       setPosition([lat, lng]);
+//       map.flyTo(e.latlng, 18, { animate: true, duration: 1.5 });
+//       const radius = e.accuracy;
+//       const circle = L.circle(e.latlng, radius);
+//       circle.addTo(map);
+//     });
+//   }, [map]);
+
+//   return position === null ? null : (
+//     <Marker position={position}>
+//       {/* <Marker position={position} icon={userMarkerIcon}> */}
+//       <Popup>You are in this area.</Popup>
+//     </Marker>
+//   );
+// }
 
 const MapComponent: FC = () => {
   const [userCoordinates, setUserCoordinates] =
@@ -119,7 +185,7 @@ const MapComponent: FC = () => {
     const fetchUserCoords = async () => {
       try {
         const userCoords = await getUserCoordinates();
-        // console.log("User coordinates:", userCoords);
+        console.log("User coordinates:", userCoords);
         setUserCoordinates(userCoords);
       } catch (error) {
         console.error(error);
@@ -161,7 +227,7 @@ const MapComponent: FC = () => {
 
     // useEffect(() => {
     //   if (userCoordinates) {
-    //     flyToMarker([userCoordinates.latitude, userCoordinates.longitude], 18);
+    //     flyToMarker([userCoordinates.latitude, userCoordinates.longitude], 19);
     //   }
     // }, [userCoordinates]);
 
@@ -174,8 +240,9 @@ const MapComponent: FC = () => {
   };
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js';
+    const script = document.createElement("script");
+    script.src =
+      "https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js";
     script.async = true;
     document.body.appendChild(script);
 

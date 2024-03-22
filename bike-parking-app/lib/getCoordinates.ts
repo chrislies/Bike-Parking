@@ -2,7 +2,7 @@ interface DataItem {
   longitude: string;
   latitude: string;
 }
-
+//
 // Utilize parallel data fetching
 async function getCoordinates(): Promise<DataItem[]> {
   try {
