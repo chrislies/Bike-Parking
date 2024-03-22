@@ -132,7 +132,7 @@ function UserLocationMarker() {
         }
       };
     }
-  }, []);
+  }, [map]);
   return position === null ? null : (
     <>
       <Marker position={position}>
