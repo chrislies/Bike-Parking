@@ -1,5 +1,5 @@
 import AuthLayout from "./layout";
-import LoginModal from "../../components/auth/LoginModal";
+import LoginModal from "@/components/auth/LoginModal";
 
 export default function AuthPage() {
   return (

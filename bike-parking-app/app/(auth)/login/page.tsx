@@ -1,4 +1,4 @@
-import LoginModal from "../../../components/auth/LoginModal";
+import LoginModal from "@/components/auth/LoginModal";
 
 function LoginPage() {
   return <LoginModal />;

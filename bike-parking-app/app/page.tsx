@@ -1,10 +1,10 @@
 "use client";
-import AccessPage from "./(auth)/page";
+import AuthPage from "./(auth)/page";
 
 export default function Home() {
   return (
     <>
-      <AccessPage />
+      <AuthPage />
     </>
   );
 }
