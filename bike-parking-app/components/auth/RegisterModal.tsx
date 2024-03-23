@@ -98,7 +98,7 @@ const RegisterModal = () => {
         <p className="text-center text-sm font-semibold text-gray-400">
           Already have an account?{" "}
           <Link
-            href="/auth/login"
+            href="/login"
             className="text-blue-500 hover:text-blue-800 hover:cursor-pointer"
           >
             Log in
