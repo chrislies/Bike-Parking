@@ -102,7 +102,7 @@ function UserLocationMarker() {
       const { lat, lng } = e.latlng;
       map.flyTo(e.latlng, 19, { animate: true, duration: 1.5 });
     });
-  }, []);
+  }, [map]);
 
   useEffect(() => {
     let watchId: number | null = null;
@@ -145,28 +145,26 @@ function UserLocationMarker() {
     }
   }, []);
 
-  // Fly to user marker only when user marker is in view AND if new distance > thresholdDistance
-  useMapEvents({
-    moveend: () => {
-      if (position) {
-        const markerLatLng = latLng(position.lat, position.lng);
-        const userMarkerInView = map.getBounds().contains(markerLatLng);
-        setUserMarkerInView(userMarkerInView);
-        if (userMarkerInView && prevPosition) {
-          const distance = markerLatLng.distanceTo(prevPosition);
-          // console.log("Distance:", distance);
-          const thresholdDistance = 5;
-          if (distance > thresholdDistance) {
-            map.flyTo([position.lat, position.lng], map.getZoom(), {
-              animate: true,
-              duration: 1.5,
-            });
-          }
+  useEffect(() => {
+    if (position) {
+      // console.log(`Position moved: ${position.lat} ${position.lng}`);
+      const markerLatLng = latLng(position.lat, position.lng);
+      const userMarkerInView = map.getBounds().contains(markerLatLng);
+      setUserMarkerInView(userMarkerInView);
+      if (userMarkerInView && prevPosition) {
+        const distance = markerLatLng.distanceTo(prevPosition);
+        // console.log(`Distance: ${distance}`);
+        const thresholdDistance = 5;
+        if (distance > thresholdDistance) {
+          map.flyTo([position.lat, position.lng], map.getZoom(), {
+            animate: true,
+            duration: 1,
+          });
         }
-        setPrevPosition(markerLatLng);
       }
-    },
-  });
+      setPrevPosition(markerLatLng);
+    }
+  }, [position]);
 
   return position === null ? null : (
     <>
