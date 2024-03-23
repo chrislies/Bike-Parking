@@ -80,7 +80,7 @@ const LoginModal = () => {
           </Link>
         </p>
         <Link
-          href="/Map"
+          href="/map"
           className="flex justify-center text-sm font-semibold text-gray-400 hover:cursor-pointer hover:text-gray-500"
         >
           Continue as Guest
