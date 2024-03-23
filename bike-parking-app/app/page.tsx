@@ -1,10 +1,12 @@
 "use client";
-import AccessPage from "./(auth)/page";
+import LoginModal from "@/components/auth/LoginModal";
+import AuthPage from "./auth/page";
+import AuthLayout from "./auth/layout";
 
 export default function Home() {
   return (
-    <>
-      <AccessPage />
-    </>
+    <AuthLayout>
+      <LoginModal />
+    </AuthLayout>
   );
 }
