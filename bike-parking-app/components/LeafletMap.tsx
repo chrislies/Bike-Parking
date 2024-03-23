@@ -14,7 +14,8 @@ import "leaflet-defaulticon-compatibility";
 import getCoordinates from "../lib/getCoordinates";
 import getUserCoordinates from "../lib/getUserCoordinates";
 import { Layers } from "./svgs";
-import L from "leaflet";
+import L, { LatLng } from "leaflet";
+import { latLng } from "leaflet";
 
 interface MarkerData {
   coordinates: [number, number];
@@ -90,8 +91,17 @@ function UserLocationMarker() {
     useState<LocationStatus>("unknown");
   const [position, setPosition] = useState<GeolocationPosition | null>(null);
   const [accuracy, setAccuracy] = useState<number | null>(null);
+  const [prevPosition, setPrevPosition] = useState<LatLng | null>(null);
+  const [userMarkerInView, setUserMarkerInView] = useState<boolean>(false);
 
   const map = useMap();
+
+  useEffect(() => {
+    map.locate().on("locationfound", function (e) {
+      const { lat, lng } = e.latlng;
+      map.flyTo(e.latlng, 19, { animate: true, duration: 1.5 });
+    });
+  }, []);
 
   useEffect(() => {
     let watchId: number | null = null;
@@ -103,10 +113,10 @@ function UserLocationMarker() {
           setPosition({ lat: latitude, lng: longitude });
           setAccuracy(accuracy);
 
-          map.flyTo([position.coords.latitude, position.coords.longitude], 19, {
-            animate: true,
-            duration: 1.5,
-          });
+          // map.flyTo([position.coords.latitude, position.coords.longitude], 19, {
+          //   animate: true,
+          //   duration: 1.5,
+          // });
           setLocationStatus("accessed");
         },
         (error) => {
@@ -132,7 +142,31 @@ function UserLocationMarker() {
         }
       };
     }
-  }, [map]);
+  }, []);
+
+  // Fly to user marker only when user marker is in view AND if new distance > thresholdDistance
+  useMapEvents({
+    moveend: () => {
+      if (position) {
+        const markerLatLng = latLng(position.lat, position.lng);
+        const userMarkerInView = map.getBounds().contains(markerLatLng);
+        setUserMarkerInView(userMarkerInView);
+        if (userMarkerInView && prevPosition) {
+          const distance = markerLatLng.distanceTo(prevPosition);
+          // console.log("Distance:", distance);
+          const thresholdDistance = 5;
+          if (distance > thresholdDistance) {
+            map.flyTo([position.lat, position.lng], map.getZoom(), {
+              animate: true,
+              duration: 1.5,
+            });
+          }
+        }
+        setPrevPosition(markerLatLng);
+      }
+    },
+  });
+
   return position === null ? null : (
     <>
       <Marker position={position}>
@@ -181,19 +215,19 @@ const MapComponent: FC = () => {
   const mapRef = useRef<any | null>(null); // Declare useRef to reference map
   const maxZoom = 20;
 
-  useEffect(() => {
-    const fetchUserCoords = async () => {
-      try {
-        const userCoords = await getUserCoordinates();
-        console.log("User coordinates:", userCoords);
-        setUserCoordinates(userCoords);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchUserCoords = async () => {
+  //     try {
+  //       const userCoords = await getUserCoordinates();
+  //       // console.log("User coordinates:", userCoords);
+  //       setUserCoordinates(userCoords);
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
 
-    fetchUserCoords();
-  }, []);
+  //   fetchUserCoords();
+  // }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
