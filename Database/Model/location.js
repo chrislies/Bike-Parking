@@ -19,7 +19,11 @@ const Location = db.define(
     ifoaddress:{
       type: DataTypes.STRING,
       allowNull :false,
-    }
+    },
+    racktype:{
+      type: DataTypes.STRING,
+      allowNull :false,
+    },
   },
   {
     timestamps: false, // Set timestamps to false to disable createdAt and updsatedAt columns

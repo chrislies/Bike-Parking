@@ -4,32 +4,33 @@ const Location = require("../Database/Model/location");
 const cors = require("cors"); // Import the CORS middleware
 
 
-
 router.get("/", async (req, res) => {
   try {
+    const locations = await Location.findAll();
     
-   const locations = await Location.findAll();
+    // Check if X and Y parameters are provided
     const X = parseFloat(req.query.X);
     const Y = parseFloat(req.query.Y);
 
     if (isNaN(X) || isNaN(Y)) {
-      return res.status(400).json({ error: "Invalid coordinates provided" });
+      // If parameters are not provided, return all locations
+      return res.json(locations);
     }
-
 
     // Filter locations based on the condition
     const filteredLocations = locations.filter(location => {
-      const withinXRange = Math.abs(location.x_coordinate - X) <= .005;
-      const withinYRange = Math.abs(location.y_coordinate - Y) <= .005;
+      const withinXRange = Math.abs(location.x_coordinate - X) <= 0.005;
+      const withinYRange = Math.abs(location.y_coordinate - Y) <= 0.005;
       return withinXRange && withinYRange;
     });
 
-    // Extract x_coordinate and y_coordinate from each filtered location
+    // Map the filtered locations to required format
     const coordinates = filteredLocations.map(location => ({
       x_coordinate: location.x_coordinate,
       y_coordinate: location.y_coordinate,
       site_id: location.site_id,  
       ifoaddress: location.ifoaddress,
+      racktype: location.racktype,
     }));
 
     // Send the coordinates as a JSON response

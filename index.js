@@ -43,6 +43,7 @@ async function fetchAPI() {
       y_coordinate: parseFloat(location.y),
       site_id: location.site_id,  
       ifoaddress: location.ifoaddress,  
+      racktype:location.rack_type,  
     }));
 
     const existingRecords = await Location.findAll();
