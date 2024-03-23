@@ -69,7 +69,7 @@ fetchAPI();
 
 
 
-// const PORT = 3001;
+ const PORT = 3001;
 
 
 
@@ -81,8 +81,8 @@ app.use("/pending", require("./Route/Pending"));
 app.use("/favorite", require("./Route/Favorite"));
 app.use("/request", require("./Route/Request"));
 
-// db.authenticate()
-//   .then(() => {
-//     app.listen(PORT, () => console.log(`Server running on ${PORT}`));
-//   })
-//   .catch((err) => console.error("Unable to connect to the database:", err));
+db.authenticate()
+   .then(() => {
+     app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+   })
+   .catch((err) => console.error("Unable to connect to the database:", err));
