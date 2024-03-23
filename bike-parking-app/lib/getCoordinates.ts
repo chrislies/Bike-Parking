@@ -1,44 +1,32 @@
+import getUserCoordinates from "./getUserCoordinates";
+
 interface DataItem {
-  longitude: string;
-  latitude: string;
+  longitude: number;
+  latitude: number;
+  Site_ID: string;
+  IFOAddress: string;
+  RackType: string;
+  
 }
-//
-// Utilize parallel data fetching
-async function getCoordinates(): Promise<DataItem[]> {
+
+async function getCoordinates(): Promise<DataItem[] | null> {
   try {
-    let allData: DataItem[] = [];
-    let offset = 0;
-    let hasMoreData = true;
+    const userLocation = await getUserCoordinates();
+    const response = await fetch(
+      `https://bike-parking.onrender.com/Parking_data/?X=${userLocation.longitude}&Y=${userLocation.latitude}`
+    );
+    const jsonData = await response.json();
 
-    while (hasMoreData) {
-      const [bikeRacksResponse, streetSignsResponse] = await Promise.all([
-        fetch(
-          `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
-        ),
-        fetch(
-          `https://data.cityofnewyork.us/resource/nfid-uabd.json?$limit=50000&$offset=${offset}`
-        ),
-      ]);
+    
+    const coordinates = jsonData.map((item: any) => ({
+      latitude: item.y_coordinate,
+      longitude: item.x_coordinate,
+        Site_ID: item.site_id,
+        IFOAddress: item.ifoaddress,
+        RackType: item.racktype,
+    }));
 
-      const [bikeRacksData, streetSignsData] = await Promise.all([
-        bikeRacksResponse.json(),
-        streetSignsResponse.json(),
-      ]);
-
-      const combinedData: DataItem[] = [
-        ...bikeRacksData.map((item: DataItem) => ({ ...item })),
-        ...streetSignsData.map((item: DataItem) => ({ ...item })),
-      ];
-
-      if (combinedData.length === 0) {
-        hasMoreData = false;
-      } else {
-        allData = [...allData, ...combinedData];
-        offset += 50000;
-      }
-    }
-
-    return allData;
+    return coordinates.length > 0 ? coordinates : null;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to fetch data");

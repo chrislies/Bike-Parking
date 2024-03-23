@@ -18,9 +18,13 @@ import L, { LatLng } from "leaflet";
 import { latLng } from "leaflet";
 import "leaflet-rotate";
 
+
 interface MarkerData {
-  coordinates: [number, number];
-  title: string;
+  longitude: number;
+  latitude: number;
+  Site_ID: string;
+  IFOAddress: string;
+  RackType: string;
 }
 interface UserCoordinatesItem {
   longitude: number;
@@ -102,7 +106,7 @@ function UserLocationMarker() {
       const { lat, lng } = e.latlng;
       map.flyTo(e.latlng, 19, { animate: true, duration: 1.5 });
     });
-  }, []);
+  }, [map]);
 
   useEffect(() => {
     let watchId: number | null = null;
@@ -145,28 +149,26 @@ function UserLocationMarker() {
     }
   }, []);
 
-  // Fly to user marker only when user marker is in view AND if new distance > thresholdDistance
-  useMapEvents({
-    moveend: () => {
-      if (position) {
-        const markerLatLng = latLng(position.lat, position.lng);
-        const userMarkerInView = map.getBounds().contains(markerLatLng);
-        setUserMarkerInView(userMarkerInView);
-        if (userMarkerInView && prevPosition) {
-          const distance = markerLatLng.distanceTo(prevPosition);
-          // console.log("Distance:", distance);
-          const thresholdDistance = 5;
-          if (distance > thresholdDistance) {
-            map.flyTo([position.lat, position.lng], map.getZoom(), {
-              animate: true,
-              duration: 1.5,
-            });
-          }
+  useEffect(() => {
+    if (position) {
+      // console.log(`Position moved: ${position.lat} ${position.lng}`);
+      const markerLatLng = latLng(position.lat, position.lng);
+      const userMarkerInView = map.getBounds().contains(markerLatLng);
+      setUserMarkerInView(userMarkerInView);
+      if (userMarkerInView && prevPosition) {
+        const distance = markerLatLng.distanceTo(prevPosition);
+        // console.log(`Distance: ${distance}`);
+        const thresholdDistance = 5;
+        if (distance > thresholdDistance) {
+          map.flyTo([position.lat, position.lng], map.getZoom(), {
+            animate: true,
+            duration: 1,
+          });
         }
-        setPrevPosition(markerLatLng);
       }
-    },
-  });
+      setPrevPosition(markerLatLng);
+    }
+  }, [position]);
 
   return position === null ? null : (
     <>
@@ -210,7 +212,7 @@ function UserLocationMarker() {
 const MapComponent: FC = () => {
   const [userCoordinates, setUserCoordinates] =
     useState<UserCoordinatesItem | null>(null);
-  const [markerData, setMarkerData] = useState<MarkerData | null>(null);
+  const [markerData, setMarkerData] = useState<MarkerData[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [mapLayer, setMapLayer] = useState<string>("street");
   const mapRef = useRef<any | null>(null); // Declare useRef to reference map
@@ -237,14 +239,14 @@ const MapComponent: FC = () => {
         try {
           const data = await getCoordinates();
           console.log(data);
-          // setMarkerData(data);
+          setMarkerData(data);
         } catch (error) {
           console.error(error);
         }
         setLoading(false);
       };
 
-      // fetchData();
+       fetchData();
     }
   }, []);
 
@@ -336,11 +338,15 @@ const MapComponent: FC = () => {
           subdomains={["mt1", "mt2", "mt3"]}
         /> */}
         {/* Conditionally render the marker */}
-        {markerData && markerData.coordinates && (
-          <Marker position={markerData.coordinates}>
-            <Popup>{markerData.title}</Popup>
-          </Marker>
-        )}
+        {markerData && markerData.map((marker, index) => (
+        <Marker key={index} position={[marker.latitude, marker.longitude]}>
+       <Popup>
+  {"Site ID: " + marker.Site_ID + "\n" +
+   "IFOAddress: " + marker.IFOAddress + "\n" +
+   "Rack_Type: " + marker.RackType}
+</Popup>
+        </Marker>
+      ))}
         <UserLocationMarker />
         <ZoomHandler />
       </MapContainer>
