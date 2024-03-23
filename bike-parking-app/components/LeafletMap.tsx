@@ -309,6 +309,11 @@ const MapComponent: FC = () => {
         zoom={11}
         // maxZoom={maxZoom}
         style={{ height: "100vh", width: "100vw" }}
+        rotate={true}
+        touchRotate={true}
+        rotateControl={{
+          closeOnZeroBearing: false,
+        }}
       >
         {mapLayer === "street" ? (
           <TileLayer
