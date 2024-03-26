@@ -13,23 +13,53 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import "leaflet-defaulticon-compatibility";
 import getCoordinates from "../lib/getCoordinates";
 import getUserCoordinates from "../lib/getUserCoordinates";
-import { Layers } from "./svgs";
-import L, { LatLng } from "leaflet";
+import { Layers, Locate, MyMarker, UserMarker } from "./svgs";
+import L, { LatLng, map, Icon, divIcon, point, MarkerCluster } from "leaflet";
 import { latLng } from "leaflet";
 import "leaflet-rotate";
-
+import MarkerClusterGroup from "react-leaflet-cluster";
+import { iconUser } from "./icons/iconUser";
 
 interface MarkerData {
-  longitude: number;
-  latitude: number;
-  Site_ID: string;
-  IFOAddress: string;
-  RackType: string;
+  x?: number;
+  y?: number;
+  site_id?: string;
+  ifoaddress?: string;
+  rack_type?: string;
+  date_inst?: string;
+  order_number?: string;
+  on_street?: string;
+  from_street?: string;
+  to_street?: string;
+  sign_description?: string;
+  sign_x_coord?: number;
+  sign_y_coord?: number;
 }
 interface UserCoordinatesItem {
   longitude: number;
   latitude: number;
 }
+
+const customIcon = new L.Icon({
+  // iconUrl: require("./svgs/MyMarker.svg").default,
+  // iconSize: new L.Point(40, 47),
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/447/447031.png",
+  iconSize: [38, 38],
+});
+
+const userIcon = new L.Icon({
+  iconUrl: require("./svgs/UserMarker.svg").default,
+  // iconUrl: require("./images/location-pin.png").default,
+  iconSize: [38, 38],
+});
+
+const createClusterCustomIcon = function (cluster: MarkerCluster) {
+  return L.divIcon({
+    html: `<span class="cluster-icon">${cluster.getChildCount()}</span>`,
+    className: "custom-marker-cluster",
+    iconSize: point(33, 33, true),
+  });
+};
 
 // Loader component for showing loading animation
 const Loader = () => {
@@ -57,28 +87,6 @@ const Loader = () => {
     </div>
   );
 };
-
-// function LocationMarker() {
-//   const [position, setPosition] = useState<[number, number] | null>(null);
-//   const map = useMapEvents({
-//     click() {
-//       map.locate();
-//     },
-//     locationfound(e) {
-//       const { lat, lng } = e.latlng;
-//       setPosition([lat, lng]);
-//       map.flyTo(e.latlng, 18, { animate: true, duration: 1.5 });
-//     },
-//     locationerror: (err) => {
-//       console.error(err);
-//     },
-//   });
-//   return position === null ? null : (
-//     <Marker position={position}>
-//       <Popup>You are here</Popup>
-//     </Marker>
-//   );
-// }
 
 const currentLocationIcon = new L.Icon({
   // iconUrl: require(""),
@@ -117,11 +125,6 @@ function UserLocationMarker() {
           const { latitude, longitude, accuracy } = position.coords;
           setPosition({ lat: latitude, lng: longitude });
           setAccuracy(accuracy);
-
-          // map.flyTo([position.coords.latitude, position.coords.longitude], 19, {
-          //   animate: true,
-          //   duration: 1.5,
-          // });
           setLocationStatus("accessed");
         },
         (error) => {
@@ -172,7 +175,7 @@ function UserLocationMarker() {
 
   return position === null ? null : (
     <>
-      <Marker position={position}>
+      <Marker position={position} icon={userIcon}>
         <Popup>You are in this area.</Popup>
       </Marker>
       {accuracy !== null && (
@@ -185,29 +188,21 @@ function UserLocationMarker() {
     </>
   );
 }
-// function UserLocationMarker() {
-//   const [position, setPosition] = useState<[number, number] | null>(null);
 
-//   const map = useMap();
-
-//   useEffect(() => {
-//     map.locate().on("locationfound", function (e) {
-//       const { lat, lng } = e.latlng;
-//       setPosition([lat, lng]);
-//       map.flyTo(e.latlng, 18, { animate: true, duration: 1.5 });
-//       const radius = e.accuracy;
-//       const circle = L.circle(e.latlng, radius);
-//       circle.addTo(map);
-//     });
-//   }, [map]);
-
-//   return position === null ? null : (
-//     <Marker position={position}>
-//       {/* <Marker position={position} icon={userMarkerIcon}> */}
-//       <Popup>You are in this area.</Popup>
-//     </Marker>
-//   );
-// }
+const locateMe = async (map: any) => {
+  try {
+    const userCoords = await getUserCoordinates();
+    console.log(userCoords);
+    if (userCoords) {
+      map.flyTo([userCoords.latitude, userCoords.longitude], 19, {
+        animate: true,
+        duration: 1,
+      });
+    }
+  } catch (e) {
+    console.log(`Error: ${e}`);
+  }
+};
 
 const MapComponent: FC = () => {
   const [userCoordinates, setUserCoordinates] =
@@ -218,27 +213,13 @@ const MapComponent: FC = () => {
   const mapRef = useRef<any | null>(null); // Declare useRef to reference map
   const maxZoom = 20;
 
-  // useEffect(() => {
-  //   const fetchUserCoords = async () => {
-  //     try {
-  //       const userCoords = await getUserCoordinates();
-  //       // console.log("User coordinates:", userCoords);
-  //       setUserCoordinates(userCoords);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-
-  //   fetchUserCoords();
-  // }, []);
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       const fetchData = async () => {
         setLoading(true);
         try {
           const data = await getCoordinates();
-          console.log(data);
+          // console.log(data);
           setMarkerData(data);
         } catch (error) {
           console.error(error);
@@ -246,7 +227,7 @@ const MapComponent: FC = () => {
         setLoading(false);
       };
 
-       fetchData();
+      fetchData();
     }
   }, []);
 
@@ -276,29 +257,28 @@ const MapComponent: FC = () => {
     // console.log(mapLayer);
   };
 
-  // useEffect(() => {
-  //   const script = document.createElement("script");
-  //   script.src =
-  //     "https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js";
-  //   script.async = true;
-  //   document.body.appendChild(script);
-
-  //   return () => {
-  //     document.body.removeChild(script);
-  //   };
-  // }, []);
-
   // Return the JSX for rendering
   return (
     <>
       {loading && <Loader />}
-      <div>
+      <div className="absolute bottom-0 flex flex-col justify-between m-3 gap-3">
+        <button
+          onClick={() => locateMe(mapRef.current)}
+          title="Locate Me"
+          aria-label="Locate Me"
+          aria-disabled="false"
+          className="z-[999] select-none cursor-pointer relative w-[36px] h-[36px] p-0 bg-white hover:bg-gray-100 text-black rounded-md border-2 border-[rgba(0,0,0,0.2)] shadow-md"
+        >
+          <span className="absolute top-[-16px] left-[-16px] scale-[.4]">
+            <Locate />
+          </span>
+        </button>
         <button
           onClick={toggleLayer}
           title="Toggle Layers"
           aria-label="Toggle Layers"
           aria-disabled="false"
-          className="z-[999] select-none cursor-pointer absolute bottom-0 w-[50px] h-[50px] m-3 p-0 bg-white hover:bg-gray-100 text-black rounded-md border-2 border-[rgba(0,0,0,0.2)] shadow-md"
+          className="z-[999] select-none cursor-pointer relative w-[50px] h-[50px] p-0 bg-white hover:bg-gray-100 text-black rounded-md border-2 border-[rgba(0,0,0,0.2)] shadow-md"
         >
           <span className="absolute top-[-9px] left-[-9px] scale-50">
             <Layers />
@@ -306,6 +286,7 @@ const MapComponent: FC = () => {
         </button>
       </div>
       <MapContainer
+        ref={mapRef}
         attributionControl={false}
         center={[40.71151957593488, -73.88017135962203]}
         zoom={11}
@@ -337,16 +318,90 @@ const MapComponent: FC = () => {
           url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           subdomains={["mt1", "mt2", "mt3"]}
         /> */}
-        {/* Conditionally render the marker */}
-        {markerData && markerData.map((marker, index) => (
-        <Marker key={index} position={[marker.latitude, marker.longitude]}>
-       <Popup>
-  {"Site ID: " + marker.Site_ID + "\n" +
-   "IFOAddress: " + marker.IFOAddress + "\n" +
-   "Rack_Type: " + marker.RackType}
-</Popup>
-        </Marker>
-      ))}
+        {/* {markerData &&
+          markerData.map((marker, index) => {
+            if (marker.site_id) {
+              console.log(marker);
+              return (
+                <MarkerClusterGroup
+                  key={marker.site_id}
+                  chunkedLoading
+                  // iconCreateFunction={createClusterCustomIcon}
+                >
+                  <Marker
+                    key={index}
+                    // position={L.latLng(marker.y!, marker.x!)}
+                    position={[marker.y!, marker.x!]}
+                    icon={customIcon}
+                  >
+                    <Popup>
+                      {"Site ID: " +
+                        marker.site_id +
+                        "\n" +
+                        "IFOAddress: " +
+                        marker.ifoaddress +
+                        "\n" +
+                        "Rack_Type: " +
+                        marker.rack_type}
+                    </Popup>
+                  </Marker>
+                </MarkerClusterGroup>
+              );
+            } else if (marker.order_number) {
+              console.log(marker);
+              return (
+                <MarkerClusterGroup
+                  key={marker.order_number}
+                  chunkedLoading
+                  // iconCreateFunction={createClusterCustomIcon}
+                >
+                  <Marker
+                    key={index}
+                    // position={L.latLng(marker.y!, marker.x!)}
+                    position={[index!, index!]}
+                    icon={customIcon}
+                  >
+                    <Popup>
+                      {"order_number: " +
+                        marker.order_number +
+                        "\n" +
+                        "Location: " +
+                        marker.on_street +
+                        "From: " +
+                        marker.from_street +
+                        "To: " +
+                        marker.to_street +
+                        "\n" +
+                        "Sign Description: " +
+                        marker.sign_description}
+                    </Popup>
+                  </Marker>
+                </MarkerClusterGroup>
+              );
+            }
+          })} */}
+        <MarkerClusterGroup chunkedLoading>
+          {markerData?.map((marker) =>
+            marker.site_id ? (
+              <Marker
+                key={marker.site_id}
+                icon={customIcon}
+                position={[marker.y!, marker.x!]}
+              >
+                <Popup>
+                  {"Site ID: " +
+                    marker.site_id +
+                    "\n" +
+                    "IFOAddress: " +
+                    marker.ifoaddress +
+                    "\n" +
+                    "Rack_Type: " +
+                    marker.rack_type}
+                </Popup>
+              </Marker>
+            ) : null
+          )}
+        </MarkerClusterGroup>
         <UserLocationMarker />
         <ZoomHandler />
       </MapContainer>
