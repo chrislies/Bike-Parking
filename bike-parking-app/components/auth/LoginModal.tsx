@@ -31,14 +31,18 @@ const LoginModal = () => {
     try {
       setLoading(true);
       const signInData = await signIn("credentials", {
-        email: values.email,
+        email: values.email.toLowerCase(),
         password: values.password,
         redirect: false, // Prevent automatic redirect on success
       });
 
       if (signInData?.error) {
-        console.error("Sign-in failed:", signInData.error);
+        // console.error("Sign-in failed:", signInData.error);
         setLoading(false);
+        form.setError("password", {
+          type: "manual",
+          message: "Incorrect email or password",
+        });
         return;
       }
 
