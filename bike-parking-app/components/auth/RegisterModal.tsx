@@ -11,10 +11,19 @@ const RegisterSchema = z
     username: z
       .string()
       .min(1, "Username is required")
-      .max(36)
+      .max(20)
       .refine(
+        // (s) => /^(?=.{2,20}$)(?![_])(?!.*[_]{2})[a-zA-Z0-9_]+(?<![_])$/.test(s),
         (s) => /^[a-zA-Z0-9_]+$/.test(s),
         "Usernames may only contain letters, numbers, and _"
+      )
+      .refine(
+        (s) => !s.startsWith("_") && !s.endsWith("_"),
+        "Usernames cannot start or end with _"
+      )
+      .refine(
+        (s) => (s.match(/_/g) || []).length <= 1,
+        "Usernames can have at most one _"
       ),
     email: z.string().min(1, "Email is required").email("Invalid email"),
     password: z
@@ -60,7 +69,7 @@ const RegisterModal = () => {
         },
         body: JSON.stringify({
           username: values.username,
-          email: values.email,
+          email: values.email.toLowerCase(),
           password: values.password,
         }),
       });
