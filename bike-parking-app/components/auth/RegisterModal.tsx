@@ -1,11 +1,107 @@
 "use client";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
+import * as z from "zod";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+
+const RegisterSchema = z
+  .object({
+    username: z
+      .string()
+      .min(1, "Username is required")
+      .max(20)
+      .refine(
+        // (s) => /^(?=.{2,20}$)(?![_])(?!.*[_]{2})[a-zA-Z0-9_]+(?<![_])$/.test(s),
+        (s) => /^[a-zA-Z0-9_]+$/.test(s),
+        "Usernames may only contain letters, numbers, and _"
+      )
+      .refine(
+        (s) => !s.startsWith("_") && !s.endsWith("_"),
+        "Usernames cannot start or end with _"
+      )
+      .refine(
+        (s) => (s.match(/_/g) || []).length <= 1,
+        "Usernames can have at most one _"
+      ),
+    email: z.string().min(1, "Email is required").email("Invalid email"),
+    password: z
+      .string()
+      .min(1, "Password is required")
+      .min(8, "Must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
+
+interface FormData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 const RegisterModal = () => {
+  const router = useRouter();
+  const {
+    handleSubmit,
+    register,
+    setError,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(RegisterSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit: SubmitHandler<FormData> = async (values) => {
+    try {
+      const response = await fetch("/api/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: values.username,
+          email: values.email.toLowerCase(),
+          password: values.password,
+        }),
+      });
+
+      if (response.ok) {
+        router.push("/");
+      } else {
+        const responseData = await response.json();
+        // console.error("Registration failed:", responseData.message);
+
+        switch (responseData.id) {
+          case "email":
+            setError("email", { message: responseData.message });
+            break;
+          case "username":
+            setError("username", { message: responseData.message });
+            break;
+          default:
+            console.error("Unknown error ID:", responseData.id);
+        }
+      }
+    } catch (error) {
+      console.error("Something went wrong:", error);
+    }
+  };
+
   return (
     <div className="w-full max-w-md">
-      <form className="bg-white shadow-md rounded px-8 py-6">
+      <form
+        className="bg-white shadow-md rounded px-8 py-6"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <h1 className="text-center text-2xl pb-3 font-bold">Sign Up</h1>
         <div className="">
           <label
@@ -15,14 +111,21 @@ const RegisterModal = () => {
             Username
           </label>
           <input
-            className="shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline"
+            {...register("username")}
+            className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline 
+            ${errors.username ? "border-red-500" : ""}
+            `}
             type="text"
             id="username"
             placeholder="Username"
           />
-          <p className="select-none opacity-0 text-red-500 text-xs italic">
-            Please enter a username.
-          </p>
+          {errors.username ? (
+            <p className="text-red-500 text-xs italic">
+              {errors.username.message}
+            </p>
+          ) : (
+            <div className="h-4" />
+          )}
         </div>
         <div className="">
           <label
@@ -32,14 +135,21 @@ const RegisterModal = () => {
             Email
           </label>
           <input
-            className="shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline"
+            {...register("email")}
+            className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline 
+            ${errors.email ? "border-red-500" : ""}
+            `}
             type="text"
             id="email"
             placeholder="Email"
           />
-          <p className="select-none opacity-0 text-red-500 text-xs italic">
-            Please enter an email.
-          </p>
+          {errors.email ? (
+            <p className="text-red-500 text-xs italic">
+              {errors.email.message}
+            </p>
+          ) : (
+            <div className="h-4" />
+          )}
         </div>
         <div className="flex gap-4">
           <div className="flex flex-col">
@@ -50,33 +160,53 @@ const RegisterModal = () => {
               Password
             </label>
             <input
-              className="shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline"
+              {...register("password")}
+              className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline 
+              ${errors.password ? "border-red-500" : ""}
+              `}
               id="password"
               type="password"
               placeholder="Password"
             />
+            {errors.password ? (
+              <p className="text-red-500 text-xs italic">
+                {errors.password.message}
+              </p>
+            ) : (
+              <div className="h-5" />
+            )}
           </div>
           <div className="flex flex-col">
             <label
               className="block text-gray-700 text-sm font-bold mb-1"
-              htmlFor="password"
+              htmlFor="confirmPassword"
             >
               Confirm Password
             </label>
             <input
-              className="shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline"
-              id="password"
+              {...register("confirmPassword")}
+              className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline 
+              ${errors.confirmPassword ? "border-red-500" : ""}
+              `}
+              id="confirmPassword"
               type="password"
               placeholder="Confirm Password"
             />
+            {errors.confirmPassword ? (
+              <p className="text-red-500 text-xs italic mb-1">
+                {errors.confirmPassword.message}
+              </p>
+            ) : (
+              <div className="h-5" />
+            )}{" "}
           </div>
         </div>
-        <p className="mb-1 select-none opacity-0 text-red-500 text-xs italic">
+        {/* <p className="mb-1 select-none opacity-0 text-red-500 text-xs italic">
           Please choose a password.
-        </p>
+        </p> */}
         <button
           className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
-          type="button"
+          type="submit"
         >
           Sign Up
         </button>
