@@ -1,33 +1,42 @@
 const { DataTypes } = require("sequelize");
 const db = require("../Connect");
-const location = require("./location");
+const Location = require("./location");
 const UserInfo = require("./UserInfo");
 
 const Favorite = db.define(
-  "Favorites", 
+  "fTest", // Corrected the table name to singular "Favorite"
   {
-    location_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references:{
-            model: location, 
-            key: 'id',
-        }
+    // Define columns for location details
+    x_coordinate: {
+      type: DataTypes.FLOAT, // Adjust precision and scale as per your requirements
+      
+    },
+    y_coordinate: {
+      type: DataTypes.FLOAT, // Adjust precision and scale as per your requirements
+  
+    },
+    site_id: {
+      type: DataTypes.STRING, // Adjust the length as per your requirements
+      
+    },
+    racktype: {
+      type: DataTypes.STRING, // Adjust the length as per your requirements
+    
+    },
+    ifoaddress: {
+      type: DataTypes.STRING, // Adjust the length as per your requirements
+     
     },
 
-    user_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references:{
-            model: UserInfo,
-            key: 'id',
-        }
-    },
+    
   },
   {
     timestamps: false,
-    tableName: 'favorites'
+    tableName: 'ftest'
   }
 );
+
+
+
 
 module.exports = Favorite;
