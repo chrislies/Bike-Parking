@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const UserInfo = require("../Database/Model/UserInfo");
+const cors = require("cors"); 
 
 router.get("/", async (req, res) => {
   try {
@@ -77,4 +78,3 @@ router.delete("/", async (req, res) => {
   }
 });
 
-module.exports = router;

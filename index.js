@@ -66,7 +66,7 @@ async function fetchAPI() {
 
 
 fetchAPI();
-
+app.options('*', cors());
 
 
  const PORT = 3001;
