@@ -20,7 +20,19 @@ model User {
   password String
   createdAt DateTime @default(now())
   updateAt DateTime @updatedAt
+  // favorites  Favorite[] // a one-to-many relationship with Favorite model
+  favorites Json?    @default("{}")
+
+
 }
 
+// model Favorite {
+//   id         Int       @id @default(autoincrement())
+//   userId     Int       // foreign key to reference the User model
+//   user       User      @relation(fields: [userId], references: [id])
+//   locationId String
+//   locationCoord  String
+// }
+
 // Whenever changes are made to models:
-// npx prisma migrate dev --name init 
+// npx prisma migrate dev --name [commit-message] 
