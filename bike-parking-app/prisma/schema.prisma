@@ -21,6 +21,13 @@ model User {
   createdAt DateTime @default(now())
   updateAt DateTime @updatedAt
 }
-
+model favorite_table {
+  id           Int      @id @default(autoincrement())
+  x_coordinate Float
+  y_coordinate Float
+  site_id      String
+  racktype     String
+  ifoaddress   String
+}
 // Whenever changes are made to models:
 // npx prisma migrate dev --name init 

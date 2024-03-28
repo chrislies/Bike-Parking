@@ -237,23 +237,34 @@ const MapComponent: FC = () => {
 
   const handleSaveFavorite = async (marker: MarkerData) => {
     try {
-      const response = await axios.post('https://bike-parking.onrender.com/favorite', {
-        x_coordinate: marker.x,
-        y_coordinate: marker.y,
-        site_id: marker.site_id,
-        racktype: marker.rack_type,
-        ifoaddress: marker.ifoaddress,
+      const response = await fetch("/api/favorite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          x_coordinate: marker.x,
+          y_coordinate: marker.y,
+          site_id: marker.site_id,
+          racktype: marker.rack_type,
+          ifoaddress: marker.ifoaddress,
+        }),
       });
-      if (response.status === 200) {
-        alert('Saved as favorite successfully!');
   
+      if (response.ok) {
+        console.log("Information posted successfully");
+        // Perform any action upon successful POST, e.g., redirect
+      } else {
+        // Handle error response
+        console.error("Failed to post information");
+        // You can handle error responses here, e.g., display error message to user
       }
     } catch (error) {
-      console.error('Error saving favorite:', error);
-      alert('Failed to save as favorite.');
+      console.error("Something went wrong:", error);
     }
   };
-  
+
+
 
   // Return the JSX for rendering
   return (
@@ -403,10 +414,13 @@ const MapComponent: FC = () => {
                     <p className="date_installed italic text-xs !m-0 !p-0">
                       Date Installed: {formatDate(marker.date_inst!)}
                     </p>
-                    <button className="popup-buttons" onClick={() => handleSaveFavorite(marker)}>
-                
-                      <Bookmark className="h-9 w-9 absolute right-[6px] bottom-[12px] fill-yellow-300 hover:cursor-pointer" />
-                    </button>
+                    <button
+  className="popup-buttons"
+  onClick={() => handleSaveFavorite(marker)}
+  title="Save as favorite"
+>
+  <Bookmark className="h-9 w-9 absolute right-[6px] bottom-[12px] fill-yellow-300 hover:cursor-pointer" />
+</button>
                     {/* <button className="popup-buttons" onClick={() => handleSaveFavorite(marker)}>Save as favorite</button> */}
                   </div>
                 </Popup>
