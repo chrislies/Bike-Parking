@@ -24,7 +24,8 @@ const RegisterSchema = z
       .refine(
         (s) => (s.match(/_/g) || []).length <= 1,
         "Usernames can have at most one _"
-      ),
+      )
+      .refine((s) => s.length > 1, "Usernames must have at least 2 characters"),
     email: z.string().min(1, "Email is required").email("Invalid email"),
     password: z
       .string()
