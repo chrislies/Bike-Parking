@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const Favorite = require("../Database/Model/Favorite");
-const cors = require("cors"); 
 
 router.get("/", async (req, res) => {
   try {
