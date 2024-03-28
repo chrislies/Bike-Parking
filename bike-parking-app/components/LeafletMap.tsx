@@ -13,13 +13,14 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import "leaflet-defaulticon-compatibility";
 import getCoordinates from "../lib/getCoordinates";
 import getUserCoordinates from "../lib/getUserCoordinates";
-import { Layers, Locate, MyMarker, UserMarker } from "./svgs";
+import { Bookmark, Layers, Locate, MyMarker, UserMarker } from "./svgs";
 import L, { LatLng, map, Icon, divIcon, point, MarkerCluster } from "leaflet";
 import { latLng } from "leaflet";
 import "leaflet-rotate";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { iconUser } from "./icons/iconUser";
 import Loader from "./Loader";
+import { formatDate } from "@/lib/formatDate";
 
 interface MarkerData {
   x?: number;
@@ -164,6 +165,7 @@ function UserLocationMarker() {
 }
 
 const locateMe = async (map: any) => {
+  // console.log("Locating...");
   try {
     const userCoords = await getUserCoordinates();
     console.log(userCoords);
@@ -362,15 +364,25 @@ const MapComponent: FC = () => {
                 icon={customIcon}
                 position={[marker.y!, marker.x!]}
               >
-                <Popup>
-                  {"Site ID: " +
-                    marker.site_id +
-                    "\n" +
-                    "IFOAddress: " +
-                    marker.ifoaddress +
-                    "\n" +
-                    "Rack_Type: " +
-                    marker.rack_type}
+                <Popup minWidth={170}>
+                  <div className="popup-rack">
+                    <div className="flex flex-col font-bold">
+                      <p className="side_id !m-0 !p-0 text-base">
+                        {marker.site_id}
+                      </p>
+                      <p className="rack_type !m-0 !p-0 text-base">
+                        {marker.rack_type}
+                      </p>
+                      {/* TODO: Add # of reports here */}
+                    </div>
+                    <p className="ifo_address text-center text-base overflow-x-auto !my-5">
+                      {marker.ifoaddress}
+                    </p>
+                    <p className="date_installed italic text-xs !m-0 !p-0">
+                      Date Installed: {formatDate(marker.date_inst!)}
+                    </p>
+                    <Bookmark className="h-9 w-9 absolute right-[6px] bottom-[12px] fill-yellow-300 hover:cursor-pointer" />
+                  </div>
                 </Popup>
               </Marker>
             ) : null
