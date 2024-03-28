@@ -21,6 +21,7 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 import { iconUser } from "./icons/iconUser";
 import Loader from "./Loader";
 import { formatDate } from "@/lib/formatDate";
+import axios from 'axios';
 
 interface MarkerData {
   x?: number;
@@ -233,6 +234,27 @@ const MapComponent: FC = () => {
     // console.log(mapLayer);
   };
 
+
+  const handleSaveFavorite = async (marker: MarkerData) => {
+    try {
+      const response = await axios.post('https://bike-parking.onrender.com/favorite', {
+        x_coordinate: marker.x,
+        y_coordinate: marker.y,
+        site_id: marker.site_id,
+        racktype: marker.rack_type,
+        ifoaddress: marker.ifoaddress,
+      });
+      if (response.status === 200) {
+        alert('Saved as favorite successfully!');
+  
+      }
+    } catch (error) {
+      console.error('Error saving favorite:', error);
+      alert('Failed to save as favorite.');
+    }
+  };
+  
+
   // Return the JSX for rendering
   return (
     <>
@@ -381,7 +403,11 @@ const MapComponent: FC = () => {
                     <p className="date_installed italic text-xs !m-0 !p-0">
                       Date Installed: {formatDate(marker.date_inst!)}
                     </p>
-                    <Bookmark className="h-9 w-9 absolute right-[6px] bottom-[12px] fill-yellow-300 hover:cursor-pointer" />
+                    <button className="popup-buttons" onClick={() => handleSaveFavorite(marker)}>
+                
+                      <Bookmark className="h-9 w-9 absolute right-[6px] bottom-[12px] fill-yellow-300 hover:cursor-pointer" />
+                    </button>
+                    {/* <button className="popup-buttons" onClick={() => handleSaveFavorite(marker)}>Save as favorite</button> */}
                   </div>
                 </Popup>
               </Marker>
