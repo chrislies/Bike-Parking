@@ -1,6 +1,6 @@
 import RegisterModal from "@/components/auth/RegisterModal";
 
-function RegisterPage() {
+async function RegisterPage() {
   return <RegisterModal />;
 }
 

@@ -12,6 +12,7 @@ interface DataItem {
   sign_description?: string;
   sign_x_coord?: number;
   sign_y_coord?: number;
+  favorite: boolean;
 }
 
 async function getCoordinates(): Promise<DataItem[] | null> {
@@ -63,6 +64,7 @@ async function getCoordinates(): Promise<DataItem[] | null> {
       sign_description: item.sign_description,
       sign_x_coord: item.sign_x_coord,
       sign_y_coord: item.sign_y_coord,
+      favorite: false,
     }));
 
     return info.length > 0 ? info : null;

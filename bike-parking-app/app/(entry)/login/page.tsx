@@ -1,6 +1,6 @@
 import LoginModal from "@/components/auth/LoginModal";
 
-function LoginPage() {
+async function LoginPage() {
   return <LoginModal />;
 }
 

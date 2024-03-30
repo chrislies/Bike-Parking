@@ -21,6 +21,13 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 import { iconUser } from "./icons/iconUser";
 import Loader from "./Loader";
 import { formatDate } from "@/lib/formatDate";
+import prisma from "@/lib/db";
+import { supabaseClient } from "@/config/supabaseClient";
+import axios from "axios";
+import qs from "query-string";
+import { useParams, useRouter } from "next/navigation";
+import { useUser } from "@/hooks/useUser";
+import { debounce } from "@/hooks/useDebounce";
 
 interface MarkerData {
   x?: number;
@@ -36,6 +43,7 @@ interface MarkerData {
   sign_description?: string;
   sign_x_coord?: number;
   sign_y_coord?: number;
+  favorite: boolean;
 }
 interface UserCoordinatesItem {
   longitude: number;
@@ -188,6 +196,10 @@ const MapComponent: FC = () => {
   const [mapLayer, setMapLayer] = useState<string>("street");
   const mapRef = useRef<any | null>(null); // Declare useRef to reference map
   const maxZoom = 20;
+  const supabase = supabaseClient;
+  const { user } = useUser();
+  const router = useRouter();
+  const params = useParams();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -233,6 +245,63 @@ const MapComponent: FC = () => {
     // console.log(mapLayer);
   };
 
+  const handleSaveFavorite = async (marker: MarkerData) => {
+    const username = user?.user_metadata.username;
+    const uuid = user?.id;
+    // Toggle the favorite property
+    marker.favorite = !marker.favorite;
+
+    // Update the marker data
+    setMarkerData((prevMarkerData) => {
+      if (!prevMarkerData) return null;
+
+      const updatedMarkerData = prevMarkerData.map((m) => {
+        if (m.site_id === marker.site_id) {
+          return marker;
+        }
+        return m;
+      });
+
+      return updatedMarkerData;
+    });
+
+    const updateFavorites = debounce(async () => {
+      try {
+        if (marker.favorite) {
+          const values = {
+            uuid,
+            username,
+            location_id: marker.site_id,
+            location_address: marker.ifoaddress,
+            x_coord: marker.x,
+            y_coord: marker.y,
+          };
+          const url = qs.stringifyUrl({
+            url: "api/favorite",
+            query: {
+              id: params?.id,
+            },
+          });
+          await axios.post(url, values);
+        } else {
+          const { data, error } = await supabase
+            .from("Favorites")
+            .delete()
+            .eq("user_id", uuid)
+            .eq("location_id", marker.site_id);
+          if (error) {
+            console.log(`Error removing spot from favortes: ${error}`);
+          }
+        }
+      } catch (error) {
+        console.error("Something went wrong:", error);
+      }
+    }, 300); // Debounce for x milliseconds (100ms = 1s)
+
+    // Call the debounced function to update favorites
+    updateFavorites();
+  };
+
   // Return the JSX for rendering
   return (
     <>
@@ -267,6 +336,7 @@ const MapComponent: FC = () => {
         center={[40.71151957593488, -73.88017135962203]}
         zoom={11}
         // maxZoom={maxZoom}
+        minZoom={1}
         style={{ height: "100vh", width: "100vw" }}
         rotate={true}
         touchRotate={true}
@@ -294,68 +364,6 @@ const MapComponent: FC = () => {
           url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           subdomains={["mt1", "mt2", "mt3"]}
         /> */}
-        {/* {markerData &&
-          markerData.map((marker, index) => {
-            if (marker.site_id) {
-              console.log(marker);
-              return (
-                <MarkerClusterGroup
-                  key={marker.site_id}
-                  chunkedLoading
-                  // iconCreateFunction={createClusterCustomIcon}
-                >
-                  <Marker
-                    key={index}
-                    // position={L.latLng(marker.y!, marker.x!)}
-                    position={[marker.y!, marker.x!]}
-                    icon={customIcon}
-                  >
-                    <Popup>
-                      {"Site ID: " +
-                        marker.site_id +
-                        "\n" +
-                        "IFOAddress: " +
-                        marker.ifoaddress +
-                        "\n" +
-                        "Rack_Type: " +
-                        marker.rack_type}
-                    </Popup>
-                  </Marker>
-                </MarkerClusterGroup>
-              );
-            } else if (marker.order_number) {
-              console.log(marker);
-              return (
-                <MarkerClusterGroup
-                  key={marker.order_number}
-                  chunkedLoading
-                  // iconCreateFunction={createClusterCustomIcon}
-                >
-                  <Marker
-                    key={index}
-                    // position={L.latLng(marker.y!, marker.x!)}
-                    position={[index!, index!]}
-                    icon={customIcon}
-                  >
-                    <Popup>
-                      {"order_number: " +
-                        marker.order_number +
-                        "\n" +
-                        "Location: " +
-                        marker.on_street +
-                        "From: " +
-                        marker.from_street +
-                        "To: " +
-                        marker.to_street +
-                        "\n" +
-                        "Sign Description: " +
-                        marker.sign_description}
-                    </Popup>
-                  </Marker>
-                </MarkerClusterGroup>
-              );
-            }
-          })} */}
         <MarkerClusterGroup chunkedLoading>
           {markerData?.map((marker) =>
             marker.site_id ? (
@@ -378,10 +386,23 @@ const MapComponent: FC = () => {
                     <p className="ifo_address text-center text-base overflow-x-auto !my-5">
                       {marker.ifoaddress}
                     </p>
-                    <p className="date_installed italic text-xs !m-0 !p-0">
-                      Date Installed: {formatDate(marker.date_inst!)}
-                    </p>
-                    <Bookmark className="h-9 w-9 absolute right-[6px] bottom-[12px] fill-yellow-300 hover:cursor-pointer" />
+                    <div className="flex justify-between items-end">
+                      <p className="date_installed italic text-xs !m-0 !p-0">
+                        Date Installed: {formatDate(marker.date_inst!)}
+                      </p>
+                      <button onClick={() => handleSaveFavorite(marker)}>
+                        <Bookmark
+                          className={`h-9 w-9 absolute right-[6px] bottom-[12px] hover:cursor-pointer
+                        ${
+                          marker.favorite
+                            ? "fill-yellow-300"
+                            : "fill-transparent"
+                        }
+                      `}
+                        />
+                      </button>
+                    </div>
+                    {/* <button className="popup-buttons" onClick={() => handleSaveFavorite(marker)}>Save as favorite</button> */}
                   </div>
                 </Popup>
               </Marker>
