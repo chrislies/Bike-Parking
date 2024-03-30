@@ -5,6 +5,7 @@ import * as z from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { supabaseClient } from "@/config/supabaseClient";
 
 const RegisterSchema = z
   .object({
@@ -63,37 +64,58 @@ const RegisterModal = () => {
 
   const onSubmit: SubmitHandler<FormData> = async (values) => {
     try {
-      const response = await fetch("/api/user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      // Attempt to create the user manually in the database
+      // const response = await fetch("/api/user", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     username: values.username,
+      //     email: values.email.toLowerCase(),
+      //     password: values.password,
+      //   }),
+      // });
+
+      // if (!response.ok) {
+      //   const responseData = await response.json();
+      //   switch (responseData.id) {
+      //     case "email":
+      //       setError("email", { message: responseData.message });
+      //       break;
+      //     case "username":
+      //       setError("username", { message: responseData.message });
+      //       break;
+      //     default:
+      //       console.error("Unknown error ID:", responseData.id);
+      //   }
+      //   return; // Stop execution if manual creation fails
+      // }
+
+      // Manual creation successful, proceed with Supabase authentication
+      const { data, error } = await supabaseClient.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          emailRedirectTo: `${location.origin}/auth/callback`,
+          data: {
+            username: values.username,
+          },
         },
-        body: JSON.stringify({
-          username: values.username,
-          email: values.email.toLowerCase(),
-          password: values.password,
-        }),
       });
-
-      if (response.ok) {
-        router.push("/");
+      if (error?.message) {
+        setError("email", { message: error.message });
       } else {
-        const responseData = await response.json();
-        // console.error("Registration failed:", responseData.message);
+        alert(
+          "Successfully signed up. Please check your email to confirm your account."
+        );
 
-        switch (responseData.id) {
-          case "email":
-            setError("email", { message: responseData.message });
-            break;
-          case "username":
-            setError("username", { message: responseData.message });
-            break;
-          default:
-            console.error("Unknown error ID:", responseData.id);
-        }
+        // Registration successful, redirect to map
+        router.push("/map");
       }
     } catch (error) {
       console.error("Something went wrong:", error);
+      setError("email", { message: "Something went wrong!" });
     }
   };
 

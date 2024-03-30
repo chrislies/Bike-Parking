@@ -1,55 +1,56 @@
-import prisma from "@/lib/db";
-import * as z from "zod";
+import { supabaseClient } from "@/config/supabaseClient";
 import { NextResponse } from "next/server";
+const supabase = supabaseClient;
 
-
-const locationSchema = z.object({
-  x_coordinate: z.string(),
-  y_coordinate: z.string(),
-  site_id: z.string(),
-  racktype: z.string(),
-  ifoaddress: z.string(),
-});
-
-// POST request for saving favorite location
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    console.log("Request body:", body); 
+    const { uuid, username, location_id, x_coord, y_coord, location_address } =
+      await req.json();
 
+    const { data, error } = await supabase.from("Favorites").insert(
+      {
+        user_id: uuid,
+        username: username,
+        location_id: location_id,
+        location_address: location_address,
+        x_coord: x_coord,
+        y_coord: y_coord,
+      },
+      { returning: "minimal" } as any
+    );
 
-    const { x_coordinate, y_coordinate, site_id, racktype, ifoaddress } = locationSchema.parse(body);
-
-    // Convert coordinates from string to number
-    const parsedXCoordinate = parseFloat(x_coordinate);
-    const parsedYCoordinate = parseFloat(y_coordinate);
-
-    if (isNaN(parsedXCoordinate) || isNaN(parsedYCoordinate)) {
-      throw new Error("Invalid coordinates provided"); 
+    if (error) {
+      console.log("Error favoriting spot:", error);
+      return new NextResponse("Error favoriting spot", { status: 500 });
     }
 
-    console.log("Parsed request body:", { x_coordinate: parsedXCoordinate, y_coordinate: parsedYCoordinate, site_id, racktype, ifoaddress });
-    const newLocation = await prisma.favorite_table.create({
-      data: {
-        x_coordinate: parsedXCoordinate,
-        y_coordinate: parsedYCoordinate,
-        site_id,
-        racktype,
-        ifoaddress,
-      },
-    });
-
-    console.log("New location:", newLocation); 
-
-    return NextResponse.json(
-      { location: newLocation, message: "Location saved successfully!" },
-      { status: 201 }
-    );
+    console.log("Spot successfully favorited:", data);
+    return NextResponse.json(data);
   } catch (error) {
-    console.error("Error occurred:", error); 
-    return NextResponse.json(
-      { message: "Something went wrong!" },
-      { status: 500 }
-    );
+    console.log("Server error:", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { uuid, location_id } = await req.json();
+
+    const { data, error } = await supabase
+      .from("Favorites")
+      .delete()
+      .eq("user_id", uuid)
+      .eq("location_id", location_id);
+
+    if (error) {
+      console.log("Error deleting favorite spot:", error);
+      return new NextResponse("Error deleting favorite spot", { status: 500 });
+    }
+
+    console.log("Spot successfully removed from favorites:", data);
+    return NextResponse.json(data);
+  } catch (error) {
+    console.log("Server error:", error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
 }
