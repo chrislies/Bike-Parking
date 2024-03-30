@@ -96,9 +96,9 @@ export default function FavoritesPage() {
       ) : (
         <div className="my-20 flex flex-col justify-center items-center">
           {listOfFavorites.map((favorite: Favorites, index: number) => (
-            <div className="flex flex-row items-center gap-10 my-6">
+            <div key={index} className="flex flex-row items-center gap-10 my-6">
               <span className="font-bold text-xl">{`${index + 1})`}</span>
-              <ol key={index} className="">
+              <ol className="">
                 <li>{favorite.location_id}</li>
                 <li>{favorite.location_address}</li>
               </ol>
