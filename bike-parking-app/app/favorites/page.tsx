@@ -107,6 +107,9 @@ export default function FavoritesPage() {
               </button>
             </div>
           ))}
+          <Link href="/" className="hover:underline font-bold text-lg">
+            {`<-- Go back to map`}
+          </Link>
         </div>
       )}
     </div>
