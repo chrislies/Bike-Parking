@@ -17,15 +17,20 @@ export async function middleware(req: NextRequest) {
   }
 
   // If user is not signed in and the current path is not '/' redirect the user to '/'
-  if (!user && req.nextUrl.pathname !== "/") {
-    return NextResponse.redirect(new URL("/", req.url));
+  // if (!user && req.nextUrl.pathname !== "/") {
+  //   return NextResponse.redirect(new URL("/", req.url));
+  // }
+
+  // If user is not signed in and the current path is '/favorites' redirect the user to '/register'
+  if (!user && req.nextUrl.pathname === "/favorites") {
+    return NextResponse.redirect(new URL("/register", req.url));
   }
 
   return res;
 }
 
 export const config = {
-  matcher: ["/", "/map"],
+  matcher: ["/", "/map", "/favorites", "/register"],
 };
 
 // import { createServerClient, type CookieOptions } from "@supabase/ssr";

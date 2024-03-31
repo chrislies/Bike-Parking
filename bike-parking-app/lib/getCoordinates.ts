@@ -23,8 +23,8 @@ async function getCoordinates(): Promise<DataItem[] | null> {
     while (hasMoreData) {
       const [bikeRacksResponse, streetSignsResponse] = await Promise.all([
         fetch(
-          `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
-          // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=100&$offset=${offset}`
+          // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
+          `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=2000&$offset=${offset}`
         ),
         fetch(
           // `https://data.cityofnewyork.us/resource/nfid-uabd.json?$limit=50000&$offset=${offset}`

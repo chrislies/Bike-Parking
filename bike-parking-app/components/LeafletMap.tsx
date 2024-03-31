@@ -198,7 +198,6 @@ const MapComponent: FC = () => {
   const maxZoom = 20;
   const supabase = supabaseClient;
   const { user } = useUser();
-  const router = useRouter();
   const params = useParams();
 
   useEffect(() => {
@@ -248,6 +247,12 @@ const MapComponent: FC = () => {
   const handleSaveFavorite = async (marker: MarkerData) => {
     const username = user?.user_metadata.username;
     const uuid = user?.id;
+
+    if (!uuid) {
+      alert("Sign in to favorite locations!");
+      return;
+    }
+
     // Toggle the favorite property
     marker.favorite = !marker.favorite;
 
