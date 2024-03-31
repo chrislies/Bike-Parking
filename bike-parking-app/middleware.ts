@@ -26,11 +26,16 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/register", req.url));
   }
 
+  // If user is not signed in and the current path is '/account' redirect the user to '/'
+  if (!user && req.nextUrl.pathname === "/account") {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
   return res;
 }
 
 export const config = {
-  matcher: ["/", "/map", "/favorites", "/register"],
+  matcher: ["/", "/map", "/favorites", "/account", "/register"],
 };
 
 // import { createServerClient, type CookieOptions } from "@supabase/ssr";

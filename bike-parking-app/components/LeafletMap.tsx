@@ -28,6 +28,7 @@ import qs from "query-string";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/hooks/useUser";
 import { debounce } from "@/hooks/useDebounce";
+import Navbar from "./navbar/Navbar";
 
 interface MarkerData {
   x?: number;
@@ -335,6 +336,7 @@ const MapComponent: FC = () => {
           </span>
         </button>
       </div>
+      <Navbar />
       <MapContainer
         ref={mapRef}
         attributionControl={false}
