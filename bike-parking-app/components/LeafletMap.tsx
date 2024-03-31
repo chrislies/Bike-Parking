@@ -312,7 +312,7 @@ const MapComponent: FC = () => {
   return (
     <>
       {loading && <Loader />}
-      <div className="absolute bottom-0 flex flex-col justify-between m-3 gap-3">
+      <div className="absolute sm:bottom-0 max-sm:top-0 max-sm:right-0 flex flex-col max-sm:flex-col-reverse max-sm:items-end justify-between m-3 gap-3">
         <button
           onClick={() => locateMe(mapRef.current)}
           title="Locate Me"
