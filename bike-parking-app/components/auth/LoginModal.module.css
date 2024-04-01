@@ -7,9 +7,9 @@
   
   @keyframes backgroundImageFade {
     0%, 100% {
-      background-image: url('/hentai.jpg');
+      background-image: url('/image2.jpg');
     }
     50% {
-      background-image: url('/hentai5.jpg');
+      background-image: url('/image.jpg');
     }
   }
