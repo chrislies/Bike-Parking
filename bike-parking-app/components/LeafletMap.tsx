@@ -9,19 +9,32 @@ import {
   Circle,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
 import "leaflet-defaulticon-compatibility";
+import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import getCoordinates from "../lib/getCoordinates";
 import getUserCoordinates from "../lib/getUserCoordinates";
-import { Bookmark, Layers, Locate, MyMarker, UserMarker } from "./svgs";
-import L, { LatLng, map, Icon, divIcon, point, MarkerCluster } from "leaflet";
+import {
+  Bookmark,
+  FavoriteMarker,
+  Layers,
+  Locate,
+  MyMarker,
+  UserMarker,
+} from "./svgs";
+import L, {
+  LatLng,
+  map,
+  Icon,
+  divIcon,
+  point,
+  MarkerCluster,
+  Point,
+} from "leaflet";
 import { latLng } from "leaflet";
 import "leaflet-rotate";
 import MarkerClusterGroup from "react-leaflet-cluster";
-import { iconUser } from "./icons/iconUser";
 import Loader from "./Loader";
 import { formatDate } from "@/lib/formatDate";
-import prisma from "@/lib/db";
 import { supabaseClient } from "@/config/supabaseClient";
 import axios from "axios";
 import qs from "query-string";
@@ -29,6 +42,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/hooks/useUser";
 import { debounce } from "@/hooks/useDebounce";
 import Navbar from "./navbar/Navbar";
+import ReactDOMServer from "react-dom/server";
 
 interface MarkerData {
   x?: number;
@@ -51,17 +65,26 @@ interface UserCoordinatesItem {
   latitude: number;
 }
 
-const customIcon = new L.Icon({
-  // iconUrl: require("./svgs/MyMarker.svg").default,
-  // iconSize: new L.Point(40, 47),
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/447/447031.png",
-  iconSize: [38, 38],
+const customIcon = L.divIcon({
+  className: "custom-icon",
+  html: ReactDOMServer.renderToString(<MyMarker />),
+  // iconSize: [10, 10],
+  iconAnchor: [20, 30],
+  popupAnchor: [3, -16],
 });
 
-const userIcon = new L.Icon({
-  iconUrl: require("./svgs/UserMarker.svg").default,
-  // iconUrl: require("./images/location-pin.png").default,
-  iconSize: [38, 38],
+const favoriteIcon = L.divIcon({
+  className: "favorite-icon",
+  html: ReactDOMServer.renderToString(<FavoriteMarker />),
+  // iconSize: [10, 10],
+  iconAnchor: [20, 30],
+  popupAnchor: [3, -16],
+});
+
+const userIcon = L.divIcon({
+  className: "user-icon",
+  html: ReactDOMServer.renderToString(<UserMarker />),
+  iconSize: [18, 18],
 });
 
 const createClusterCustomIcon = function (cluster: MarkerCluster) {
@@ -71,11 +94,6 @@ const createClusterCustomIcon = function (cluster: MarkerCluster) {
     iconSize: point(33, 33, true),
   });
 };
-
-const currentLocationIcon = new L.Icon({
-  // iconUrl: require(""),
-  // https://www.svgrepo.com/svg/333873/current-location
-});
 
 type GeolocationPosition = {
   lat: number;
@@ -200,6 +218,9 @@ const MapComponent: FC = () => {
   const supabase = supabaseClient;
   const { user } = useUser();
   const params = useParams();
+  const username = user?.user_metadata.username;
+  const uuid = user?.id;
+  const [favoriteMarkers, setFavoriteMarkers] = useState<string[]>([]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -243,6 +264,36 @@ const MapComponent: FC = () => {
   const toggleLayer = () => {
     setMapLayer(mapLayer === "street" ? "satellite" : "street");
     // console.log(mapLayer);
+  };
+
+  const fetchFavoriteLocations = async () => {
+    try {
+      const response = await supabase
+        .from("Favorites")
+        .select("location_id")
+        .eq("user_id", uuid);
+      if (response.data) {
+        const favoriteLocations: string[] = response.data.map(
+          (favorite) => favorite.location_id
+        );
+        setFavoriteMarkers(favoriteLocations);
+        console.log(favoriteLocations, favoriteMarkers);
+      }
+    } catch (error) {
+      console.error("Error fetching favorite locations:", error);
+    }
+  };
+
+  // Call fetchFavoriteLocations when user is authenticated
+  useEffect(() => {
+    if (uuid) {
+      fetchFavoriteLocations();
+    }
+  }, [uuid]);
+
+  // Check if a marker is a favorite
+  const isFavoriteMarker = (marker: MarkerData): boolean => {
+    return favoriteMarkers.includes(marker.site_id || "");
   };
 
   const handleSaveFavorite = async (marker: MarkerData) => {
@@ -376,7 +427,7 @@ const MapComponent: FC = () => {
             marker.site_id ? (
               <Marker
                 key={marker.site_id}
-                icon={customIcon}
+                icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}
                 position={[marker.y!, marker.x!]}
               >
                 <Popup minWidth={170}>
