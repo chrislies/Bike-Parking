@@ -8,3 +8,4 @@ export { default as Add } from "./Add.svg";
 export { default as User } from "./User.svg";
 export { default as MyMarker } from "./MyMarker.svg";
 export { default as UserMarker } from "./UserMarker.svg";
+export { default as FavoriteMarker } from "./FavoriteMarker.svg";
