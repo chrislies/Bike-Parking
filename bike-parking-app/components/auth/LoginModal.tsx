@@ -63,6 +63,7 @@ const LoginModal = () => {
         // Redirect on successful sign-in
         // console.log(data);
         router.push("/map");
+        router.refresh();
       }
     } catch (error) {
       console.error("Sign-in error:", error);

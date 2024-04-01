@@ -110,8 +110,8 @@ const RegisterModal = () => {
           "Successfully signed up. Please check your email to confirm your account."
         );
 
-        // Registration successful, redirect to map
-        router.push("/map");
+        // Registration successful, redirect to login
+        router.push("/");
       }
     } catch (error) {
       console.error("Something went wrong:", error);
