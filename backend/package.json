@@ -22,7 +22,7 @@
     "is-extglob": "^2.1.1",
     "is-glob": "^4.0.3",
     "is-number": "^7.0.0",
-    "json-server": "^1.0.0-alpha.23",
+    "json-server": "^0.17.3",
     "json5": "^2.2.3",
     "lowdb": "^7.0.1",
     "milliparsec": "^2.3.0",
