@@ -2,8 +2,8 @@ import json
 import csv
 from datetime import datetime
 
-blacklist = {"mta", "bus", "market"}  # Set of blacklisted words
-CUTOFF_YEAR = 2015
+blacklist = {"MTA", "BUS", "MARKET"}  # Set of blacklisted words
+CUTOFF_YEAR = 2016
 
 def parse_date(date_str):
     try:
@@ -21,7 +21,7 @@ with open("./data/nyc_streetsign_data.csv", "r") as f:
         x_coord, y_coord = row[0], row[1]
         sign_description = row[13]
         order_completed_on_date = parse_date(row[11])
-        if x_coord != "0" and not any(word.lower() in sign_description for word in blacklist) and \
+        if x_coord != "0" and not any(word in sign_description for word in blacklist) and \
                 (x_coord, y_coord) not in seen_coordinates and order_completed_on_date and order_completed_on_date.year > CUTOFF_YEAR:
             data["street_signs"].append({
                 "index": index,
