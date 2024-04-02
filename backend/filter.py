@@ -2,8 +2,8 @@ import json
 import csv
 from datetime import datetime
 
-blacklist = {"MTA", "BUS", "MARKET"}  # Set of blacklisted words
-CUTOFF_YEAR = 2016
+blacklist = {"BUS", "EXAMPLE"}  # Set of blacklisted words
+CUTOFF_YEAR = 2015
 
 def parse_date(date_str):
     try:
