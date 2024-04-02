@@ -4,146 +4,182 @@ import { FcGoogle } from "react-icons/fc";
 import * as z from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { supabaseClient } from "@/config/supabaseClient";
-import React, { useState } from 'react';
-import styles from './LoginModal.module.css';
+import { useState } from "react";
+import { Spinner } from "../svgs";
+// import { signInWithEmailAndPassword } from "@/app/(auth)/actions";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Database } from "@/lib/database.types";
+import { useUser } from "@/hooks/useUser";
 
-const RegisterSchema = z.object({
-  username: z.string().min(1, "Username is required").max(20, "Username must be under 20 characters"),
+const LoginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
-}).refine(data => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
+  password: z.string().min(1, "Password is required"),
 });
 
-interface FormData {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
-const RegisterModal = () => {
+const LoginModal = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const supabase = createClientComponentClient<Database>();
 
-  const {
-    handleSubmit,
-    register,
-    setError,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(RegisterSchema)
+  const [loading, setLoading] = useState(false);
+  const form = useForm<z.infer<typeof LoginSchema>>({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const onSubmit: SubmitHandler<FormData> = async (values) => {
-    setLoading(true);
+  const onSubmit: SubmitHandler<z.infer<typeof LoginSchema>> = async (
+    values
+  ) => {
     try {
-      // Supabase signUp call
-      const { error } = await supabaseClient.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            username: values.username,
-          },
-        },
-      });
+      setLoading(true);
+      // const signInData = await signIn("credentials", {
+      //   email: values.email.toLowerCase(),
+      //   password: values.password,
+      //   redirect: false, // Prevent automatic redirect on success
+      // });
 
-      if (error) throw error;
+      // if (signInData?.error) {
+      //   // console.error("Sign-in failed:", signInData.error);
+      //   setLoading(false);
+      //   form.setError("password", {
+      //     type: "manual",
+      //     message: "Incorrect email or password",
+      //     // message: signInData.error,
+      //   });
+      //   return;
+      // }
 
-      alert("Sign up successful! Check your email for a confirmation link.");
-      router.push("/login"); // Redirect user to login page
-    } catch (error: any) {
-      setError("email", { type: "manual", message: error.message });
-    } finally {
+      const { data, error } = await supabase.auth.signInWithPassword(values);
+      if (error?.message) {
+        console.log(error, error.message);
+        alert(error.message);
+        setLoading(false);
+        return;
+      } else {
+        // Redirect on successful sign-in
+        // console.log(data);
+        router.push("/map");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Sign-in error:", error);
       setLoading(false);
     }
   };
 
   return (
-    <>
-      <div className={`fixed inset-0 z-0 ${styles.backgroundImageFade}`}></div>
-      <div className="fixed inset-x-0 top-0 z-10 flex justify-between items-center p-6 bg-transparent">
-        <Link href="/login">
-          <span className="text-xl font-bold text-white cursor-pointer">BikOU</span>
-        </Link>
-        <Link href="/login">
-          <span className="inline-block py-2 px-4 rounded-md text-white bg-blue-500 hover:bg-blue-700 font-semibold cursor-pointer">Login</span>
-        </Link>
-      </div>
-
-      <div className="flex justify-center items-center w-full h-screen z-10">
-        <div className="w-full max-w-md bg-white bg-opacity-90 shadow-md rounded px-8 py-6">
-          <h1 className="text-center text-2xl pb-3 font-bold">Sign Up</h1>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Username input */}
-            <div className="mb-4">
-              <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">Username</label>
-              <input {...register("username")} type="text" id="username" placeholder="Username"
-                     className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.username ? 'border-red-500' : ''}`}/>
-              {errors.username && <p className="text-red-500 text-xs italic">{errors.username.message}</p>}
-            </div>
-
-            {/* Email input */}
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-              <input {...register("email")} type="email" id="email" placeholder="Email"
-                     className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.email ? 'border-red-500' : ''}`}/>
-              {errors.email && <p className="text-red-500 text-xs italic">{errors.email.message}</p>}
-            </div>
-
-            {/* Password input */}
-            <div className="mb-4">
-              <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-              <input {...register("password")} type="password" id="password" placeholder="Password"
-                     className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.password ? 'border-red-500' : ''}`}/>
-              {errors.password && <p className="text-red-500 text-xs italic">{errors.password.message}</p>}
-            </div>
-
-            {/* Confirm Password input */}
-            <div className="mb-4">
-              <label htmlFor="confirmPassword" className="block text-gray-700 text-sm font-bold mb-2">Confirm Password</label>
-              <input {...register("confirmPassword")} type="password" id="confirmPassword" placeholder="Confirm Password"
-                     className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.confirmPassword ? 'border-red-500' : ''}`}/>
-              {errors.confirmPassword && <p className="text-red-500 text-xs italic">{errors.confirmPassword.message}</p>}
-            </div>
-
-            {/* Submit button */}
-            <button type="submit" disabled={loading}
-                    className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline">
-              {loading ? "Loading..." : "Sign Up"}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="flex justify-center my-4">
-            <div className="w-full text-gray-400 flex items-center justify-center">
-              <div className="border-t-2 w-full"></div>
-              <p className="text-gray-400 px-4">Or</p>
-              <div className="border-t-2 w-full"></div>
-            </div>
-          </div>
-
-          {/* Google sign-up */}
-          <button className="flex w-full border-2 py-2 mb-5 rounded-md justify-center items-center font-semibold hover:bg-gray-50">
-            <FcGoogle className="h-6 w-6 mr-3"/> Sign up with Google
-          </button>
-
-          {/* Link to login */}
-          <p className="text-center text-sm font-semibold text-gray-400">
-            Already have an account?
-            <Link href="/login">
-              <span className="text-blue-500 hover:text-blue-800 hover:cursor-pointer"> Log in</span>
-            </Link>
-          </p>
+    <div className="w-full max-w-sm">
+      <form
+        className="bg-white shadow-md rounded px-8 py-6"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <h1 className="text-center text-2xl pb-3 font-bold">Log In</h1>
+        <div className="">
+          <label
+            htmlFor="email"
+            className="block text-gray-700 text-sm font-bold mb-1"
+          >
+            Email
+          </label>
+          <input
+            {...form.register("email")}
+            className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline 
+            ${form.formState.errors.email ? "border-red-500" : ""}
+            `}
+            type="text"
+            id="email"
+            placeholder="Email"
+          />
+          {form.formState.errors.email ? (
+            <p className="text-red-500 text-xs italic">
+              {form.formState.errors.email.message}
+            </p>
+          ) : (
+            <div className="h-4" />
+          )}
         </div>
-      </div>
-    </>
+        <div className="mb-5 relative">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-1"
+            htmlFor="password"
+          >
+            Password
+          </label>
+          <input
+            {...form.register("password")}
+            className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline 
+            ${form.formState.errors.password ? "border-red-500" : ""}
+            `}
+            id="password"
+            type="password"
+            placeholder="Password"
+          />
+          <div className="flex justify-between">
+            {form.formState.errors.password ? (
+              <p className="text-red-500 text-xs italic">
+                {form.formState.errors.password.message}
+              </p>
+            ) : (
+              <div className="h-5" />
+            )}
+            <Link
+              href="#"
+              className="font-bold text-sm text-blue-500 hover:text-blue-800"
+            >
+              Forgot Password?
+            </Link>
+          </div>
+        </div>
+        <button
+          className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? (
+            <div className="flex justify-center">
+              <Spinner className="animate-spin h-6"></Spinner>
+            </div>
+          ) : (
+            "Sign In"
+          )}
+        </button>
+
+        <div className="flex justify-center my-4">
+          <div className="w-full text-gray-400 flex items-center">
+            <div className="border-t-2 w-full" />
+          </div>
+          <p className="text-gray-400 px-4">Or</p>
+          <div className="w-full text-gray-400 flex items-center">
+            <div className="border-t-2 w-full" />
+          </div>
+        </div>
+
+        <button className="flex w-full border-2 py-2 mb-5 rounded-md justify-center items-center font-semibold hover:bg-gray-50">
+          <FcGoogle className="h-6 w-6 mr-3" /> Continue with Google
+        </button>
+
+        <p className="text-center text-sm font-semibold text-gray-400 mb-3">
+          {`Don't have an account? `}
+          <Link
+            href="/register"
+            className="text-blue-500 hover:text-blue-800 hover:cursor-pointer"
+          >
+            Sign up
+          </Link>
+        </p>
+        <Link
+          href="/map"
+          className="flex justify-center text-sm font-semibold text-gray-400 hover:cursor-pointer hover:text-gray-500"
+        >
+          Continue as Guest
+        </Link>
+      </form>
+    </div>
   );
 };
 
-export default RegisterModal;
+export default LoginModal;
