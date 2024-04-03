@@ -376,35 +376,74 @@ const MapComponent: FC = () => {
     updateFavorites();
   };
 
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  //const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const file = event.target.files[0];
-      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
-        const reader = new FileReader();
-        reader.onload = (loadEvent: ProgressEvent<FileReader>) => {
-          const target = loadEvent.target as FileReader;
-          if (target && target.result) {
-            setSelectedImage(target.result.toString());
-          }
-        };
-        reader.readAsDataURL(file);
-      } else {
-        console.log("Only JPG and PNG files are allowed.");
-      }
-    }
-  };
+  // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (event.target.files && event.target.files.length > 0) {
+  //     const file = event.target.files[0];
+  //     if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+  //       const reader = new FileReader();
+  //       reader.onload = (loadEvent: ProgressEvent<FileReader>) => {
+  //         const target = loadEvent.target as FileReader;
+  //         if (target && target.result) {
+  //           setSelectedImage(target.result.toString());
+  //         }
+  //       };
+  //       reader.readAsDataURL(file);
+  //     } else {
+  //       console.log("Only JPG and PNG files are allowed.");
+  //     }
+  //   }
+  // };
 
 
   const TempMarkerComponent = () => {
     const [tempMarkerPos, setTempMarkerPos] = useState<L.LatLng | null>(null);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [showFileInput, setShowFileInput] = useState(false);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
   
     useMapEvents({
       click: (e) => {
-        setTempMarkerPos(e.latlng);
+          setTempMarkerPos(e.latlng);
+          setShowFileInput(true);
       },
     });
+
+    useEffect(() => {
+      if (!showFileInput) {
+        setSelectedImage(null);
+      }
+    }, [showFileInput]);
+
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.files && event.target.files.length > 0) {
+        const file = event.target.files[0];
+        if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+          const reader = new FileReader();
+          reader.onload = (loadEvent: ProgressEvent<FileReader>) => {
+            const target = loadEvent.target as FileReader;
+            if (target && target.result) {
+              setSelectedImage(target.result.toString());
+            }
+          };
+          reader.readAsDataURL(file);
+        } else {
+          console.log("Only JPG and PNG files are allowed.");
+        }
+      }
+    };
+
+    const handleRemoveImage = (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      setSelectedImage(null);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    };
   
     return (
       <>
@@ -416,7 +455,25 @@ const MapComponent: FC = () => {
             <Popup className="custom-popup" autoClose={false} closeOnClick={false}>
             Do you want to add a new location at:<br />
             longitude: {tempMarkerPos.lng}, <br />latitude: {tempMarkerPos.lat}
-            <input className="file-upload-button" type="file" accept=".jpg,.jpeg,.png" onChange={handleFileChange} />
+            {/* <input className="file-upload-button" type="file" accept=".jpg,.jpeg,.png" onChange={handleFileChange} /> */}
+            {showFileInput && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  className="file-upload-button"
+                  type="file"
+                  accept=".jpg,.jpeg,.png"
+                  onChange={handleFileChange}
+                />
+                {/* {selectedImage && <img src={selectedImage} alt="Preview" />} */}
+                {selectedImage && (
+                <div>
+                    <img src={selectedImage} alt="Preview" style={{ width: '100%', marginTop: '10px' }} />
+                    <button onClick={handleRemoveImage}>Remove</button>
+                </div>
+              )}
+              </>
+            )}
           </Popup>
           </Marker>
         )}
