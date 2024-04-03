@@ -20,6 +20,7 @@ import {
   Locate,
   MyMarker,
   UserMarker,
+  TempMarker,
 } from "./svgs";
 import L, {
   LatLng,
@@ -43,6 +44,8 @@ import { useUser } from "@/hooks/useUser";
 import { debounce } from "@/hooks/useDebounce";
 import Navbar from "./navbar/Navbar";
 import ReactDOMServer from "react-dom/server";
+import { LatLngExpression } from 'leaflet';
+import "./css/style.css";
 
 interface MarkerData {
   x?: number;
@@ -65,6 +68,13 @@ interface UserCoordinatesItem {
   latitude: number;
 }
 
+// interface ModalProps {
+//   isOpen: boolean;
+//   onClose: () => void;
+//   onConfirm: () => void;
+//   latlng: LatLngExpression | null;
+// }
+
 const customIcon = L.divIcon({
   className: "custom-icon",
   html: ReactDOMServer.renderToString(<MyMarker />),
@@ -85,6 +95,13 @@ const userIcon = L.divIcon({
   className: "user-icon",
   html: ReactDOMServer.renderToString(<UserMarker />),
   iconSize: [18, 18],
+});
+
+const tempIcon = L.divIcon({
+  className: "temp-icon",
+  html: ReactDOMServer.renderToString(<TempMarker />),
+  iconAnchor: [22.5, 45],
+  popupAnchor: [0, -45]
 });
 
 const createClusterCustomIcon = function (cluster: MarkerCluster) {
@@ -359,6 +376,104 @@ const MapComponent: FC = () => {
     updateFavorites();
   };
 
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+        const reader = new FileReader();
+        reader.onload = (loadEvent: ProgressEvent<FileReader>) => {
+          const target = loadEvent.target as FileReader;
+          if (target && target.result) {
+            setSelectedImage(target.result.toString());
+          }
+        };
+        reader.readAsDataURL(file);
+      } else {
+        console.log("Only JPG and PNG files are allowed.");
+      }
+    }
+  };
+
+
+  const TempMarkerComponent = () => {
+    const [tempMarkerPos, setTempMarkerPos] = useState<L.LatLng | null>(null);
+  
+    useMapEvents({
+      click: (e) => {
+        setTempMarkerPos(e.latlng);
+      },
+    });
+  
+    return (
+      <>
+        {tempMarkerPos && (
+          <Marker 
+            position={tempMarkerPos}
+            icon={tempIcon}  
+          >
+            <Popup className="custom-popup" autoClose={false} closeOnClick={false}>
+            Do you want to add a new location at:<br />
+            longitude: {tempMarkerPos.lng}, <br />latitude: {tempMarkerPos.lat}
+            <input className="file-upload-button" type="file" accept=".jpg,.jpeg,.png" onChange={handleFileChange} />
+          </Popup>
+          </Marker>
+        )}
+      </>
+    );
+  };
+
+
+
+
+  // const Modal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm, latlng }) => {
+  //   if (!isOpen || !latlng) return null;
+  
+  //   const { lat, lng } = latlng as { lat: number; lng: number }; 
+  
+  //   return (
+  //     <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', backgroundColor: 'white', padding: '50px', zIndex: 2000 }}>
+  //       <h2>Add New Location</h2>
+  //       <p>Do you want to add a new location at latitude: {lat}, longitude: {lng}?</p>
+  //       <br />
+  //       <button onClick={onConfirm}>Confirm</button>
+  //       <button onClick={onClose}>Cancel</button>
+  //     </div>
+  //   );
+  // };
+
+  
+  // const AddLocationMarker = () => {
+  //   const [modalOpen, setModalOpen] = useState(false);
+  //   const [clickedLatLng, setClickedLatLng] = useState<L.LatLng | null>(null);
+    
+  //   const map = useMapEvents({
+  //     click: (e) => {
+  //       setClickedLatLng(e.latlng); 
+  //       setModalOpen(true);
+  //     },
+  //   });
+  
+  //   const handleConfirm = () => {
+  //     console.log("Location added:", clickedLatLng);
+      
+  //     setModalOpen(false);
+  //   };
+  
+  //   const handleClose = () => {
+  //     setModalOpen(false);
+  //   };
+
+  //   return (
+  //     <>
+  //       <Modal isOpen={modalOpen} onClose={handleClose} onConfirm={handleConfirm} latlng={clickedLatLng} />
+  //     </>
+  //   );
+  
+  // }
+
+
   // Return the JSX for rendering
   return (
     <>
@@ -422,6 +537,8 @@ const MapComponent: FC = () => {
           url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           subdomains={["mt1", "mt2", "mt3"]}
         /> */}
+        <TempMarkerComponent />
+        {/* <AddLocationMarker /> */}
         <MarkerClusterGroup chunkedLoading>
           {markerData?.map((marker) =>
             marker.site_id ? (
