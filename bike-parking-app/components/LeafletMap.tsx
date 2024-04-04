@@ -46,6 +46,7 @@ import Navbar from "./navbar/Navbar";
 import ReactDOMServer from "react-dom/server";
 import { LatLngExpression } from 'leaflet';
 import "./css/style.css";
+import Email from "next-auth/providers/email";
 
 interface MarkerData {
   x?: number;
@@ -396,11 +397,33 @@ const MapComponent: FC = () => {
   //   }
   // };
 
+  function base64ToBlob(base64: string): Blob {
+    const match = base64.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+    if (!match || match.length !== 2) {
+      throw new Error('Invalid Base64 string');
+    }
+    const mime = match[1];
+    
+    const byteString = atob(base64.split(',')[1]);
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    
+    return new Blob([ab], { type: mime });
+  }
+
 
   const TempMarkerComponent = () => {
     const [tempMarkerPos, setTempMarkerPos] = useState<L.LatLng | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [showFileInput, setShowFileInput] = useState(false);
+    const { user } = useUser();
+    //const params = useParams();
+    const username = user?.user_metadata.username;
+    const uuid = user?.id;
+    const email = user?.user_metadata.email;
 
     const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -408,6 +431,11 @@ const MapComponent: FC = () => {
       click: (e) => {
           setTempMarkerPos(e.latlng);
           setShowFileInput(true);
+          setSelectedImage(null);
+
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
       },
     });
 
@@ -416,6 +444,21 @@ const MapComponent: FC = () => {
         setSelectedImage(null);
       }
     }, [showFileInput]);
+
+
+    const handleSubmit = async () => {
+      if (!uuid) {
+        alert("Please Sign in！");
+        return;
+      }
+
+      console.log(email);
+      let imageBlob: Blob | null = null;
+      if (selectedImage !== null) {
+        imageBlob = base64ToBlob(selectedImage);
+      }
+      console.log(imageBlob);
+    }
 
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -470,6 +513,12 @@ const MapComponent: FC = () => {
                 <div>
                     <img src={selectedImage} alt="Preview" style={{ width: '100%', marginTop: '10px' }} />
                     <button onClick={handleRemoveImage}>Remove</button>
+                    <button onClick={handleSubmit} style={{
+                      position: 'absolute',
+                      bottom: '10px',
+                      right: '10px',
+                      zIndex: 1000
+                    }}>Submit</button>
                 </div>
               )}
               </>

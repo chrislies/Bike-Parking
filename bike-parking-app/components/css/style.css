@@ -2,3 +2,9 @@
     width: auto; /* 或者您希望的任何尺寸 */
     height: auto; /* 根据内容自动调整高度 */
   }
+
+.submit{
+  position: 'absolute';
+        bottom: '10px';
+        right: '20px';
+}
