@@ -26,6 +26,7 @@ import {
   favoriteIcon,
   userIcon,
   createClusterCustomIcon,
+  tempIcon
 } from "./Icons";
 import L, { LatLng, map, Icon, point, MarkerCluster, Point } from "leaflet";
 import { latLng } from "leaflet";
@@ -45,6 +46,8 @@ import RoutingMachine from "./LeafletRoutingMachine";
 import ControlGeocoder from "./LeafletControlGeocoder.jsx";
 import Image from "next/image";
 import { getImageSource } from "@/lib/getImageSource";
+import "./css/style.css";
+import Email from "next-auth/providers/email";
 
 interface MarkerData {
   x?: number;
@@ -326,6 +329,156 @@ const MapComponent: FC = () => {
     updateFavorites();
   };
 
+  // Convert a Base64 encoded string to a Blob object
+  function base64ToBlob(base64: string): Blob {
+    const match = base64.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+    if (!match || match.length !== 2) {
+      throw new Error('Invalid Base64 string');
+    }
+    const mime = match[1];
+    
+    const byteString = atob(base64.split(',')[1]);
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    
+    return new Blob([ab], { type: mime });
+  }
+
+
+  // Handles the addition, display and removal of temporary markers on the map, as well as image upload and submission functions.
+  const TempMarkerComponent = () => {
+    const [tempMarkerPos, setTempMarkerPos] = useState<L.LatLng | null>(null);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [showFileInput, setShowFileInput] = useState(false);
+    const { user } = useUser();
+    //const params = useParams();
+    const username = user?.user_metadata.username;
+    const uuid = user?.id;
+    const email = user?.user_metadata.email;
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+  
+    // Listen for events on the map
+    useMapEvents({
+
+      // When the user clicks on the map, add a temporary marker and display the file input box
+      click: (e) => {
+          setTempMarkerPos(e.latlng);
+          setShowFileInput(true);
+          setSelectedImage(null);
+
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
+      },
+
+      // remove temp marker when pop-uo close
+      popupclose: (e) => {
+        setTempMarkerPos(null);
+        setShowFileInput(false);
+        setSelectedImage(null);
+      }
+    });
+
+    // Monitor changes in showFileInput status
+    useEffect(() => {
+      if (!showFileInput) {
+        setSelectedImage(null);
+      }
+    }, [showFileInput]);
+
+    // Check if the user is logged in. Then, if there is an image selected, call base64ToBlob function to covert the object
+    const handleSubmit = async () => {
+      if (!uuid) {
+        alert("Please Sign in！");
+        return;
+      }
+      const request_type = "add_request";
+      console.log(email);
+      let imageBlob: Blob | null = null;
+      if (selectedImage !== null) {
+        imageBlob = base64ToBlob(selectedImage);
+      }
+      console.log(imageBlob);
+      console.log(tempMarkerPos?.lat);
+      console.log(tempMarkerPos?.lng);
+      console.log(request_type);
+    }
+
+    // Handle file selection input and Set the selectedImage state so that the image preview is displayed.
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.files && event.target.files.length > 0) {
+        const file = event.target.files[0];
+        if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+          const reader = new FileReader();
+          reader.onload = (loadEvent: ProgressEvent<FileReader>) => {
+            const target = loadEvent.target as FileReader;
+            if (target && target.result) {
+              setSelectedImage(target.result.toString());
+            }
+          };
+          reader.readAsDataURL(file);
+        } else {
+          console.log("Only JPG and PNG files are allowed.");
+        }
+      }
+    };
+
+    // Clear the selectedImage state and reset the file input box, thereby removing the image preview.
+    const handleRemoveImage = (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      setSelectedImage(null);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    };
+
+    return (
+      <>
+        {tempMarkerPos && (
+          <Marker 
+            position={tempMarkerPos}
+            icon={tempIcon}  
+          >
+            <Popup className="custom-popup" autoClose={false} closeOnClick={false}>
+            Do you want to add a new location at:<br />
+            longitude: {tempMarkerPos.lng}, <br />latitude: {tempMarkerPos.lat}
+            {/* <input className="file-upload-button" type="file" accept=".jpg,.jpeg,.png" onChange={handleFileChange} /> */}
+            {showFileInput && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  className="file-upload-button"
+                  type="file"
+                  accept=".jpg,.jpeg,.png"
+                  onChange={handleFileChange}
+                />
+                {/* {selectedImage && <img src={selectedImage} alt="Preview" />} */}
+                {selectedImage && (
+                <div>
+                    <img src={selectedImage} alt="Preview" style={{ width: '100%', marginTop: '10px' }} />
+                    <button onClick={handleRemoveImage}>Remove</button>
+                    <button onClick={handleSubmit} style={{
+                      position: 'absolute',
+                      bottom: '10px',
+                      right: '10px',
+                      zIndex: 1000
+                    }}>Submit</button>
+                </div>
+              )}
+              </>
+            )}
+          </Popup>
+          </Marker>
+        )}
+      </>
+    );
+  };
+
   // Return the JSX for rendering
   return (
     <>
@@ -389,6 +542,7 @@ const MapComponent: FC = () => {
           url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           subdomains={["mt1", "mt2", "mt3"]}
         /> */}
+        <TempMarkerComponent />
         {!loading && (
           <MarkerClusterGroup chunkedLoading maxClusterRadius={160}>
             {markerData?.map((marker) =>

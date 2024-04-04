@@ -16,6 +16,7 @@ import {
   MyMarker,
   UserMarker,
   SearchPin,
+  TempMarker
 } from "./svgs";
 
 const customIcon = L.divIcon({
@@ -48,6 +49,13 @@ const userIcon = L.divIcon({
   iconSize: [18, 18],
 });
 
+const tempIcon = L.divIcon({
+  className: "temp-icon",
+  html: ReactDOMServer.renderToString(<TempMarker />),
+  iconAnchor: [22.5, 45],
+  popupAnchor: [0, -45]
+});
+
 const createClusterCustomIcon = function (cluster: MarkerCluster) {
   return L.divIcon({
     html: `<span class="cluster-icon">${cluster.getChildCount()}</span>`,
@@ -61,5 +69,6 @@ export {
   favoriteIcon,
   userIcon,
   queryIcon,
+  tempIcon,
   createClusterCustomIcon,
 };
