@@ -20,15 +20,16 @@ async function getCoordinates(): Promise<DataItem[] | null> {
     let allData: DataItem[] = [];
     let offset = 0;
     let hasMoreData = true;
+    let rackTypes = new Map<string, number>();
     while (hasMoreData) {
       const [bikeRacksResponse, streetSignsResponse] = await Promise.all([
         fetch(
-          // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
-          `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=2000&$offset=${offset}`
+          `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
+          // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=1000&$offset=${offset}`
         ),
         fetch(
           // `https://data.cityofnewyork.us/resource/nfid-uabd.json?$limit=50000&$offset=${offset}`
-          `https://data.cityofnewyork.us/resource/nfid-uabd.json?$limit=100&$offset=${offset}`
+          `https://data.cityofnewyork.us/resource/nfid-uabd.json?$limit=1&$offset=${offset}`
         ),
       ]);
 
@@ -36,6 +37,45 @@ async function getCoordinates(): Promise<DataItem[] | null> {
         bikeRacksResponse.json(),
         streetSignsResponse.json(),
       ]);
+
+      // Count the different types of racks
+      // bikeRacksData.forEach((item: any) => {
+      //   if (!rackTypes.has(item.rack_type)) {
+      //     rackTypes.set(item.rack_type, 1);
+      //   } else {
+      //     const count = rackTypes.get(item.rack_type) || 0;
+      //     rackTypes.set(item.rack_type, count + 1);
+      //   }
+      // });
+      // console.log(rackTypes);
+      //       rack types:
+      // {"Bike Corral" => 759} // same as GFI sled
+      // {"LARGE HOOP" => 11160}
+      // {"WAVE RACK" => 1541}
+      // {"U RACK" => 8612}
+      // {"SMALL HOOP" => 9417}
+      // {"UNDETERMINED" => 55}
+      // {"WAVE RACK (PARKS)" => 18}
+      // {"STAPLE (PARKS)" => 1}
+      // {"DOT SLED (BLACK)" => 7}
+      // {"GFI SLED (SILVER)" => 48}
+      // {"Opal Rack (Parks)" => 18}
+
+      // Filter bike data by rack_type
+      // const filteredBikeRacksData = bikeRacksData.filter(
+      //   (item: DataItem) =>
+      //     item.rack_type?.toLowerCase() === "UNDETERMINED".toLowerCase()
+      // );
+
+      // Filter bike data by year
+      // const filteredBikeRacksData = bikeRacksData.filter((item: DataItem) => {
+      //   if (item.date_inst) {
+      //     const year = new Date(item.date_inst).getFullYear();
+      //     if (year === 1900) {
+      //       item.date_inst = "N/A";
+      //     }
+      //   }
+      // });
 
       const combinedData: DataItem[] = [
         ...bikeRacksData.map((item: DataItem) => ({ ...item })),
