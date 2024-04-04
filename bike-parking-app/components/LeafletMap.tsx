@@ -465,7 +465,7 @@ const MapComponent: FC = () => {
         alert("Please Sign in！");
         return;
       }
-
+      const request_type = "add_request";
       console.log(email);
       let imageBlob: Blob | null = null;
       if (selectedImage !== null) {
@@ -474,6 +474,7 @@ const MapComponent: FC = () => {
       console.log(imageBlob);
       console.log(tempMarkerPos?.lat);
       console.log(tempMarkerPos?.lng);
+      console.log(request_type);
     }
 
     // Handle file selection input and Set the selectedImage state so that the image preview is displayed.
