@@ -32,8 +32,8 @@ export default function Navbar() {
     {
       href: "/favorites",
       handleClick: handleFavoritesClick,
-      key: "favorites",
-      label: "Favorites",
+      key: "saved",
+      label: "Saved",
       svg: <NavbarBookmark className={`h-${svgSize} w-${svgSize}`} />,
     },
     {
