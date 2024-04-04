@@ -395,8 +395,8 @@ const MapComponent: FC = () => {
       try {
         const requestData = {
           image: selectedImage,
-          x_coord: tempMarkerPos.lng,
-          y_coord: tempMarkerPos.lat,
+          x_coord: tempMarkerPos?.lng,
+          y_coord: tempMarkerPos?.lat,
           request_type: 'Add',
           email: email,
           description: 'nobody',
