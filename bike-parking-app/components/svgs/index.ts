@@ -12,3 +12,4 @@ export { default as FavoriteMarker } from "./FavoriteMarker.svg";
 export { default as SearchPin } from "./SearchPin.svg";
 export { default as Directions } from "./Directions.svg";
 export { default as NoImage } from "./NoImage.svg";
+export { default as TempMarker } from "./TempMarker.svg";
