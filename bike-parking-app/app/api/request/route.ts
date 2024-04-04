@@ -32,25 +32,3 @@ export async function POST(req: Request) {
   }
 }
 
-export async function DELETE(req: Request) {
-  try {
-    const { uuid, location_id } = await req.json();
-
-    const { data, error } = await supabase
-      .from("Favorites")
-      .delete()
-      .eq("user_id", uuid)
-      .eq("location_id", location_id);
-
-    if (error) {
-      console.log("Error deleting favorite spot:", error);
-      return new NextResponse("Error deleting favorite spot", { status: 500 });
-    }
-
-    console.log("Spot successfully removed from favorites:", data);
-    return NextResponse.json(data);
-  } catch (error) {
-    console.log("Server error:", error);
-    return new NextResponse("Internal Error", { status: 500 });
-  }
-}
