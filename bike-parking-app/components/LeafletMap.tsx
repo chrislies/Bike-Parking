@@ -397,6 +397,8 @@ const MapComponent: FC = () => {
   //   }
   // };
 
+
+  // Convert a Base64 encoded string to a Blob object
   function base64ToBlob(base64: string): Blob {
     const match = base64.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
     if (!match || match.length !== 2) {
@@ -415,6 +417,7 @@ const MapComponent: FC = () => {
   }
 
 
+  // Handles the addition, display and removal of temporary markers on the map, as well as image upload and submission functions.
   const TempMarkerComponent = () => {
     const [tempMarkerPos, setTempMarkerPos] = useState<L.LatLng | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -427,7 +430,10 @@ const MapComponent: FC = () => {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
   
+    // Listen for events on the map
     useMapEvents({
+
+      // When the user clicks on the map, add a temporary marker and display the file input box
       click: (e) => {
           setTempMarkerPos(e.latlng);
           setShowFileInput(true);
@@ -437,15 +443,23 @@ const MapComponent: FC = () => {
             fileInputRef.current.value = "";
           }
       },
+      
+      // remove temp marker when pop-uo close
+      popupclose: (e) => {
+        setTempMarkerPos(null);
+        setShowFileInput(false);
+        setSelectedImage(null);
+      }
     });
 
+    // Monitor changes in showFileInput status
     useEffect(() => {
       if (!showFileInput) {
         setSelectedImage(null);
       }
     }, [showFileInput]);
 
-
+    // Check if the user is logged in. Then, if there is an image selected, call base64ToBlob function to covert the object
     const handleSubmit = async () => {
       if (!uuid) {
         alert("Please Sign in！");
@@ -458,9 +472,11 @@ const MapComponent: FC = () => {
         imageBlob = base64ToBlob(selectedImage);
       }
       console.log(imageBlob);
+      console.log(tempMarkerPos?.lat);
+      console.log(tempMarkerPos?.lng);
     }
 
-
+    // Handle file selection input and Set the selectedImage state so that the image preview is displayed.
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.files && event.target.files.length > 0) {
         const file = event.target.files[0];
@@ -479,6 +495,7 @@ const MapComponent: FC = () => {
       }
     };
 
+    // Clear the selectedImage state and reset the file input box, thereby removing the image preview.
     const handleRemoveImage = (event: React.MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
       setSelectedImage(null);
