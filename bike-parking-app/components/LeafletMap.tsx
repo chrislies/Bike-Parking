@@ -358,6 +358,7 @@ const MapComponent: FC = () => {
     const username = user?.user_metadata.username;
     const uuid = user?.id;
     const email = user?.user_metadata.email;
+    const request_type = "add_request";
 
     const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -390,12 +391,39 @@ const MapComponent: FC = () => {
       }
     }, [showFileInput]);
 
+    const addRequest = debounce(async () => {
+      try {
+        const requestData = {
+          image: selectedImage,
+          x_coord: tempMarkerPos.lng,
+          y_coord: tempMarkerPos.lat,
+          request_type: 'Add',
+          email: email,
+          description: 'nobody',
+        };
+        
+      
+        const response = await axios.post('/api/request', requestData);
+        if (response.status === 200) {
+          console.log('Request successfully added:', response.data);
+
+        } else {
+          console.log('Error adding request:', response.statusText);
+         
+        }
+      } catch (error) {
+        console.error('Server error:', error);
+     
+      }
+    }, 300);
+
     // Check if the user is logged in. Then, if there is an image selected, call base64ToBlob function to covert the object
     const handleSubmit = async () => {
       if (!uuid) {
         alert("Please Sign in！");
         return;
       }
+      addRequest();
       const request_type = "add_request";
       console.log(email);
       let imageBlob: Blob | null = null;
