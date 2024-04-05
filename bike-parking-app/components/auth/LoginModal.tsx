@@ -4,13 +4,11 @@ import { FcGoogle } from "react-icons/fc";
 import * as z from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Spinner } from "../svgs";
 // import { signInWithEmailAndPassword } from "@/app/(auth)/actions";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Database } from "@/lib/database.types";
 import { useUser } from "@/hooks/useUser";
 
 const LoginSchema = z.object({
@@ -70,6 +68,15 @@ const LoginModal = () => {
       setLoading(false);
     }
   };
+
+  async function loginWithGoogle() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "http://localhost:3000/auth/callback",
+      },
+    });
+  }
 
   return (
     <div className="w-full max-w-sm">
@@ -158,7 +165,10 @@ const LoginModal = () => {
           </div>
         </div>
 
-        <button className="flex w-full border-2 py-2 mb-5 rounded-md justify-center items-center font-semibold hover:bg-gray-50">
+        <button
+          onClick={loginWithGoogle}
+          className="flex w-full border-2 py-2 mb-5 rounded-md justify-center items-center font-semibold hover:bg-gray-50"
+        >
           <FcGoogle className="h-6 w-6 mr-3" /> Continue with Google
         </button>
 
