@@ -8,6 +8,10 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Spinner } from "../svgs";
+// import { signInWithEmailAndPassword } from "@/app/(auth)/actions";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Database } from "@/lib/database.types";
+import { useUser } from "@/hooks/useUser";
 
 const LoginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
@@ -16,6 +20,8 @@ const LoginSchema = z.object({
 
 const LoginModal = () => {
   const router = useRouter();
+  const supabase = createClientComponentClient<Database>();
+
   const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -30,25 +36,35 @@ const LoginModal = () => {
   ) => {
     try {
       setLoading(true);
-      const signInData = await signIn("credentials", {
-        email: values.email.toLowerCase(),
-        password: values.password,
-        redirect: false, // Prevent automatic redirect on success
-      });
+      // const signInData = await signIn("credentials", {
+      //   email: values.email.toLowerCase(),
+      //   password: values.password,
+      //   redirect: false, // Prevent automatic redirect on success
+      // });
 
-      if (signInData?.error) {
-        // console.error("Sign-in failed:", signInData.error);
+      // if (signInData?.error) {
+      //   // console.error("Sign-in failed:", signInData.error);
+      //   setLoading(false);
+      //   form.setError("password", {
+      //     type: "manual",
+      //     message: "Incorrect email or password",
+      //     // message: signInData.error,
+      //   });
+      //   return;
+      // }
+
+      const { data, error } = await supabase.auth.signInWithPassword(values);
+      if (error?.message) {
+        console.log(error, error.message);
+        alert(error.message);
         setLoading(false);
-        form.setError("password", {
-          type: "manual",
-          message: "Incorrect email or password",
-        });
         return;
+      } else {
+        // Redirect on successful sign-in
+        // console.log(data);
+        router.push("/map");
+        router.refresh();
       }
-
-      // Redirect on successful sign-in
-      // console.log("Signin Successful");
-      router.push("/map");
     } catch (error) {
       console.error("Sign-in error:", error);
       setLoading(false);

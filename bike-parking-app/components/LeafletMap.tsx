@@ -9,18 +9,45 @@ import {
   Circle,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css";
 import "leaflet-defaulticon-compatibility";
+import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import getCoordinates from "../lib/getCoordinates";
 import getUserCoordinates from "../lib/getUserCoordinates";
-import { Bookmark, Layers, Locate, MyMarker, UserMarker } from "./svgs";
-import L, { LatLng, map, Icon, divIcon, point, MarkerCluster } from "leaflet";
+import {
+  Bookmark,
+  Directions,
+  FavoriteMarker,
+  Layers,
+  Locate,
+  NoImage,
+} from "./svgs";
+import {
+  customIcon,
+  favoriteIcon,
+  userIcon,
+  createClusterCustomIcon,
+  tempIcon
+} from "./Icons";
+import L, { LatLng, map, Icon, point, MarkerCluster, Point } from "leaflet";
 import { latLng } from "leaflet";
 import "leaflet-rotate";
 import MarkerClusterGroup from "react-leaflet-cluster";
-import { iconUser } from "./icons/iconUser";
 import Loader from "./Loader";
 import { formatDate } from "@/lib/formatDate";
+import { supabaseClient } from "@/config/supabaseClient";
+import axios from "axios";
+import qs from "query-string";
+import { useParams, useRouter } from "next/navigation";
+import { useUser } from "@/hooks/useUser";
+import { debounce } from "@/hooks/useDebounce";
+import Navbar from "./navbar/Navbar";
+import ReactDOMServer from "react-dom/server";
+import RoutingMachine from "./LeafletRoutingMachine";
+import ControlGeocoder from "./LeafletControlGeocoder.jsx";
+import Image from "next/image";
+import { getImageSource } from "@/lib/getImageSource";
+import "./css/style.css";
+import Email from "next-auth/providers/email";
 
 interface MarkerData {
   x?: number;
@@ -36,37 +63,12 @@ interface MarkerData {
   sign_description?: string;
   sign_x_coord?: number;
   sign_y_coord?: number;
+  favorite: boolean;
 }
 interface UserCoordinatesItem {
   longitude: number;
   latitude: number;
 }
-
-const customIcon = new L.Icon({
-  // iconUrl: require("./svgs/MyMarker.svg").default,
-  // iconSize: new L.Point(40, 47),
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/447/447031.png",
-  iconSize: [38, 38],
-});
-
-const userIcon = new L.Icon({
-  iconUrl: require("./svgs/UserMarker.svg").default,
-  // iconUrl: require("./images/location-pin.png").default,
-  iconSize: [38, 38],
-});
-
-const createClusterCustomIcon = function (cluster: MarkerCluster) {
-  return L.divIcon({
-    html: `<span class="cluster-icon">${cluster.getChildCount()}</span>`,
-    className: "custom-marker-cluster",
-    iconSize: point(33, 33, true),
-  });
-};
-
-const currentLocationIcon = new L.Icon({
-  // iconUrl: require(""),
-  // https://www.svgrepo.com/svg/333873/current-location
-});
 
 type GeolocationPosition = {
   lat: number;
@@ -188,6 +190,13 @@ const MapComponent: FC = () => {
   const [mapLayer, setMapLayer] = useState<string>("street");
   const mapRef = useRef<any | null>(null); // Declare useRef to reference map
   const maxZoom = 20;
+  const supabase = supabaseClient;
+  const { user } = useUser();
+  const params = useParams();
+  const username = user?.user_metadata.username;
+  const uuid = user?.id;
+  const [favoriteMarkers, setFavoriteMarkers] = useState<string[]>([]);
+  const imageSize = 700;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -195,7 +204,6 @@ const MapComponent: FC = () => {
         setLoading(true);
         try {
           const data = await getCoordinates();
-          // console.log(data);
           setMarkerData(data);
         } catch (error) {
           console.error(error);
@@ -233,11 +241,277 @@ const MapComponent: FC = () => {
     // console.log(mapLayer);
   };
 
+  const fetchFavoriteLocations = async () => {
+    try {
+      const response = await supabase
+        .from("Favorites")
+        .select("location_id")
+        .eq("user_id", uuid);
+      if (response.data) {
+        const favoriteLocations: string[] = response.data.map(
+          (favorite) => favorite.location_id
+        );
+        setFavoriteMarkers(favoriteLocations);
+        // console.log(favoriteLocations, favoriteMarkers);
+      }
+    } catch (error) {
+      console.error("Error fetching favorite locations:", error);
+    }
+  };
+
+  // Call fetchFavoriteLocations when user is authenticated
+  useEffect(() => {
+    if (uuid) {
+      fetchFavoriteLocations();
+    }
+  }, [uuid]);
+
+  // Check if a marker is a favorite
+  const isFavoriteMarker = (marker: MarkerData): boolean => {
+    return favoriteMarkers.includes(marker.site_id || "");
+  };
+
+  const handleSaveFavorite = async (marker: MarkerData) => {
+    const username = user?.user_metadata.username;
+    const uuid = user?.id;
+
+    if (!uuid) {
+      alert("Sign in to favorite locations!");
+      return;
+    }
+
+    const updateFavorites = debounce(async () => {
+      try {
+        if (!favoriteMarkers.includes(marker.site_id || "")) {
+          // Check if the marker is already a favorite
+          // if not, add it to the list of favoriteMarkers
+          setFavoriteMarkers((prevMarkers) => [
+            ...prevMarkers,
+            marker.site_id || "",
+          ]);
+          const values = {
+            uuid,
+            username,
+            location_id: marker.site_id,
+            location_address: marker.ifoaddress,
+            x_coord: marker.x,
+            y_coord: marker.y,
+          };
+          const url = qs.stringifyUrl({
+            url: "api/favorite",
+            query: {
+              id: params?.id,
+            },
+          });
+          await axios.post(url, values);
+          marker.favorite = true;
+        } else {
+          // Remove the marker from the list of favoriteMarkers
+          setFavoriteMarkers((prevMarkers) =>
+            prevMarkers.filter((id) => id !== marker.site_id)
+          );
+          const { data, error } = await supabase
+            .from("Favorites")
+            .delete()
+            .eq("user_id", uuid)
+            .eq("location_id", marker.site_id);
+          if (error) {
+            console.log(`Error removing spot from favortes: ${error}`);
+          }
+          marker.favorite = false;
+        }
+      } catch (error) {
+        console.error("Something went wrong:", error);
+      }
+    }, 300); // Debounce for x milliseconds (100ms = 1s)
+
+    // Call the debounced function to update favorites
+    updateFavorites();
+  };
+
+  // Convert a Base64 encoded string to a Blob object
+  function base64ToBlob(base64: string): Blob {
+    const match = base64.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+    if (!match || match.length !== 2) {
+      throw new Error('Invalid Base64 string');
+    }
+    const mime = match[1];
+    
+    const byteString = atob(base64.split(',')[1]);
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    
+    return new Blob([ab], { type: mime });
+  }
+
+
+  // Handles the addition, display and removal of temporary markers on the map, as well as image upload and submission functions.
+  const TempMarkerComponent = () => {
+    const [tempMarkerPos, setTempMarkerPos] = useState<L.LatLng | null>(null);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [showFileInput, setShowFileInput] = useState(false);
+    const { user } = useUser();
+    //const params = useParams();
+    const username = user?.user_metadata.username;
+    const uuid = user?.id;
+    const email = user?.user_metadata.email;
+    const request_type = "add_request";
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+  
+    // Listen for events on the map
+    useMapEvents({
+
+      // When the user clicks on the map, add a temporary marker and display the file input box
+      click: (e) => {
+          setTempMarkerPos(e.latlng);
+          setShowFileInput(true);
+          setSelectedImage(null);
+
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
+      },
+
+      // remove temp marker when pop-uo close
+      popupclose: (e) => {
+        setTempMarkerPos(null);
+        setShowFileInput(false);
+        setSelectedImage(null);
+      }
+    });
+
+    // Monitor changes in showFileInput status
+    useEffect(() => {
+      if (!showFileInput) {
+        setSelectedImage(null);
+      }
+    }, [showFileInput]);
+
+    const addRequest = debounce(async () => {
+      try {
+        const requestData = {
+          image: selectedImage,
+          x_coord: tempMarkerPos?.lng,
+          y_coord: tempMarkerPos?.lat,
+          request_type: 'Add',
+          email: email,
+          description: 'nobody',
+        };
+        
+      
+        const response = await axios.post('/api/request', requestData);
+        if (response.status === 200) {
+          console.log('Request successfully added:', response.data);
+
+        } else {
+          console.log('Error adding request:', response.statusText);
+         
+        }
+      } catch (error) {
+        console.error('Server error:', error);
+     
+      }
+    }, 300);
+
+    // Check if the user is logged in. Then, if there is an image selected, call base64ToBlob function to covert the object
+    const handleSubmit = async () => {
+      if (!uuid) {
+        alert("Please Sign in！");
+        return;
+      }
+      addRequest();
+      const request_type = "add_request";
+      console.log(email);
+      let imageBlob: Blob | null = null;
+      if (selectedImage !== null) {
+        imageBlob = base64ToBlob(selectedImage);
+      }
+      console.log(imageBlob);
+      console.log(tempMarkerPos?.lat);
+      console.log(tempMarkerPos?.lng);
+      console.log(request_type);
+    }
+
+    // Handle file selection input and Set the selectedImage state so that the image preview is displayed.
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.files && event.target.files.length > 0) {
+        const file = event.target.files[0];
+        if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+          const reader = new FileReader();
+          reader.onload = (loadEvent: ProgressEvent<FileReader>) => {
+            const target = loadEvent.target as FileReader;
+            if (target && target.result) {
+              setSelectedImage(target.result.toString());
+            }
+          };
+          reader.readAsDataURL(file);
+        } else {
+          console.log("Only JPG and PNG files are allowed.");
+        }
+      }
+    };
+
+    // Clear the selectedImage state and reset the file input box, thereby removing the image preview.
+    const handleRemoveImage = (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      setSelectedImage(null);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    };
+
+    return (
+      <>
+        {tempMarkerPos && (
+          <Marker 
+            position={tempMarkerPos}
+            icon={tempIcon}  
+          >
+            <Popup className="custom-popup" autoClose={false} closeOnClick={false}>
+            Do you want to add a new location at:<br />
+            longitude: {tempMarkerPos.lng}, <br />latitude: {tempMarkerPos.lat}
+            {/* <input className="file-upload-button" type="file" accept=".jpg,.jpeg,.png" onChange={handleFileChange} /> */}
+            {showFileInput && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  className="file-upload-button"
+                  type="file"
+                  accept=".jpg,.jpeg,.png"
+                  onChange={handleFileChange}
+                />
+                {/* {selectedImage && <img src={selectedImage} alt="Preview" />} */}
+                {selectedImage && (
+                <div>
+                    <img src={selectedImage} alt="Preview" style={{ width: '100%', marginTop: '10px' }} />
+                    <button onClick={handleRemoveImage}>Remove</button>
+                    <button onClick={handleSubmit} style={{
+                      position: 'absolute',
+                      bottom: '10px',
+                      right: '10px',
+                      zIndex: 1000
+                    }}>Submit</button>
+                </div>
+              )}
+              </>
+            )}
+          </Popup>
+          </Marker>
+        )}
+      </>
+    );
+  };
+
   // Return the JSX for rendering
   return (
     <>
       {loading && <Loader />}
-      <div className="absolute bottom-0 flex flex-col justify-between m-3 gap-3">
+      <div className="absolute sm:bottom-0 max-sm:top-0 max-sm:right-0 flex flex-col max-sm:flex-col-reverse max-sm:items-end justify-between m-3 gap-3">
         <button
           onClick={() => locateMe(mapRef.current)}
           title="Locate Me"
@@ -261,12 +535,14 @@ const MapComponent: FC = () => {
           </span>
         </button>
       </div>
+      <Navbar />
       <MapContainer
         ref={mapRef}
         attributionControl={false}
         center={[40.71151957593488, -73.88017135962203]}
         zoom={11}
         // maxZoom={maxZoom}
+        minZoom={1}
         style={{ height: "100vh", width: "100vw" }}
         rotate={true}
         touchRotate={true}
@@ -294,102 +570,102 @@ const MapComponent: FC = () => {
           url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           subdomains={["mt1", "mt2", "mt3"]}
         /> */}
-        {/* {markerData &&
-          markerData.map((marker, index) => {
-            if (marker.site_id) {
-              console.log(marker);
-              return (
-                <MarkerClusterGroup
+        <TempMarkerComponent />
+        {!loading && (
+          <MarkerClusterGroup chunkedLoading maxClusterRadius={160}>
+            {markerData?.map((marker) =>
+              marker.site_id ? (
+                <Marker
                   key={marker.site_id}
-                  chunkedLoading
-                  // iconCreateFunction={createClusterCustomIcon}
+                  icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}
+                  position={[marker.y!, marker.x!]}
                 >
-                  <Marker
-                    key={index}
-                    // position={L.latLng(marker.y!, marker.x!)}
-                    position={[marker.y!, marker.x!]}
-                    icon={customIcon}
-                  >
-                    <Popup>
-                      {"Site ID: " +
-                        marker.site_id +
-                        "\n" +
-                        "IFOAddress: " +
-                        marker.ifoaddress +
-                        "\n" +
-                        "Rack_Type: " +
-                        marker.rack_type}
-                    </Popup>
-                  </Marker>
-                </MarkerClusterGroup>
-              );
-            } else if (marker.order_number) {
-              console.log(marker);
-              return (
-                <MarkerClusterGroup
-                  key={marker.order_number}
-                  chunkedLoading
-                  // iconCreateFunction={createClusterCustomIcon}
-                >
-                  <Marker
-                    key={index}
-                    // position={L.latLng(marker.y!, marker.x!)}
-                    position={[index!, index!]}
-                    icon={customIcon}
-                  >
-                    <Popup>
-                      {"order_number: " +
-                        marker.order_number +
-                        "\n" +
-                        "Location: " +
-                        marker.on_street +
-                        "From: " +
-                        marker.from_street +
-                        "To: " +
-                        marker.to_street +
-                        "\n" +
-                        "Sign Description: " +
-                        marker.sign_description}
-                    </Popup>
-                  </Marker>
-                </MarkerClusterGroup>
-              );
-            }
-          })} */}
-        <MarkerClusterGroup chunkedLoading>
-          {markerData?.map((marker) =>
-            marker.site_id ? (
-              <Marker
-                key={marker.site_id}
-                icon={customIcon}
-                position={[marker.y!, marker.x!]}
-              >
-                <Popup minWidth={170}>
-                  <div className="popup-rack">
-                    <div className="flex flex-col font-bold">
-                      <p className="side_id !m-0 !p-0 text-base">
-                        {marker.site_id}
+                  <Popup minWidth={170}>
+                    {/* <Popup minWidth={200}> */}
+                    <div className="popup-rack flex flex-col">
+                      <div className="flex flex-col font-bold">
+                        <p className="side_id !m-0 !p-0 text-base">
+                          {marker.site_id}
+                        </p>
+                        <p className="rack_type !m-0 !p-0 text-base">
+                          {marker.rack_type}
+                        </p>
+                        {/* TODO: Add # of reports here */}
+                      </div>
+                      <div className="my-1 flex justify-center items-center select-none pointer-events-none">
+                        {marker.rack_type &&
+                        getImageSource(marker.rack_type) ? (
+                          <Image
+                            className="rounded-md shadow"
+                            src={getImageSource(marker.rack_type)}
+                            alt={marker.rack_type}
+                            height={imageSize}
+                            width={imageSize}
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center">
+                            <NoImage />
+                            <p className="!p-0 !m-0 text-xs">
+                              No image available
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      <p className="ifo_address text-center text-base overflow-x-auto !p-0 !m-0">
+                        {marker.ifoaddress}
                       </p>
-                      <p className="rack_type !m-0 !p-0 text-base">
-                        {marker.rack_type}
-                      </p>
-                      {/* TODO: Add # of reports here */}
+                      <div className="flex flex-col gap-2 mt-1 mb-3">
+                        <button
+                          onClick={() => handleSaveFavorite(marker)}
+                          title="Save Location"
+                          aria-label="Save Location"
+                          aria-disabled="false"
+                          className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
+                        >
+                          <Bookmark
+                            className={`h-7 w-7 hover:cursor-pointer ${
+                              isFavoriteMarker(marker)
+                                ? "fill-yellow-300"
+                                : "fill-transparent"
+                            }`}
+                          />
+                          Save
+                        </button>
+                        <button
+                          onClick={() => {}}
+                          title="Directions"
+                          aria-label="Directions"
+                          aria-disabled="false"
+                          className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
+                        >
+                          <Directions
+                            className={`h-7 w-7 hover:cursor-pointer items-end`}
+                          />
+                          Directions
+                        </button>
+                      </div>
+                      <div className="flex justify-between items-end">
+                        <p className="date_installed italic text-xs !m-0 !p-0">
+                          {`Date Installed: `}
+                          {marker.date_inst &&
+                          new Date(marker.date_inst).getFullYear() === 1900
+                            ? "N/A"
+                            : formatDate(marker.date_inst!)}
+                        </p>
+                      </div>
+                      {/* <button className="popup-buttons" onClick={() => handleSaveFavorite(marker)}>Save as favorite</button> */}
                     </div>
-                    <p className="ifo_address text-center text-base overflow-x-auto !my-5">
-                      {marker.ifoaddress}
-                    </p>
-                    <p className="date_installed italic text-xs !m-0 !p-0">
-                      Date Installed: {formatDate(marker.date_inst!)}
-                    </p>
-                    <Bookmark className="h-9 w-9 absolute right-[6px] bottom-[12px] fill-yellow-300 hover:cursor-pointer" />
-                  </div>
-                </Popup>
-              </Marker>
-            ) : null
-          )}
-        </MarkerClusterGroup>
+                  </Popup>
+                </Marker>
+              ) : null
+            )}
+          </MarkerClusterGroup>
+        )}
+
         <UserLocationMarker />
         <ZoomHandler />
+        {/* <RoutingMachine />  */}
+        <ControlGeocoder />
       </MapContainer>
     </>
   );
