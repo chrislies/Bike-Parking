@@ -1,6 +1,6 @@
-import { supabaseClient } from "@/config/supabaseClient";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import { NextResponse } from "next/server";
-const supabase = supabaseClient;
+const supabase = createSupabaseBrowserClient();
 
 export async function POST(req: Request) {
   try {
