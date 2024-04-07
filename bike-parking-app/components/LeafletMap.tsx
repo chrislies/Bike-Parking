@@ -42,11 +42,9 @@ import "leaflet-rotate";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import Loader from "./Loader";
 import { formatDate } from "@/lib/formatDate";
-import { supabaseClient } from "@/config/supabaseClient";
 import axios from "axios";
 import qs from "query-string";
 import { useParams, useRouter } from "next/navigation";
-import { useUser } from "@/hooks/useUser";
 import { debounce } from "@/hooks/useDebounce";
 import Navbar from "./navbar/Navbar";
 import ReactDOMServer from "react-dom/server";
@@ -55,7 +53,9 @@ import ControlGeocoder from "./LeafletControlGeocoder.jsx";
 import Image from "next/image";
 import { getImageSource } from "@/lib/getImageSource";
 import "./css/style.css";
-import Email from "next-auth/providers/email";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
+import useSession from "@/utils/supabase/use-session";
+import toast, { Toaster } from "react-hot-toast";
 
 interface MarkerData {
   x?: number;
@@ -290,13 +290,14 @@ const MapComponent: FC = () => {
   const [mapLayer, setMapLayer] = useState<string>("street");
   const mapRef = useRef<any | null>(null); // Declare useRef to reference map
   const maxZoom = 20;
-  const supabase = supabaseClient;
-  const { user } = useUser();
   const params = useParams();
-  const username = user?.user_metadata.username;
-  const uuid = user?.id;
   const [favoriteMarkers, setFavoriteMarkers] = useState<string[]>([]);
   const imageSize = 700;
+
+  const supabase = createSupabaseBrowserClient();
+  const session = useSession();
+  const username = session?.user.user_metadata.username;
+  const uuid = session?.user.id;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -374,11 +375,11 @@ const MapComponent: FC = () => {
   // Memoize the handleSaveFavorite function
   const handleSaveFavorite = useCallback(
     (marker: MarkerData) => {
-      const username = user?.user_metadata.username;
-      const uuid = user?.id;
+      const username = session?.user.user_metadata.username;
+      const uuid = session?.user.id;
 
       if (!uuid) {
-        alert("Sign in to favorite locations!");
+        toast.error("Sign in to favorite locations!");
         return;
       }
 
@@ -453,15 +454,15 @@ const MapComponent: FC = () => {
 
   // Handles the addition, display and removal of temporary markers on the map, as well as image upload and submission functions.
   // Memoize the TempMarkerComponent function
-  const TempMarkerComponent = memo(() => {
+  const TempMarkerComponent = () => {
     const [tempMarkerPos, setTempMarkerPos] = useState<L.LatLng | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [showFileInput, setShowFileInput] = useState(false);
-    const { user } = useUser();
-    //const params = useParams();
-    const username = user?.user_metadata.username;
-    const uuid = user?.id;
-    const email = user?.user_metadata.email;
+    const supabase = createSupabaseBrowserClient();
+    const session = useSession();
+    const username = session?.user.user_metadata.username;
+    const uuid = session?.user.id;
+    const email = session?.user.user_metadata.email;
     const request_type = "add_request";
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -519,7 +520,7 @@ const MapComponent: FC = () => {
     // Check if the user is logged in. Then, if there is an image selected, call base64ToBlob function to covert the object
     const handleSubmit = async () => {
       if (!uuid) {
-        alert("Please Sign in！");
+        toast.error("Sign in to submit request!");
         return;
       }
       addRequest();
@@ -590,7 +591,7 @@ const MapComponent: FC = () => {
                   {/* {selectedImage && <img src={selectedImage} alt="Preview" />} */}
                   {selectedImage && (
                     <div>
-                      <img
+                      <Image
                         src={selectedImage}
                         alt="Preview"
                         style={{ width: "100%", marginTop: "10px" }}
@@ -616,11 +617,12 @@ const MapComponent: FC = () => {
         )}
       </>
     );
-  });
+  };
 
   // Return the JSX for rendering
   return (
     <>
+      <Toaster />
       {loading && <Loader />}
       <div className="absolute sm:bottom-0 max-sm:top-0 max-sm:right-0 flex flex-col max-sm:flex-col-reverse max-sm:items-end justify-between m-3 gap-3">
         <button
