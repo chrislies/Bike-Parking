@@ -37,5 +37,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-config/db.json
-lib/test.json
+config/
