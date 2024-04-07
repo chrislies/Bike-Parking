@@ -1,11 +1,11 @@
 "use client";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 import Link from "next/link";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import { useRouter } from "next/navigation";
 
 export default function AccountPage() {
-  const supabase = useSupabaseClient();
+  const supabase = createSupabaseBrowserClient();
   const router = useRouter();
 
   const signOutUser = async () => {

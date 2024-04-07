@@ -5,7 +5,8 @@ import * as z from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { supabaseClient } from "@/config/supabaseClient";
+import toast, { Toaster } from "react-hot-toast";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 
 const RegisterSchema = z
   .object({
@@ -47,7 +48,9 @@ interface FormData {
 }
 
 const RegisterModal = () => {
+  const supabase = createSupabaseBrowserClient();
   const router = useRouter();
+
   const {
     handleSubmit,
     register,
@@ -93,11 +96,11 @@ const RegisterModal = () => {
       // }
 
       // Manual creation successful, proceed with Supabase authentication
-      const { data, error } = await supabaseClient.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
         options: {
-          emailRedirectTo: `${location.origin}/auth/callback`,
+          emailRedirectTo: `${origin}/auth/callback`,
           data: {
             username: values.username,
           },
@@ -106,8 +109,11 @@ const RegisterModal = () => {
       if (error?.message) {
         setError("email", { message: error.message });
       } else {
-        alert(
-          "Successfully signed up. Please check your email to confirm your account."
+        toast.success(
+          "Successfully signed up. Please check your email to confirm your account.",
+          {
+            duration: 10000,
+          }
         );
 
         // Registration successful, redirect to login
@@ -119,148 +125,157 @@ const RegisterModal = () => {
     }
   };
 
+  async function signUpWithGoogle() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${location.origin}/auth/callback`,
+      },
+    });
+  }
+
   return (
-    <div className="w-full max-w-md">
-      <form
-        className="bg-white shadow-md rounded px-8 py-6"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <h1 className="text-center text-2xl pb-3 font-bold">Sign Up</h1>
-        <div className="">
-          <label
-            htmlFor="username"
-            className="block text-gray-700 text-sm font-bold mb-1"
-          >
-            Username
-          </label>
-          <input
-            {...register("username")}
-            className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline 
-            ${errors.username ? "border-red-500" : ""}
-            `}
-            type="text"
-            id="username"
-            placeholder="Username"
-          />
-          {errors.username ? (
-            <p className="text-red-500 text-xs italic">
-              {errors.username.message}
-            </p>
-          ) : (
-            <div className="h-4" />
-          )}
-        </div>
-        <div className="">
-          <label
-            htmlFor="email"
-            className="block text-gray-700 text-sm font-bold mb-1"
-          >
-            Email
-          </label>
-          <input
-            {...register("email")}
-            className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline 
-            ${errors.email ? "border-red-500" : ""}
-            `}
-            type="text"
-            id="email"
-            placeholder="Email"
-          />
-          {errors.email ? (
-            <p className="text-red-500 text-xs italic">
-              {errors.email.message}
-            </p>
-          ) : (
-            <div className="h-4" />
-          )}
-        </div>
-        <div className="flex gap-4">
-          <div className="flex flex-col">
+    <>
+      <Toaster position="top-right" />
+      <div className="w-full max-w-md">
+        <form className="bg-white shadow-md rounded px-8 py-6">
+          <h1 className="text-center text-2xl pb-3 font-bold">Sign Up</h1>
+          <div className="">
             <label
+              htmlFor="username"
               className="block text-gray-700 text-sm font-bold mb-1"
-              htmlFor="password"
             >
-              Password
+              Username
             </label>
             <input
-              {...register("password")}
-              className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline 
-              ${errors.password ? "border-red-500" : ""}
+              {...register("username")}
+              className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline
+              ${errors.username ? "border-red-500" : ""}
               `}
-              id="password"
-              type="password"
-              placeholder="Password"
+              type="text"
+              id="username"
+              placeholder="Username"
             />
-            {errors.password ? (
+            {errors.username ? (
               <p className="text-red-500 text-xs italic">
-                {errors.password.message}
+                {errors.username.message}
               </p>
             ) : (
-              <div className="h-5" />
+              <div className="h-4" />
             )}
           </div>
-          <div className="flex flex-col">
+          <div className="">
             <label
+              htmlFor="email"
               className="block text-gray-700 text-sm font-bold mb-1"
-              htmlFor="confirmPassword"
             >
-              Confirm Password
+              Email
             </label>
             <input
-              {...register("confirmPassword")}
-              className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline 
-              ${errors.confirmPassword ? "border-red-500" : ""}
+              {...register("email")}
+              className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline
+              ${errors.email ? "border-red-500" : ""}
               `}
-              id="confirmPassword"
-              type="password"
-              placeholder="Confirm Password"
+              type="text"
+              id="email"
+              placeholder="Email"
             />
-            {errors.confirmPassword ? (
-              <p className="text-red-500 text-xs italic mb-1">
-                {errors.confirmPassword.message}
+            {errors.email ? (
+              <p className="text-red-500 text-xs italic">
+                {errors.email.message}
               </p>
             ) : (
-              <div className="h-5" />
-            )}{" "}
+              <div className="h-4" />
+            )}
           </div>
-        </div>
-        {/* <p className="mb-1 select-none opacity-0 text-red-500 text-xs italic">
-          Please choose a password.
-        </p> */}
-        <button
-          className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
-          type="submit"
-        >
-          Sign Up
-        </button>
-
-        <div className="flex justify-center my-4">
-          <div className="w-full text-gray-400 flex items-center">
-            <div className="border-t-2 w-full" />
+          <div className="flex gap-4">
+            <div className="flex flex-col">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-1"
+                htmlFor="password"
+              >
+                Password
+              </label>
+              <input
+                {...register("password")}
+                className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline
+                ${errors.password ? "border-red-500" : ""}
+                `}
+                id="password"
+                type="password"
+                placeholder="Password"
+              />
+              {errors.password ? (
+                <p className="text-red-500 text-xs italic">
+                  {errors.password.message}
+                </p>
+              ) : (
+                <div className="h-5" />
+              )}
+            </div>
+            <div className="flex flex-col">
+              <label
+                className="block text-gray-700 text-sm font-bold mb-1"
+                htmlFor="confirmPassword"
+              >
+                Confirm Password
+              </label>
+              <input
+                {...register("confirmPassword")}
+                className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline
+                ${errors.confirmPassword ? "border-red-500" : ""}
+                `}
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm Password"
+              />
+              {errors.confirmPassword ? (
+                <p className="text-red-500 text-xs italic mb-1">
+                  {errors.confirmPassword.message}
+                </p>
+              ) : (
+                <div className="h-5" />
+              )}{" "}
+            </div>
           </div>
-          <p className="text-gray-400 px-4">Or</p>
-          <div className="w-full text-gray-400 flex items-center">
-            <div className="border-t-2 w-full" />
-          </div>
-        </div>
-
-        <button className="flex w-full border-2 py-2 mb-5 rounded-md justify-center items-center font-semibold hover:bg-gray-50">
-          <FcGoogle className="h-6 w-6 mr-3" /> Sign up with Google
-        </button>
-
-        <p className="text-center text-sm font-semibold text-gray-400">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="text-blue-500 hover:text-blue-800 hover:cursor-pointer"
+          {/* <p className="mb-1 select-none opacity-0 text-red-500 text-xs italic">
+            Please choose a password.
+          </p> */}
+          <button
+            onClick={handleSubmit(onSubmit)}
+            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
+            type="submit"
           >
-            Log in
-          </Link>
-        </p>
-      </form>
-    </div>
+            Sign Up
+          </button>
+          <div className="flex justify-center my-4">
+            <div className="w-full text-gray-400 flex items-center">
+              <div className="border-t-2 w-full" />
+            </div>
+            <p className="text-gray-400 px-4">Or</p>
+            <div className="w-full text-gray-400 flex items-center">
+              <div className="border-t-2 w-full" />
+            </div>
+          </div>
+          <button
+            onClick={signUpWithGoogle}
+            className="flex w-full border-2 py-2 mb-5 rounded-md justify-center items-center font-semibold hover:bg-gray-50"
+          >
+            <FcGoogle className="h-6 w-6 mr-3" /> Sign up with Google
+          </button>
+          <p className="text-center text-sm font-semibold text-gray-400">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="text-blue-500 hover:text-blue-800 hover:cursor-pointer"
+            >
+              Log in
+            </Link>
+          </p>
+        </form>
+      </div>
+    </>
   );
 };
 
 export default RegisterModal;
-

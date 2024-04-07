@@ -1,4 +1,12 @@
-import React, { useState, useEffect, useRef, FC } from "react";
+"use client";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  FC,
+  memo,
+  useCallback,
+} from "react";
 import {
   MapContainer,
   TileLayer,
@@ -26,7 +34,7 @@ import {
   favoriteIcon,
   userIcon,
   createClusterCustomIcon,
-  tempIcon
+  tempIcon,
 } from "./Icons";
 import L, { LatLng, map, Icon, point, MarkerCluster, Point } from "leaflet";
 import { latLng } from "leaflet";
@@ -34,11 +42,9 @@ import "leaflet-rotate";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import Loader from "./Loader";
 import { formatDate } from "@/lib/formatDate";
-import { supabaseClient } from "@/config/supabaseClient";
 import axios from "axios";
 import qs from "query-string";
 import { useParams, useRouter } from "next/navigation";
-import { useUser } from "@/hooks/useUser";
 import { debounce } from "@/hooks/useDebounce";
 import Navbar from "./navbar/Navbar";
 import ReactDOMServer from "react-dom/server";
@@ -47,7 +53,9 @@ import ControlGeocoder from "./LeafletControlGeocoder.jsx";
 import Image from "next/image";
 import { getImageSource } from "@/lib/getImageSource";
 import "./css/style.css";
-import Email from "next-auth/providers/email";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
+import useSession from "@/utils/supabase/use-session";
+import toast, { Toaster } from "react-hot-toast";
 
 interface MarkerData {
   x?: number;
@@ -182,6 +190,98 @@ const locateMe = async (map: any) => {
   }
 };
 
+interface MemoizedMarkerProps {
+  marker: MarkerData;
+  isFavoriteMarker: (marker: MarkerData) => boolean;
+  handleSaveFavorite: (marker: MarkerData) => void;
+}
+
+// Memoize Marker component to prevent unnecessary re-renders
+const MemoizedMarker: FC<MemoizedMarkerProps> = ({
+  marker,
+  isFavoriteMarker,
+  handleSaveFavorite,
+}) => {
+  const imageSize = 700;
+  return (
+    <Marker
+      key={marker.site_id}
+      icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}
+      position={[marker.y!, marker.x!]}
+    >
+      <Popup minWidth={170}>
+        {/* <Popup minWidth={200}> */}
+        <div className="popup-rack flex flex-col">
+          <div className="flex flex-col font-bold">
+            <p className="side_id !m-0 !p-0 text-base">{marker.site_id}</p>
+            <p className="rack_type !m-0 !p-0 text-base">{marker.rack_type}</p>
+            {/* TODO: Add # of reports here */}
+          </div>
+          <div className="my-1 flex justify-center items-center select-none pointer-events-none">
+            {marker.rack_type && getImageSource(marker.rack_type) ? (
+              <Image
+                className="rounded-md shadow"
+                src={getImageSource(marker.rack_type)}
+                alt={marker.rack_type}
+                height={imageSize}
+                width={imageSize}
+              />
+            ) : (
+              <div className="flex flex-col w-full items-center bg-slate-200 border-[1px] border-slate-300 rounded-lg p-3">
+                <NoImage />
+                <p className="!p-0 !m-0 text-xs">No image available</p>
+              </div>
+            )}
+          </div>
+          <p className="ifo_address text-center text-base overflow-x-auto !p-0 !m-0">
+            {marker.ifoaddress}
+          </p>
+          <div className="flex flex-col gap-2 mt-1 mb-3">
+            <button
+              onClick={() => handleSaveFavorite(marker)}
+              title="Save Location"
+              aria-label="Save Location"
+              aria-disabled="false"
+              className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
+            >
+              <Bookmark
+                className={`h-7 w-7 hover:cursor-pointer ${
+                  isFavoriteMarker(marker)
+                    ? "fill-yellow-300"
+                    : "fill-transparent"
+                }`}
+              />
+              Save
+            </button>
+            <button
+              onClick={() => {}}
+              title="Directions"
+              aria-label="Directions"
+              aria-disabled="false"
+              className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
+            >
+              <Directions
+                className={`h-7 w-7 hover:cursor-pointer items-end`}
+              />
+              Directions
+            </button>
+          </div>
+          <div className="flex justify-between items-end">
+            <p className="date_installed italic text-xs !m-0 !p-0">
+              {`Date Installed: `}
+              {marker.date_inst &&
+              new Date(marker.date_inst).getFullYear() === 1900
+                ? "N/A"
+                : formatDate(marker.date_inst!)}
+            </p>
+          </div>
+          {/* <button className="popup-buttons" onClick={() => handleSaveFavorite(marker)}>Save as favorite</button> */}
+        </div>
+      </Popup>
+    </Marker>
+  );
+};
+
 const MapComponent: FC = () => {
   const [userCoordinates, setUserCoordinates] =
     useState<UserCoordinatesItem | null>(null);
@@ -190,13 +290,14 @@ const MapComponent: FC = () => {
   const [mapLayer, setMapLayer] = useState<string>("street");
   const mapRef = useRef<any | null>(null); // Declare useRef to reference map
   const maxZoom = 20;
-  const supabase = supabaseClient;
-  const { user } = useUser();
   const params = useParams();
-  const username = user?.user_metadata.username;
-  const uuid = user?.id;
   const [favoriteMarkers, setFavoriteMarkers] = useState<string[]>([]);
   const imageSize = 700;
+
+  const supabase = createSupabaseBrowserClient();
+  const session = useSession();
+  const username = session?.user.user_metadata.username;
+  const uuid = session?.user.id;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -271,108 +372,112 @@ const MapComponent: FC = () => {
     return favoriteMarkers.includes(marker.site_id || "");
   };
 
-  const handleSaveFavorite = async (marker: MarkerData) => {
-    const username = user?.user_metadata.username;
-    const uuid = user?.id;
+  // Memoize the handleSaveFavorite function
+  const handleSaveFavorite = useCallback(
+    (marker: MarkerData) => {
+      const username = session?.user.user_metadata.username;
+      const uuid = session?.user.id;
 
-    if (!uuid) {
-      alert("Sign in to favorite locations!");
-      return;
-    }
-
-    const updateFavorites = debounce(async () => {
-      try {
-        if (!favoriteMarkers.includes(marker.site_id || "")) {
-          // Check if the marker is already a favorite
-          // if not, add it to the list of favoriteMarkers
-          setFavoriteMarkers((prevMarkers) => [
-            ...prevMarkers,
-            marker.site_id || "",
-          ]);
-          const values = {
-            uuid,
-            username,
-            location_id: marker.site_id,
-            location_address: marker.ifoaddress,
-            x_coord: marker.x,
-            y_coord: marker.y,
-          };
-          const url = qs.stringifyUrl({
-            url: "api/favorite",
-            query: {
-              id: params?.id,
-            },
-          });
-          await axios.post(url, values);
-          marker.favorite = true;
-        } else {
-          // Remove the marker from the list of favoriteMarkers
-          setFavoriteMarkers((prevMarkers) =>
-            prevMarkers.filter((id) => id !== marker.site_id)
-          );
-          const { data, error } = await supabase
-            .from("Favorites")
-            .delete()
-            .eq("user_id", uuid)
-            .eq("location_id", marker.site_id);
-          if (error) {
-            console.log(`Error removing spot from favortes: ${error}`);
-          }
-          marker.favorite = false;
-        }
-      } catch (error) {
-        console.error("Something went wrong:", error);
+      if (!uuid) {
+        toast.error("Sign in to favorite locations!");
+        return;
       }
-    }, 300); // Debounce for x milliseconds (100ms = 1s)
 
-    // Call the debounced function to update favorites
-    updateFavorites();
-  };
+      const updateFavorites = debounce(async () => {
+        try {
+          if (!favoriteMarkers.includes(marker.site_id || "")) {
+            // Check if the marker is already a favorite
+            // if not, add it to the list of favoriteMarkers
+            setFavoriteMarkers((prevMarkers) => [
+              ...prevMarkers,
+              marker.site_id || "",
+            ]);
+            const values = {
+              uuid,
+              username,
+              location_id: marker.site_id,
+              location_address: marker.ifoaddress,
+              x_coord: marker.x,
+              y_coord: marker.y,
+            };
+            const url = qs.stringifyUrl({
+              url: "api/favorite",
+              query: {
+                id: params?.id,
+              },
+            });
+            await axios.post(url, values);
+            marker.favorite = true;
+          } else {
+            // Remove the marker from the list of favoriteMarkers
+            setFavoriteMarkers((prevMarkers) =>
+              prevMarkers.filter((id) => id !== marker.site_id)
+            );
+            const { data, error } = await supabase
+              .from("Favorites")
+              .delete()
+              .eq("user_id", uuid)
+              .eq("location_id", marker.site_id);
+            if (error) {
+              console.log(`Error removing spot from favortes: ${error}`);
+            }
+            marker.favorite = false;
+          }
+        } catch (error) {
+          console.error("Something went wrong:", error);
+        }
+      }, 300); // Debounce for x milliseconds (100ms = 1s)
+
+      // Call the debounced function to update favorites
+      updateFavorites();
+    },
+    [favoriteMarkers]
+  );
 
   // Convert a Base64 encoded string to a Blob object
   function base64ToBlob(base64: string): Blob {
     const match = base64.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
     if (!match || match.length !== 2) {
-      throw new Error('Invalid Base64 string');
+      throw new Error("Invalid Base64 string");
     }
     const mime = match[1];
-    
-    const byteString = atob(base64.split(',')[1]);
+
+    const byteString = atob(base64.split(",")[1]);
     const ab = new ArrayBuffer(byteString.length);
     const ia = new Uint8Array(ab);
     for (let i = 0; i < byteString.length; i++) {
       ia[i] = byteString.charCodeAt(i);
     }
-    
+
     return new Blob([ab], { type: mime });
   }
 
-
   // Handles the addition, display and removal of temporary markers on the map, as well as image upload and submission functions.
+  // Memoize the TempMarkerComponent function
   const TempMarkerComponent = () => {
     const [tempMarkerPos, setTempMarkerPos] = useState<L.LatLng | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [showFileInput, setShowFileInput] = useState(false);
-    const { user } = useUser();
-    //const params = useParams();
-    const username = user?.user_metadata.username;
-    const uuid = user?.id;
-    const email = user?.user_metadata.email;
+    const supabase = createSupabaseBrowserClient();
+    const session = useSession();
+    const username = session?.user.user_metadata.username;
+    const uuid = session?.user.id;
+    const email = session?.user.user_metadata.email;
+    const request_type = "add_request";
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
     // Listen for events on the map
     useMapEvents({
-
       // When the user clicks on the map, add a temporary marker and display the file input box
       click: (e) => {
-          setTempMarkerPos(e.latlng);
-          setShowFileInput(true);
-          setSelectedImage(null);
+        setTempMarkerPos(e.latlng);
+        setShowFileInput(true);
+        setSelectedImage(null);
 
-          if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-          }
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
       },
 
       // remove temp marker when pop-uo close
@@ -380,7 +485,7 @@ const MapComponent: FC = () => {
         setTempMarkerPos(null);
         setShowFileInput(false);
         setSelectedImage(null);
-      }
+      },
     });
 
     // Monitor changes in showFileInput status
@@ -390,12 +495,35 @@ const MapComponent: FC = () => {
       }
     }, [showFileInput]);
 
+    const addRequest = debounce(async () => {
+      try {
+        const requestData = {
+          image: selectedImage,
+          x_coord: tempMarkerPos?.lng,
+          y_coord: tempMarkerPos?.lat,
+          request_type: "Add",
+          email: email,
+          description: "nobody",
+        };
+
+        const response = await axios.post("/api/request", requestData);
+        if (response.status === 200) {
+          console.log("Request successfully added:", response.data);
+        } else {
+          console.log("Error adding request:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Server error:", error);
+      }
+    }, 300);
+
     // Check if the user is logged in. Then, if there is an image selected, call base64ToBlob function to covert the object
     const handleSubmit = async () => {
       if (!uuid) {
-        alert("Please Sign in！");
+        toast.error("Sign in to submit request!");
         return;
       }
+      addRequest();
       const request_type = "add_request";
       console.log(email);
       let imageBlob: Blob | null = null;
@@ -406,7 +534,7 @@ const MapComponent: FC = () => {
       console.log(tempMarkerPos?.lat);
       console.log(tempMarkerPos?.lng);
       console.log(request_type);
-    }
+    };
 
     // Handle file selection input and Set the selectedImage state so that the image preview is displayed.
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -440,39 +568,51 @@ const MapComponent: FC = () => {
     return (
       <>
         {tempMarkerPos && (
-          <Marker 
-            position={tempMarkerPos}
-            icon={tempIcon}  
-          >
-            <Popup className="custom-popup" autoClose={false} closeOnClick={false}>
-            Do you want to add a new location at:<br />
-            longitude: {tempMarkerPos.lng}, <br />latitude: {tempMarkerPos.lat}
-            {/* <input className="file-upload-button" type="file" accept=".jpg,.jpeg,.png" onChange={handleFileChange} /> */}
-            {showFileInput && (
-              <>
-                <input
-                  ref={fileInputRef}
-                  className="file-upload-button"
-                  type="file"
-                  accept=".jpg,.jpeg,.png"
-                  onChange={handleFileChange}
-                />
-                {/* {selectedImage && <img src={selectedImage} alt="Preview" />} */}
-                {selectedImage && (
-                <div>
-                    <img src={selectedImage} alt="Preview" style={{ width: '100%', marginTop: '10px' }} />
-                    <button onClick={handleRemoveImage}>Remove</button>
-                    <button onClick={handleSubmit} style={{
-                      position: 'absolute',
-                      bottom: '10px',
-                      right: '10px',
-                      zIndex: 1000
-                    }}>Submit</button>
-                </div>
+          <Marker position={tempMarkerPos} icon={tempIcon}>
+            <Popup
+              className="custom-popup"
+              autoClose={false}
+              closeOnClick={false}
+            >
+              Do you want to add a new location at:
+              <br />
+              longitude: {tempMarkerPos.lng}, <br />
+              latitude: {tempMarkerPos.lat}
+              {/* <input className="file-upload-button" type="file" accept=".jpg,.jpeg,.png" onChange={handleFileChange} /> */}
+              {showFileInput && (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    className="file-upload-button"
+                    type="file"
+                    accept=".jpg,.jpeg,.png"
+                    onChange={handleFileChange}
+                  />
+                  {/* {selectedImage && <img src={selectedImage} alt="Preview" />} */}
+                  {selectedImage && (
+                    <div>
+                      <Image
+                        src={selectedImage}
+                        alt="Preview"
+                        style={{ width: "100%", marginTop: "10px" }}
+                      />
+                      <button onClick={handleRemoveImage}>Remove</button>
+                      <button
+                        onClick={handleSubmit}
+                        style={{
+                          position: "absolute",
+                          bottom: "10px",
+                          right: "10px",
+                          zIndex: 1000,
+                        }}
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
-              </>
-            )}
-          </Popup>
+            </Popup>
           </Marker>
         )}
       </>
@@ -482,6 +622,7 @@ const MapComponent: FC = () => {
   // Return the JSX for rendering
   return (
     <>
+      <Toaster />
       {loading && <Loader />}
       <div className="absolute sm:bottom-0 max-sm:top-0 max-sm:right-0 flex flex-col max-sm:flex-col-reverse max-sm:items-end justify-between m-3 gap-3">
         <button
@@ -547,88 +688,12 @@ const MapComponent: FC = () => {
           <MarkerClusterGroup chunkedLoading maxClusterRadius={160}>
             {markerData?.map((marker) =>
               marker.site_id ? (
-                <Marker
+                <MemoizedMarker
                   key={marker.site_id}
-                  icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}
-                  position={[marker.y!, marker.x!]}
-                >
-                  <Popup minWidth={170}>
-                    {/* <Popup minWidth={200}> */}
-                    <div className="popup-rack flex flex-col">
-                      <div className="flex flex-col font-bold">
-                        <p className="side_id !m-0 !p-0 text-base">
-                          {marker.site_id}
-                        </p>
-                        <p className="rack_type !m-0 !p-0 text-base">
-                          {marker.rack_type}
-                        </p>
-                        {/* TODO: Add # of reports here */}
-                      </div>
-                      <div className="my-1 flex justify-center items-center select-none pointer-events-none">
-                        {marker.rack_type &&
-                        getImageSource(marker.rack_type) ? (
-                          <Image
-                            className="rounded-md shadow"
-                            src={getImageSource(marker.rack_type)}
-                            alt={marker.rack_type}
-                            height={imageSize}
-                            width={imageSize}
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center">
-                            <NoImage />
-                            <p className="!p-0 !m-0 text-xs">
-                              No image available
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      <p className="ifo_address text-center text-base overflow-x-auto !p-0 !m-0">
-                        {marker.ifoaddress}
-                      </p>
-                      <div className="flex flex-col gap-2 mt-1 mb-3">
-                        <button
-                          onClick={() => handleSaveFavorite(marker)}
-                          title="Save Location"
-                          aria-label="Save Location"
-                          aria-disabled="false"
-                          className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
-                        >
-                          <Bookmark
-                            className={`h-7 w-7 hover:cursor-pointer ${
-                              isFavoriteMarker(marker)
-                                ? "fill-yellow-300"
-                                : "fill-transparent"
-                            }`}
-                          />
-                          Save
-                        </button>
-                        <button
-                          onClick={() => {}}
-                          title="Directions"
-                          aria-label="Directions"
-                          aria-disabled="false"
-                          className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
-                        >
-                          <Directions
-                            className={`h-7 w-7 hover:cursor-pointer items-end`}
-                          />
-                          Directions
-                        </button>
-                      </div>
-                      <div className="flex justify-between items-end">
-                        <p className="date_installed italic text-xs !m-0 !p-0">
-                          {`Date Installed: `}
-                          {marker.date_inst &&
-                          new Date(marker.date_inst).getFullYear() === 1900
-                            ? "N/A"
-                            : formatDate(marker.date_inst!)}
-                        </p>
-                      </div>
-                      {/* <button className="popup-buttons" onClick={() => handleSaveFavorite(marker)}>Save as favorite</button> */}
-                    </div>
-                  </Popup>
-                </Marker>
+                  marker={marker}
+                  isFavoriteMarker={isFavoriteMarker}
+                  handleSaveFavorite={handleSaveFavorite}
+                />
               ) : null
             )}
           </MarkerClusterGroup>
