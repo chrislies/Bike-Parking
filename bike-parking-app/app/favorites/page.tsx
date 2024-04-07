@@ -1,10 +1,10 @@
 "use client";
 
 import Loader from "@/components/Loader";
-import { supabaseClient } from "@/config/supabaseClient";
-import { useUser } from "@/hooks/useUser";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
+import useSession from "@/utils/supabase/use-session";
 import Link from "next/link";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BsTrash3Fill } from "react-icons/bs";
 
@@ -20,15 +20,16 @@ interface Favorites {
 }
 
 export default function FavoritesPage() {
-  const supabase = supabaseClient;
+  const supabase = createSupabaseBrowserClient();
   const router = useRouter();
-  const { user } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   const [listOfFavorites, setListOfFavorites] = useState<Favorites[] | null>(
     null
   );
-  const username = user?.user_metadata.username;
-  const uuid = user?.id;
+
+  const session = useSession();
+  const username = session?.user.user_metadata.username;
+  const uuid = session?.user.id;
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -89,8 +90,8 @@ export default function FavoritesPage() {
       ) : listOfFavorites.length === 0 ? (
         <div className="absolute inset-0 flex flex-col justify-center items-center gap-4">
           <h1 className="text-2xl">No spots favorited yet!</h1>
-          <Link href="/" className="hover:underline">
-            Go back to map
+          <Link href="/" className="hover:underline font-bold text-lg">
+            {`<-- Go back to map`}
           </Link>
         </div>
       ) : (
