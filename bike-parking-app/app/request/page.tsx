@@ -1,11 +1,10 @@
 "use client";
 import Loader from "@/components/Loader";
-import { supabaseClient } from "@/config/supabaseClient";
-import { useUser } from "@/hooks/useUser";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
+import useSession from "@/utils/supabase/use-session";
+import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { BsTrash3Fill } from "react-icons/bs";
 
 interface PendingRequest {
   id: number;
@@ -19,21 +18,21 @@ interface PendingRequest {
 }
 
 export default function PendingRequestsPage() {
-  const supabase = supabaseClient;
+  const supabase = createSupabaseBrowserClient();
 
-  const { user } = useUser();
   const [isLoading, setIsLoading] = useState(true);
-  const [pendingRequests, setPendingRequests] = useState<PendingRequest[] | null>(null);
-  const username = user?.user_metadata.username;
-  const email = user?.email;
+  const [pendingRequests, setPendingRequests] = useState<
+    PendingRequest[] | null
+  >(null);
+
+  const session = useSession();
+  const username = session?.user.user_metadata.username;
+  const email = session?.user.email;
 
   useEffect(() => {
     const fetchPendingRequests = async () => {
       try {
-        const { data, error } = await supabase
-          .from("Pending")
-          .select();
-         
+        const { data, error } = await supabase.from("Pending").select();
 
         if (error) {
           throw new Error(`Error fetching pending requests: ${error.message}`);
@@ -47,12 +46,9 @@ export default function PendingRequestsPage() {
       }
     };
 
-   
-      fetchPendingRequests();
+    fetchPendingRequests();
+  });
 
-  }, );
-
-  
   return (
     <div>
       <h1 className="z-[-1] absolute inset-0 flex justify-center text-3xl font-bold underline mt-5">
@@ -73,7 +69,11 @@ export default function PendingRequestsPage() {
           {pendingRequests.map((request: PendingRequest, index: number) => (
             <div key={index} className="flex flex-row items-center gap-10 my-6">
               <span className="font-bold text-xl">{`${index + 1})`}</span>
-              <img src={request.image} alt="Request Image" className="w-24 h-24" />
+              <Image
+                src={request.image}
+                alt="Request Image"
+                className="w-24 h-24"
+              />
               <div>
                 <p>Email: {request.email}</p>
                 <p>X Coordinate: {request.x_coord}</p>
@@ -82,8 +82,6 @@ export default function PendingRequestsPage() {
                 <p>Description: {request.description}</p>
                 <p>Created At: {request.created_at}</p>
               </div>
-
-                
             </div>
           ))}
           <Link href="/" className="hover:underline font-bold text-lg">
