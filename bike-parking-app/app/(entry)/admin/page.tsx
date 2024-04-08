@@ -1,7 +1,8 @@
-import AdminModal from "@/components/auth/AdminModal"; // Adjust the import path according to your file structure
+import React from 'react'
+import AdminDashboard from '@/components/admin/AdminDashboard'
 
-async function admin() {
-  return <AdminModal />;
-};
-
-export default admin;
+export default function AdminPage() {
+  return (
+    <AdminDashboard />
+    )
+}
