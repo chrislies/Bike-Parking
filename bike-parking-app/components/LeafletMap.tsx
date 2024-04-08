@@ -507,7 +507,7 @@ const MapComponent: FC = () => {
           image: selectedImage,
           x_coord: tempMarkerPos?.lng,
           y_coord: tempMarkerPos?.lat,
-          request_type: "Add",
+          request_type: request_type,
           email: email,
           description: description,
         };

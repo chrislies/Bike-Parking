@@ -1,5 +1,7 @@
 import React, { useState, MouseEvent } from 'react';
 import "./css/style.css";
+import useSession from "@/utils/supabase/use-session";
+import toast, { Toaster } from "react-hot-toast";
 
 
 interface Report {
@@ -14,6 +16,9 @@ const ReportComponent = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [reportText, setReportText] = useState('');
   const [reports, setReports] = useState<Report[]>([]);
+  const session = useSession();
+  const username = session?.user.user_metadata.username;
+  const uuid = session?.user.id;
 
 
 
@@ -65,6 +70,11 @@ const ReportComponent = () => {
     event.preventDefault();
     event.stopPropagation();
 
+    if (!uuid) {
+      toast.error("Sign in to submit request!");
+      return;
+    }
+
     const newReport = {
       option: selectedOption,
       description: reportText,
@@ -73,6 +83,8 @@ const ReportComponent = () => {
     setModalOpen(false);
     setReportText('');
     setSelectedOption('');
+
+    console.log(username);
   };
 
 
