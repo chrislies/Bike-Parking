@@ -12,7 +12,7 @@
 
 
 .modal-content {
-  width: auto;
+  width: 400px;
   height: auto;
   max-width: 640px;
   padding: 20px;
@@ -38,6 +38,15 @@
   justify-content: center;
   align-items: center;
 }
+
+.comments-title {
+  font-size: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
 
 
 .report-title {
@@ -85,4 +94,13 @@
 
 .options input[type="radio"] {
   margin-right: 10px;
+}
+
+.comment {
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+}
+
+.comment:last-child {
+  border-bottom: none;
 }

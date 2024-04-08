@@ -51,6 +51,7 @@ const ReportComponent = () => {
   const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedOption(event.target.value);
     setShowAlert(false);
+    console.log("Option selected:", event.target.value);
   };
 
   const handleOtherInputChange = (event: React.FocusEvent<HTMLInputElement>) => {
@@ -89,11 +90,11 @@ const ReportComponent = () => {
               <div>
                 {/* <p>Here are the comments...</p>
                 <button className="report-button" onClick={switchToSubmit}>File a Report</button> */}
-                <p>Here are the comments...</p>
+                <p className="comments-title">Reports</p>
                 {reports.map((report, index) => (
-                  <div key={index}>
-                    <p>Option: {report.option}</p>
-                    <p>Description: {report.description}</p>
+                  <div key={index} className="comment">
+                    <p>{report.option} : {report.description}</p>
+                    <p></p>
                   </div>
                 ))}
                 <button className="report-button" onClick={switchToSubmit}>File a Report</button>
@@ -103,9 +104,9 @@ const ReportComponent = () => {
                 {view === 'submit' && (
                   <div>
                     <button className="back-button" onClick={switchToComments}>&larr;</button>
-                    <form>
+                    {/* <form>
                       <h3 className="report-title">Your Report</h3>
-                    </form>
+                    </form> */}
                   </div>
                 )}
                 <form>
@@ -113,25 +114,20 @@ const ReportComponent = () => {
                   <h4 className="option-title">Choose Option</h4>
                   <div className="options">
                     <label className="option">
-                      <input type="radio" name="reportOption" value="Theft" />
+                      <input type="radio" name="reportOption" value="Theft" onChange={handleOptionChange}/>
                       Theft
                     </label>
                     <label className="option">
-                      <input type="radio" name="reportOption" value="Unsafe" />
+                      <input type="radio" name="reportOption" value="Unsafe" onChange={handleOptionChange}/>
                       Unsafe
                     </label>
                     <label className="option">
-                      <input type="radio" name="reportOption" value="Inaccurate" />
+                      <input type="radio" name="reportOption" value="Inaccurate" onChange={handleOptionChange}/>
                       Inaccurate
                     </label>
                     <label className="option">
-                      <input
-                        type="radio"
-                        name="reportOption"
-                        value="Other"
-                        onChange={handleOptionChange}
-                      />
-                      Other
+                      <input type="radio" name="reportOption" value="Other" onChange={handleOptionChange}/>
+                      Other: 
                       <input
                         type="text"
                         className="other-specify-input"
