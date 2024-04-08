@@ -478,6 +478,7 @@ const MapComponent: FC = () => {
         setTempMarkerPos(e.latlng);
         setShowFileInput(true);
         setSelectedImage(null);
+        setDescription('');
 
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
@@ -489,6 +490,7 @@ const MapComponent: FC = () => {
         setTempMarkerPos(null);
         setShowFileInput(false);
         setSelectedImage(null);
+        setDescription('');
       },
     });
 
