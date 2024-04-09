@@ -56,6 +56,9 @@ import "./css/style.css";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
+import "./css/style.css";
+import ReportComponent from './ReportComponent';
+
 
 interface MarkerData {
   x?: number;
@@ -167,7 +170,7 @@ function UserLocationMarker() {
         <Circle
           center={[position.lat, position.lng]}
           radius={accuracy}
-          // pathOptions={{ color: "blue", fillColor: "blue" }}
+        // pathOptions={{ color: "blue", fillColor: "blue" }}
         />
       )}
     </>
@@ -216,6 +219,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
             <p className="side_id !m-0 !p-0 text-base">{marker.site_id}</p>
             <p className="rack_type !m-0 !p-0 text-base">{marker.rack_type}</p>
             {/* TODO: Add # of reports here */}
+            {marker.site_id && <ReportComponent siteId={marker.site_id} />}
           </div>
           <div className="my-1 flex justify-center items-center select-none pointer-events-none">
             {marker.rack_type && getImageSource(marker.rack_type) ? (
@@ -245,16 +249,15 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
               className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
             >
               <Bookmark
-                className={`h-7 w-7 hover:cursor-pointer ${
-                  isFavoriteMarker(marker)
+                className={`h-7 w-7 hover:cursor-pointer ${isFavoriteMarker(marker)
                     ? "fill-yellow-300"
                     : "fill-transparent"
-                }`}
+                  }`}
               />
               Save
             </button>
             <button
-              onClick={() => {}}
+              onClick={() => { }}
               title="Directions"
               aria-label="Directions"
               aria-disabled="false"
@@ -270,7 +273,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
             <p className="date_installed italic text-xs !m-0 !p-0">
               {`Date Installed: `}
               {marker.date_inst &&
-              new Date(marker.date_inst).getFullYear() === 1900
+                new Date(marker.date_inst).getFullYear() === 1900
                 ? "N/A"
                 : formatDate(marker.date_inst!)}
             </p>
@@ -464,8 +467,9 @@ const MapComponent: FC = () => {
     const uuid = session?.user.id;
     const email = session?.user.user_metadata.email;
     const request_type = "add_request";
-
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [description, setDescription] = useState('');
+
 
     // Listen for events on the map
     useMapEvents({
@@ -474,6 +478,7 @@ const MapComponent: FC = () => {
         setTempMarkerPos(e.latlng);
         setShowFileInput(true);
         setSelectedImage(null);
+        setDescription('');
 
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
@@ -485,6 +490,7 @@ const MapComponent: FC = () => {
         setTempMarkerPos(null);
         setShowFileInput(false);
         setSelectedImage(null);
+        setDescription('');
       },
     });
 
@@ -501,9 +507,9 @@ const MapComponent: FC = () => {
           image: selectedImage,
           x_coord: tempMarkerPos?.lng,
           y_coord: tempMarkerPos?.lat,
-          request_type: "Add",
+          request_type: request_type,
           email: email,
-          description: "nobody",
+          description: description,
         };
 
         const response = await axios.post("/api/request", requestData);
@@ -523,7 +529,7 @@ const MapComponent: FC = () => {
         toast.error("Sign in to submit request!");
         return;
       }
-      addRequest();
+      //addRequest();
       const request_type = "add_request";
       console.log(email);
       let imageBlob: Blob | null = null;
@@ -534,6 +540,9 @@ const MapComponent: FC = () => {
       console.log(tempMarkerPos?.lat);
       console.log(tempMarkerPos?.lng);
       console.log(request_type);
+      console.log(description)
+
+      setDescription('');
     };
 
     // Handle file selection input and Set the selectedImage state so that the image preview is displayed.
@@ -591,7 +600,7 @@ const MapComponent: FC = () => {
                   {/* {selectedImage && <img src={selectedImage} alt="Preview" />} */}
                   {selectedImage && (
                     <div>
-                      <Image
+                      <img
                         src={selectedImage}
                         alt="Preview"
                         style={{ width: "100%", marginTop: "10px" }}
@@ -610,6 +619,12 @@ const MapComponent: FC = () => {
                       </button>
                     </div>
                   )}
+                  <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Add description for the location"
+                style={{ width: '100%' }}
+              />
                 </>
               )}
             </Popup>
