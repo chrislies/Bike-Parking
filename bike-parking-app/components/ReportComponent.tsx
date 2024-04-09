@@ -24,6 +24,8 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
   const username = session?.user.user_metadata.username;
   const uuid = session?.user.id;
   const site_id = siteId;
+  const [otherOption, setOtherOption] = useState('');
+
 
 
 
@@ -80,15 +82,22 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
       return;
     }
 
+    const finalOption = selectedOption === 'Other' && otherOption.trim() !== '' ? otherOption : selectedOption;
+
     const newReport = {
-      option: selectedOption,
+      //option: selectedOption,
+      option: finalOption,
       description: reportText,
     };
     setReports([...reports, newReport]);
+
+    // Reset the state
     setModalOpen(false);
     setReportText('');
     setSelectedOption('');
+    setOtherOption('');
 
+    // require information 
     console.log(username);
     console.log(site_id);
   };
@@ -151,7 +160,9 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
                         className="other-specify-input"
                         placeholder="Please specify"
                         disabled={selectedOption !== 'Other'}
+                        value={otherOption}
                         onFocus={handleOtherInputChange}
+                        onChange={(e) => setOtherOption(e.target.value)}
                       />
                     </label>
                   </div>
