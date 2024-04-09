@@ -9,7 +9,11 @@ interface Report {
   description: string;
 }
 
-const ReportComponent = () => {
+interface ReportComponentProps {
+  siteId: string;
+}
+
+const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [view, setView] = useState('comments');
   const [selectedOption, setSelectedOption] = useState('');
@@ -19,6 +23,7 @@ const ReportComponent = () => {
   const session = useSession();
   const username = session?.user.user_metadata.username;
   const uuid = session?.user.id;
+  const site_id = siteId;
 
 
 
@@ -85,6 +90,7 @@ const ReportComponent = () => {
     setSelectedOption('');
 
     console.log(username);
+    console.log(site_id);
   };
 
 

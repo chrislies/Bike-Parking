@@ -219,7 +219,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
             <p className="side_id !m-0 !p-0 text-base">{marker.site_id}</p>
             <p className="rack_type !m-0 !p-0 text-base">{marker.rack_type}</p>
             {/* TODO: Add # of reports here */}
-            <ReportComponent />
+            {marker.site_id && <ReportComponent siteId={marker.site_id} />}
           </div>
           <div className="my-1 flex justify-center items-center select-none pointer-events-none">
             {marker.rack_type && getImageSource(marker.rack_type) ? (
