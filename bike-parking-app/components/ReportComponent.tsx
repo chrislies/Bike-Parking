@@ -74,6 +74,11 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
   };
 
   const handleSubmitReport = (event: React.MouseEvent<HTMLButtonElement>) => {
+
+    if (!selectedOption || !reportText.trim()) {
+      alert('Please select an option and fill in the description.');
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
 
@@ -175,7 +180,12 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
                     value={reportText}
                     onChange={(e) => setReportText(e.target.value)}
                   ></textarea>
-                  <button type='button' onClick={handleSubmitReport}>Submit Report</button>
+                  <button 
+                    type='button' 
+                    onClick={handleSubmitReport} 
+                    //disabled={!selectedOption || !reportText.trim()}
+                    >Submit Report
+                  </button>
                 </form>
               </div>
             )}
