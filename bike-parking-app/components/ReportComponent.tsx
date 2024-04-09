@@ -155,7 +155,7 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
                       />
                     </label>
                   </div>
-                  {showAlert && <p className="alert">Please select "Other" to specify.</p>}
+                  {showAlert && <p className="alert">Please select Other to specify.</p>}
                   <br />
                   <h5>Description</h5>
                   {/* <textarea placeholder='Type your report here...'></textarea> */}
