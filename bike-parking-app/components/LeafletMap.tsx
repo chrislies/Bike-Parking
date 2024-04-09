@@ -197,6 +197,7 @@ interface MemoizedMarkerProps {
   marker: MarkerData;
   isFavoriteMarker: (marker: MarkerData) => boolean;
   handleSaveFavorite: (marker: MarkerData) => void;
+  handleDeleteRequest:(marker: MarkerData) => void;
 }
 
 // Memoize Marker component to prevent unnecessary re-renders
@@ -204,6 +205,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
   marker,
   isFavoriteMarker,
   handleSaveFavorite,
+  handleDeleteRequest,
 }) => {
   const imageSize = 700;
   return (
@@ -268,6 +270,22 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
               />
               Directions
             </button>
+             
+            {/* Delete Button */}
+            <button
+              onClick={() => handleDeleteRequest(marker)}
+              title="Delete"
+              aria-label="Delete"
+              aria-disabled="false"
+              className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
+            >
+              <Directions
+                className={`h-7 w-7 hover:cursor-pointer items-end`}
+              />
+              DeleteRequest
+            </button>
+
+
           </div>
           <div className="flex justify-between items-end">
             <p className="date_installed italic text-xs !m-0 !p-0">
@@ -529,7 +547,7 @@ const MapComponent: FC = () => {
         toast.error("Sign in to submit request!");
         return;
       }
-      //addRequest();
+      addRequest();
       const request_type = "add_request";
       console.log(email);
       let imageBlob: Blob | null = null;
@@ -634,6 +652,50 @@ const MapComponent: FC = () => {
     );
   };
 
+  const handleDeleteRequest = (marker: MarkerData) => {
+    const username = session?.user.user_metadata.username;
+    const uuid = session?.user.id;
+    const email = session?.user.email;
+  
+    if (!uuid) {
+      toast.error("Sign in to delete locations!");
+      return;
+    }
+  
+    // Prompt the user to enter a message
+    const message = prompt("Please enter your message:");
+  
+    // Check if the user has entered a message
+    if (!message) {
+      toast.error("Message is required!");
+      return;
+    }
+  
+    const updatePending = debounce(async () => {
+      try {
+        const requestData = {
+          x_coord: marker?.x,
+          y_coord: marker?.y,
+          site_id:marker?.site_id,
+          request_type: "Delete",
+          email: email,
+          description: message, // Use the message entered by the user
+        };
+  
+        const response = await axios.post("/api/request", requestData);
+        if (response.status === 200) {
+          console.log("Request successfully added:", response.data);
+        } else {
+          console.log("Error adding request:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Server error:", error);
+      }
+    }, 300);
+  
+    updatePending();
+  }
+
   // Return the JSX for rendering
   return (
     <>
@@ -708,6 +770,7 @@ const MapComponent: FC = () => {
                   marker={marker}
                   isFavoriteMarker={isFavoriteMarker}
                   handleSaveFavorite={handleSaveFavorite}
+                  handleDeleteRequest={handleDeleteRequest}
                 />
               ) : null
             )}

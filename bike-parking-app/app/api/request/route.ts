@@ -13,6 +13,7 @@ export async function POST(req: Request) {
       image,
       email,
       description,
+      site_id,
     } = await req.json();
 
     const { data, error } = await supabase.from("Pending").insert(
@@ -23,6 +24,7 @@ export async function POST(req: Request) {
         x_coord: x_coord,
         y_coord: y_coord,
         description: description,
+        site_id:site_id,
       },
       { returning: "minimal" } as any
     );
