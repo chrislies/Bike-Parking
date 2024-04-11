@@ -1,16 +1,27 @@
-import React, { useState, MouseEvent } from 'react';
+import React, { useState, useEffect, MouseEvent } from 'react';
 import "./css/style.css";
 import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
+import { debounce } from "@/hooks/useDebounce";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 
 
 interface Report {
   option: string;
   description: string;
+  username: string;
+  created_at: string;
 }
 
 interface ReportComponentProps {
   siteId: string;
+}
+
+interface ReportData {
+  username: string;
+  option: string;
+  site_id: string;
+  description: string;
 }
 
 const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
@@ -24,7 +35,27 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
   const username = session?.user.user_metadata.username;
   const uuid = session?.user.id;
   const site_id = siteId;
+  const [otherOption, setOtherOption] = useState('');
+  const supabase = createSupabaseBrowserClient();
 
+
+  const fetchReports = async () => {
+    const { data, error } = await supabase
+      .from('Report')
+      .select('created_at, username, option, description')
+      .eq('location_id', siteId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching reports:', error);
+    } else {
+      setReports(data);
+    }
+  };
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
 
   const openModal = () => {
@@ -71,7 +102,12 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
     }
   };
 
-  const handleSubmitReport = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmitReport = async (event: React.MouseEvent<HTMLButtonElement>) => {
+
+    if (!selectedOption || !reportText.trim()) {
+      alert('Please select an option and fill in the description.');
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
 
@@ -80,18 +116,68 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
       return;
     }
 
-    const newReport = {
-      option: selectedOption,
+    const finalOption = selectedOption === 'Other' && otherOption.trim() !== '' ? otherOption : selectedOption;
+
+    // const newReport = {
+    //   //option: selectedOption,
+    //   option: finalOption,
+    //   description: reportText,
+    // };
+    // setReports([...reports, newReport]);
+
+    const reportData: ReportData = {
+      username: username,
+      option: finalOption,
+      site_id: site_id,
       description: reportText,
     };
-    setReports([...reports, newReport]);
+
+    await addReport(reportData);
+
+    // Reset the state
     setModalOpen(false);
     setReportText('');
     setSelectedOption('');
+    setOtherOption('');
 
+    // require information 
     console.log(username);
     console.log(site_id);
+
   };
+
+
+const addReport = debounce(async (reportData: ReportData) => {
+  try {
+
+    const { username, option, site_id, description } = reportData;
+
+    const requestData = {
+      username: username,
+      option: option,
+      site_id: site_id,
+      description: description,
+    };
+
+    const response = await fetch("/api/report", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(requestData)
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      console.log("Report successfully added:", responseData);
+    } else {
+      console.error("Error adding report:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Server error when adding report:", error);
+  }
+}, 300);
+
 
 
 
@@ -112,6 +198,7 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
                 {reports.map((report, index) => (
                   <div key={index} className="comment">
                     <p>{report.option} : {report.description}</p>
+                    <p>Post by: {report.username} , {report.created_at}</p>
                     <p></p>
                   </div>
                 ))}
@@ -151,7 +238,9 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
                         className="other-specify-input"
                         placeholder="Please specify"
                         disabled={selectedOption !== 'Other'}
+                        value={otherOption}
                         onFocus={handleOtherInputChange}
+                        onChange={(e) => setOtherOption(e.target.value)}
                       />
                     </label>
                   </div>
@@ -164,7 +253,12 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
                     value={reportText}
                     onChange={(e) => setReportText(e.target.value)}
                   ></textarea>
-                  <button type='button' onClick={handleSubmitReport}>Submit Report</button>
+                  <button 
+                    type='button' 
+                    onClick={handleSubmitReport} 
+                    //disabled={!selectedOption || !reportText.trim()}
+                    >Submit Report
+                  </button>
                 </form>
               </div>
             )}
