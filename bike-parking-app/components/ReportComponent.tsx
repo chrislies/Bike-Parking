@@ -1,13 +1,15 @@
-import React, { useState, MouseEvent } from 'react';
+import React, { useState, useEffect, MouseEvent } from 'react';
 import "./css/style.css";
 import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
 import { debounce } from "@/hooks/useDebounce";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 
 
 interface Report {
   option: string;
   description: string;
+  username: string;
 }
 
 interface ReportComponentProps {
@@ -33,8 +35,25 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
   const uuid = session?.user.id;
   const site_id = siteId;
   const [otherOption, setOtherOption] = useState('');
+  const supabase = createSupabaseBrowserClient();
 
 
+  const fetchReports = async () => {
+    const { data, error } = await supabase
+      .from('Report')
+      .select('username, option, description')
+      .eq('location_id', siteId);
+
+    if (error) {
+      console.error('Error fetching reports:', error);
+    } else {
+      setReports(data);
+    }
+  };
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
 
   const openModal = () => {
@@ -97,12 +116,12 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
 
     const finalOption = selectedOption === 'Other' && otherOption.trim() !== '' ? otherOption : selectedOption;
 
-    const newReport = {
-      //option: selectedOption,
-      option: finalOption,
-      description: reportText,
-    };
-    setReports([...reports, newReport]);
+    // const newReport = {
+    //   //option: selectedOption,
+    //   option: finalOption,
+    //   description: reportText,
+    // };
+    // setReports([...reports, newReport]);
 
     const reportData: ReportData = {
       username: username,
@@ -177,6 +196,7 @@ const addReport = debounce(async (reportData: ReportData) => {
                 {reports.map((report, index) => (
                   <div key={index} className="comment">
                     <p>{report.option} : {report.description}</p>
+                    <p>Post by: {report.username}</p>
                     <p></p>
                   </div>
                 ))}
