@@ -2,6 +2,7 @@ import React, { useState, MouseEvent } from 'react';
 import "./css/style.css";
 import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
+import { debounce } from "@/hooks/useDebounce";
 
 
 interface Report {
@@ -11,6 +12,13 @@ interface Report {
 
 interface ReportComponentProps {
   siteId: string;
+}
+
+interface ReportData {
+  username: string;
+  option: string;
+  site_id: string;
+  description: string;
 }
 
 const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
@@ -73,7 +81,7 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
     }
   };
 
-  const handleSubmitReport = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmitReport = async (event: React.MouseEvent<HTMLButtonElement>) => {
 
     if (!selectedOption || !reportText.trim()) {
       alert('Please select an option and fill in the description.');
@@ -96,6 +104,15 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
     };
     setReports([...reports, newReport]);
 
+    const reportData: ReportData = {
+      username: username,
+      option: finalOption,
+      site_id: site_id,
+      description: reportText,
+    };
+
+    await addReport(reportData);
+
     // Reset the state
     setModalOpen(false);
     setReportText('');
@@ -105,7 +122,41 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
     // require information 
     console.log(username);
     console.log(site_id);
+
   };
+
+
+const addReport = debounce(async (reportData: ReportData) => {
+  try {
+
+    const { username, option, site_id, description } = reportData;
+
+    const requestData = {
+      username: username,
+      option: option,
+      site_id: site_id,
+      description: description,
+    };
+
+    const response = await fetch("/api/report", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(requestData)
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      console.log("Report successfully added:", responseData);
+    } else {
+      console.error("Error adding report:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Server error when adding report:", error);
+  }
+}, 300);
+
 
 
 
