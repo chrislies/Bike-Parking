@@ -10,6 +10,7 @@ interface Report {
   option: string;
   description: string;
   username: string;
+  created_at: string;
 }
 
 interface ReportComponentProps {
@@ -41,8 +42,9 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
   const fetchReports = async () => {
     const { data, error } = await supabase
       .from('Report')
-      .select('username, option, description')
-      .eq('location_id', siteId);
+      .select('created_at, username, option, description')
+      .eq('location_id', siteId)
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching reports:', error);
@@ -196,7 +198,7 @@ const addReport = debounce(async (reportData: ReportData) => {
                 {reports.map((report, index) => (
                   <div key={index} className="comment">
                     <p>{report.option} : {report.description}</p>
-                    <p>Post by: {report.username}</p>
+                    <p>Post by: {report.username} , {report.created_at}</p>
                     <p></p>
                   </div>
                 ))}
