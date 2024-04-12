@@ -58,7 +58,7 @@ import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
 import "./css/style.css";
 import ReportComponent from './ReportComponent';
-import DeleteComponent from './DeleteComponet';
+
 
 
 
@@ -200,7 +200,7 @@ interface MemoizedMarkerProps {
   marker: MarkerData;
   isFavoriteMarker: (marker: MarkerData) => boolean;
   handleSaveFavorite: (marker: MarkerData) => void;
-  handleDeleteRequest:(marker: MarkerData) => void;
+  
 }
 
 // Memoize Marker component to prevent unnecessary re-renders
@@ -208,7 +208,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
   marker,
   isFavoriteMarker,
   handleSaveFavorite,
-  handleDeleteRequest,
+  
 }) => {
   const imageSize = 700;
   return (
@@ -276,7 +276,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
             </button>
              
             {/* Delete Button */}
-            <button
+            {/* <button
               onClick={() => handleDeleteRequest(marker)}
               title="Delete"
               aria-label="Delete"
@@ -287,7 +287,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
                 className={`h-7 w-7 hover:cursor-pointer items-end`}
               />
               DeleteRequest
-            </button>
+            </button> */}
 
 
           </div>
@@ -656,49 +656,49 @@ const MapComponent: FC = () => {
     );
   };
 
-  const handleDeleteRequest = (marker: MarkerData) => {
-    const username = session?.user.user_metadata.username;
-    const uuid = session?.user.id;
-    const email = session?.user.email;
+  // const handleDeleteRequest = (marker: MarkerData) => {
+  //   const username = session?.user.user_metadata.username;
+  //   const uuid = session?.user.id;
+  //   const email = session?.user.email;
   
-    if (!uuid) {
-      toast.error("Sign in to delete locations!");
-      return;
-    }
+  //   if (!uuid) {
+  //     toast.error("Sign in to delete locations!");
+  //     return;
+  //   }
   
-    // Prompt the user to enter a message
-    const message = prompt("Please enter your message:");
+  //   // Prompt the user to enter a message
+  //   const message = prompt("Please enter your message:");
   
-    // Check if the user has entered a message
-    if (!message) {
-      toast.error("Message is required!");
-      return;
-    }
+  //   // Check if the user has entered a message
+  //   if (!message) {
+  //     toast.error("Message is required!");
+  //     return;
+  //   }
   
-    const updatePending = debounce(async () => {
-      try {
-        const requestData = {
-          x_coord: marker?.x,
-          y_coord: marker?.y,
-          site_id:marker?.site_id,
-          request_type: "Delete",
-          email: email,
-          description: message, // Use the message entered by the user
-        };
+  //   const updatePending = debounce(async () => {
+  //     try {
+  //       const requestData = {
+  //         x_coord: marker?.x,
+  //         y_coord: marker?.y,
+  //         site_id:marker?.site_id,
+  //         request_type: "Delete",
+  //         email: email,
+  //         description: message, // Use the message entered by the user
+  //       };
   
-        const response = await axios.post("/api/request", requestData);
-        if (response.status === 200) {
-          console.log("Request successfully added:", response.data);
-        } else {
-          console.log("Error adding request:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Server error:", error);
-      }
-    }, 300);
+  //       const response = await axios.post("/api/request", requestData);
+  //       if (response.status === 200) {
+  //         console.log("Request successfully added:", response.data);
+  //       } else {
+  //         console.log("Error adding request:", response.statusText);
+  //       }
+  //     } catch (error) {
+  //       console.error("Server error:", error);
+  //     }
+  //   }, 300);
   
-    updatePending();
-  }
+  //   updatePending();
+  // }
 
   // Return the JSX for rendering
   return (
@@ -774,7 +774,7 @@ const MapComponent: FC = () => {
                   marker={marker}
                   isFavoriteMarker={isFavoriteMarker}
                   handleSaveFavorite={handleSaveFavorite}
-                  handleDeleteRequest={handleDeleteRequest}
+         
                 />
               ) : null
             )}
