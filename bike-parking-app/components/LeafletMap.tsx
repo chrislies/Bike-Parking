@@ -60,6 +60,9 @@ import "./css/style.css";
 import ReportComponent from './ReportComponent';
 
 
+
+
+
 interface MarkerData {
   x?: number;
   y?: number;
@@ -197,7 +200,7 @@ interface MemoizedMarkerProps {
   marker: MarkerData;
   isFavoriteMarker: (marker: MarkerData) => boolean;
   handleSaveFavorite: (marker: MarkerData) => void;
-  handleDeleteRequest:(marker: MarkerData) => void;
+  
 }
 
 // Memoize Marker component to prevent unnecessary re-renders
@@ -205,7 +208,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
   marker,
   isFavoriteMarker,
   handleSaveFavorite,
-  handleDeleteRequest,
+  
 }) => {
   const imageSize = 700;
   return (
@@ -221,7 +224,8 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
             <p className="side_id !m-0 !p-0 text-base">{marker.site_id}</p>
             <p className="rack_type !m-0 !p-0 text-base">{marker.rack_type}</p>
             {/* TODO: Add # of reports here */}
-            {marker.site_id && <ReportComponent siteId={marker.site_id} />}
+            {marker.site_id && <ReportComponent siteId={marker.site_id} x={marker.x} y={marker.y} />}
+            {/* <DeleteComponent x={marker.x} y={marker.y} site_id={marker.site_id} /> */}
           </div>
           <div className="my-1 flex justify-center items-center select-none pointer-events-none">
             {marker.rack_type && getImageSource(marker.rack_type) ? (
@@ -272,7 +276,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
             </button>
              
             {/* Delete Button */}
-            <button
+            {/* <button
               onClick={() => handleDeleteRequest(marker)}
               title="Delete"
               aria-label="Delete"
@@ -283,7 +287,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
                 className={`h-7 w-7 hover:cursor-pointer items-end`}
               />
               DeleteRequest
-            </button>
+            </button> */}
 
 
           </div>
@@ -652,49 +656,49 @@ const MapComponent: FC = () => {
     );
   };
 
-  const handleDeleteRequest = (marker: MarkerData) => {
-    const username = session?.user.user_metadata.username;
-    const uuid = session?.user.id;
-    const email = session?.user.email;
+  // const handleDeleteRequest = (marker: MarkerData) => {
+  //   const username = session?.user.user_metadata.username;
+  //   const uuid = session?.user.id;
+  //   const email = session?.user.email;
   
-    if (!uuid) {
-      toast.error("Sign in to delete locations!");
-      return;
-    }
+  //   if (!uuid) {
+  //     toast.error("Sign in to delete locations!");
+  //     return;
+  //   }
   
-    // Prompt the user to enter a message
-    const message = prompt("Please enter your message:");
+  //   // Prompt the user to enter a message
+  //   const message = prompt("Please enter your message:");
   
-    // Check if the user has entered a message
-    if (!message) {
-      toast.error("Message is required!");
-      return;
-    }
+  //   // Check if the user has entered a message
+  //   if (!message) {
+  //     toast.error("Message is required!");
+  //     return;
+  //   }
   
-    const updatePending = debounce(async () => {
-      try {
-        const requestData = {
-          x_coord: marker?.x,
-          y_coord: marker?.y,
-          site_id:marker?.site_id,
-          request_type: "Delete",
-          email: email,
-          description: message, // Use the message entered by the user
-        };
+  //   const updatePending = debounce(async () => {
+  //     try {
+  //       const requestData = {
+  //         x_coord: marker?.x,
+  //         y_coord: marker?.y,
+  //         site_id:marker?.site_id,
+  //         request_type: "Delete",
+  //         email: email,
+  //         description: message, // Use the message entered by the user
+  //       };
   
-        const response = await axios.post("/api/request", requestData);
-        if (response.status === 200) {
-          console.log("Request successfully added:", response.data);
-        } else {
-          console.log("Error adding request:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Server error:", error);
-      }
-    }, 300);
+  //       const response = await axios.post("/api/request", requestData);
+  //       if (response.status === 200) {
+  //         console.log("Request successfully added:", response.data);
+  //       } else {
+  //         console.log("Error adding request:", response.statusText);
+  //       }
+  //     } catch (error) {
+  //       console.error("Server error:", error);
+  //     }
+  //   }, 300);
   
-    updatePending();
-  }
+  //   updatePending();
+  // }
 
   // Return the JSX for rendering
   return (
@@ -770,7 +774,7 @@ const MapComponent: FC = () => {
                   marker={marker}
                   isFavoriteMarker={isFavoriteMarker}
                   handleSaveFavorite={handleSaveFavorite}
-                  handleDeleteRequest={handleDeleteRequest}
+         
                 />
               ) : null
             )}
