@@ -58,6 +58,9 @@ import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
 import "./css/style.css";
 import ReportComponent from './ReportComponent';
+import DeleteComponent from './DeleteComponet';
+
+
 
 
 interface MarkerData {
@@ -221,7 +224,8 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
             <p className="side_id !m-0 !p-0 text-base">{marker.site_id}</p>
             <p className="rack_type !m-0 !p-0 text-base">{marker.rack_type}</p>
             {/* TODO: Add # of reports here */}
-            {marker.site_id && <ReportComponent siteId={marker.site_id} />}
+            {marker.site_id && <ReportComponent siteId={marker.site_id} x={marker.x} y={marker.y} />}
+            {/* <DeleteComponent x={marker.x} y={marker.y} site_id={marker.site_id} /> */}
           </div>
           <div className="my-1 flex justify-center items-center select-none pointer-events-none">
             {marker.rack_type && getImageSource(marker.rack_type) ? (

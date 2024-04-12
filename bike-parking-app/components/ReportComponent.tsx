@@ -4,7 +4,7 @@ import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
 import { debounce } from "@/hooks/useDebounce";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
-
+import DeleteComponent from './DeleteComponet';
 
 interface Report {
   option: string;
@@ -15,6 +15,8 @@ interface Report {
 
 interface ReportComponentProps {
   siteId: string;
+  x?:number;
+  y?:number;
 }
 
 interface ReportData {
@@ -22,9 +24,10 @@ interface ReportData {
   option: string;
   site_id: string;
   description: string;
+
 }
 
-const ReportComponent: React.FC<ReportComponentProps> = ({ siteId }) => {
+const ReportComponent: React.FC<ReportComponentProps> = ({ siteId,x,y }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [view, setView] = useState('comments');
   const [selectedOption, setSelectedOption] = useState('');
@@ -203,6 +206,8 @@ const addReport = debounce(async (reportData: ReportData) => {
                   </div>
                 ))}
                 <button className="report-button" onClick={switchToSubmit}>File a Report</button>
+                <br></br>
+                <DeleteComponent x={x} y={y} site_id={siteId} />
               </div>
             ) : (
               <div>
