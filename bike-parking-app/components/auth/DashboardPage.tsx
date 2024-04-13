@@ -1,7 +1,8 @@
 "use client";
+"use client";
 import React, { useEffect, useState } from 'react';
 import { supabaseClient } from '@/config/supabaseClient';
-import './Dashboard.page.css'; // Importing CSS
+import './Dashboard.page.css';
 
 interface PendingRequest {
   id: number;
@@ -18,20 +19,18 @@ const DashboardPage: React.FC = () => {
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [actionModalOpen, setActionModalOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<PendingRequest | null>(null);
 
   useEffect(() => {
     const fetchPendingRequests = async () => {
-      const { data, error } = await supabaseClient
-        .from('Pending')
-        .select('*');
-
+      const { data, error } = await supabaseClient.from('Pending').select('*');
       if (error) {
         console.error('Error fetching pending requests:', error);
       } else {
         setPendingRequests(data);
       }
     };
-
     fetchPendingRequests();
   }, []);
 
@@ -45,22 +44,65 @@ const DashboardPage: React.FC = () => {
     setSelectedImage(null);
   };
 
+  const handleActionModal = (request: PendingRequest) => {
+    setSelectedRequest(request);
+    setActionModalOpen(true);
+  };
+
+  const closeActionModal = () => {
+    setActionModalOpen(false);
+    setSelectedRequest(null);
+  };
+
+  const handleAddToTable = async (tableName: 'BlackList' | 'UserAdded') => {
+    if (!selectedRequest) {
+      alert('No request selected');
+      return;
+    }
+  
+    let payload: { location_id?: number; email?: string; x_coord?: number; y_coord?: number; } = {};
+  
+    switch (tableName) {
+      case 'BlackList':
+        payload = { location_id: selectedRequest.x_coord }; // Assuming `location_id` is derived from `x_coord`
+        break;
+      case 'UserAdded':
+        payload = {
+          email: selectedRequest.email,
+          x_coord: selectedRequest.x_coord,
+          y_coord: selectedRequest.y_coord,
+        };
+        break;
+      default:
+        alert('Invalid table name');
+        return;
+    }
+  
+    try {
+      const { error } = await supabaseClient.from(tableName).insert([payload]);
+      if (error) {
+        console.error(`Error adding to ${tableName}:`, error.message);
+        alert(`Error: ${error.message}`);
+      } else {
+        alert(`${tableName} updated successfully!`);
+        closeActionModal();
+      }
+    } catch (error) {
+      console.error(`Error:`, error.message);
+      alert(`Exception: ${error.message}`);
+    }
+  };
+
   const handleRejectButtonClick = async (requestId: number) => {
     try {
-      // Send a delete request to remove the specified request from the "Pending" table
-      const { error } = await supabaseClient
-        .from('Pending')
-        .delete()
-        .eq('id', requestId);
-  
+      const { error } = await supabaseClient.from('Pending').delete().eq('id', requestId);
       if (error) {
         console.error('Error rejecting request:', error.message);
       } else {
-        // If deletion is successful, update the local state to remove the deleted request
         setPendingRequests(prevRequests => prevRequests.filter(request => request.id !== requestId));
         console.log('Request rejected successfully!');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error rejecting request:', error.message);
     }
   };
@@ -79,7 +121,7 @@ const DashboardPage: React.FC = () => {
             <th className="th">Request Type</th>
             <th className="th">Created At</th>
             <th className="th">Description</th>
-            <th className="th">Actions</th> {/* Actions column at the end */}
+            <th className="th">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -96,8 +138,8 @@ const DashboardPage: React.FC = () => {
               <td className="td">{request.created_at || 'null'}</td>
               <td className="td">{request.description}</td>
               <td className="td">
-              <button className="button greenButton">✔</button>
-              <button className="button redButton" onClick={() => handleRejectButtonClick(request.id)}>✘</button>
+                <button className="button greenButton" onClick={() => handleActionModal(request)}>✔</button>
+                <button className="button redButton" onClick={() => handleRejectButtonClick(request.id)}>✘</button>
               </td>
             </tr>
           ))}
@@ -109,6 +151,16 @@ const DashboardPage: React.FC = () => {
           <div className="modal" onClick={e => e.stopPropagation()}>
             <img src={selectedImage || ''} alt="Enlarged request" className="enlargedImage" />
             <button onClick={closeModal}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {actionModalOpen && (
+        <div className="overlay" onClick={closeActionModal}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h2>Choose Action</h2>
+            <button onClick={() => handleAddToTable('BlackList')}>Add to BlackList</button>
+            <button onClick={() => handleAddToTable('UserAdded')}>Add to UserAdded</button>
           </div>
         </div>
       )}
