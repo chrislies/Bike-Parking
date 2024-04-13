@@ -1,0 +1,51 @@
+.modalContainer {
+  padding: 20px;
+  background: #f4f4f4;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modalTitle {
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.actionList {
+  list-style: none;
+  padding: 0;
+}
+
+.actionList li {
+  margin-bottom: 10px;
+}
+
+.actionLink {
+  display: block;
+  padding: 10px;
+  background: #0070f3;
+  color: #ffffff;
+  text-align: center;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.actionLink:hover {
+  background-color: #0056b3;
+}
+
+.backgroundImageFade {
+  animation: backgroundImageFade 10s infinite;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+@keyframes backgroundImageFade {
+  0%, 100% {
+      background-image: url('/image2.jpg');
+  }
+  50% {
+      background-image: url('/image.jpg');
+  }
+}
