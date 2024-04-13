@@ -60,7 +60,7 @@ const DashboardPage: React.FC = () => {
         setPendingRequests(prevRequests => prevRequests.filter(request => request.id !== requestId));
         console.log('Request rejected successfully!');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error rejecting request:', error.message);
     }
   };
