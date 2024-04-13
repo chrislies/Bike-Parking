@@ -24,9 +24,7 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     const fetchPendingRequests = async () => {
       const { data, error } = await supabaseClient.from('Pending').select('*');
-      if (error) {
-        console.error('Error fetching pending requests:', error);
-      } else {
+      if (!error) {
         setPendingRequests(data);
       }
     };
@@ -55,63 +53,23 @@ const DashboardPage: React.FC = () => {
 
   const handleAddToTable = async (tableName: 'BlackList' | 'UserAdded') => {
     if (!selectedRequest) {
-      alert('No request selected');
       return;
     }
   
-    let payload: { location_id?: number; email?: string; x_coord?: number; y_coord?: number; } = {};
-  
-    switch (tableName) {
-      case 'BlackList':
-        payload = { location_id: selectedRequest.x_coord };
-        break;
-      case 'UserAdded':
-        payload = {
-          email: selectedRequest.email,
-          x_coord: selectedRequest.x_coord,
-          y_coord: selectedRequest.y_coord,
-        };
-        break;
-      default:
-        alert('Invalid table name');
-        return;
-    }
-  
-    try {
-      const { error } = await supabaseClient.from(tableName).insert([payload]);
-      if (error) {
-        console.error(`Error adding to ${tableName}:`, error.message);
-        alert(`Error: ${error.message}`);
-      } else {
-        alert(`${tableName} updated successfully!`);
-        closeActionModal();
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(`Error:`, error.message);
-        alert(`Exception: ${error.message}`);
-      } else {
-        console.error('An unexpected error occurred');
-        alert('An unexpected error occurred');
-      }
+    let payload = (tableName === 'BlackList') ? 
+      { location_id: selectedRequest.x_coord } : 
+      { email: selectedRequest.email, x_coord: selectedRequest.x_coord, y_coord: selectedRequest.y_coord };
+
+    const { error } = await supabaseClient.from(tableName).insert([payload]);
+    if (!error) {
+      closeActionModal();
     }
   };
 
   const handleRejectButtonClick = async (requestId: number) => {
-    try {
-      const { error } = await supabaseClient.from('Pending').delete().eq('id', requestId);
-      if (error) {
-        console.error('Error rejecting request:', error.message);
-      } else {
-        setPendingRequests(prevRequests => prevRequests.filter(request => request.id !== requestId));
-        console.log('Request rejected successfully!');
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error rejecting request:', error.message);
-      } else {
-        console.error('An unexpected error occurred');
-      }
+    const { error } = await supabaseClient.from('Pending').delete().eq('id', requestId);
+    if (!error) {
+      setPendingRequests(prevRequests => prevRequests.filter(request => request.id !== requestId));
     }
   };
 
