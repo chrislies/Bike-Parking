@@ -1,0 +1,15 @@
+.backgroundImageFade {
+  animation: backgroundImageFade 10s infinite;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+@keyframes backgroundImageFade {
+  0%, 100% {
+      background-image: url('/image2.jpg');
+  }
+  50% {
+      background-image: url('/image.jpg');
+  }
+}
