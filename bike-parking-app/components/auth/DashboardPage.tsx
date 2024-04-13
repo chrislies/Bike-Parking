@@ -1,5 +1,4 @@
 "use client";
-"use client";
 import React, { useEffect, useState } from 'react';
 import { supabaseClient } from '@/config/supabaseClient';
 import './Dashboard.page.css';
@@ -64,7 +63,7 @@ const DashboardPage: React.FC = () => {
   
     switch (tableName) {
       case 'BlackList':
-        payload = { location_id: selectedRequest.x_coord }; // Assuming `location_id` is derived from `x_coord`
+        payload = { location_id: selectedRequest.x_coord };
         break;
       case 'UserAdded':
         payload = {
@@ -88,8 +87,13 @@ const DashboardPage: React.FC = () => {
         closeActionModal();
       }
     } catch (error) {
-      console.error(`Error:`, error.message);
-      alert(`Exception: ${error.message}`);
+      if (error instanceof Error) {
+        console.error(`Error:`, error.message);
+        alert(`Exception: ${error.message}`);
+      } else {
+        console.error('An unexpected error occurred');
+        alert('An unexpected error occurred');
+      }
     }
   };
 
@@ -103,7 +107,11 @@ const DashboardPage: React.FC = () => {
         console.log('Request rejected successfully!');
       }
     } catch (error) {
-      console.error('Error rejecting request:', error.message);
+      if (error instanceof Error) {
+        console.error('Error rejecting request:', error.message);
+      } else {
+        console.error('An unexpected error occurred');
+      }
     }
   };
 
