@@ -2,12 +2,12 @@
 
 import { Add, Map, NavbarBookmark, User } from "../svgs";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
+import SavedModal from "../modals/SavedModal";
 
-const handleFavoritesClick = () => {};
-
-export default function Navbar() {
-  const [svgSize, setSvgSize] = useState(6); // useState for svgSize
+const Navbar = () => {
+  const [svgSize, setSvgSize] = useState(6);
+  const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
 
   useEffect(() => {
     const updateSvgSize = () => {
@@ -22,6 +22,14 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", updateSvgSize);
   }, []);
 
+  const openSavedModal = () => {
+    setIsSavedModalOpen(true);
+  };
+
+  const closeSavedModal = () => {
+    setIsSavedModalOpen(false);
+  };
+
   const NAV_LINKS = [
     {
       href: "#",
@@ -30,8 +38,8 @@ export default function Navbar() {
       svg: <Map className={`h-${svgSize} w-${svgSize}`} />,
     },
     {
-      href: "/favorites",
-      handleClick: handleFavoritesClick,
+      href: "#",
+      handleClick: openSavedModal,
       key: "saved",
       label: "Saved",
       svg: <NavbarBookmark className={`h-${svgSize} w-${svgSize}`} />,
@@ -51,24 +59,36 @@ export default function Navbar() {
   ];
 
   return (
-    <div className="absolute bottom-3 z-[999] max-w-fit mx-auto flex inset-x-0 justify-center select-none rounded-2xl">
-      <div className="grid grid-flow-col grid-cols-4 gap-1 sm:w-[400px] max-sm:w-[300px] bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.2)] shadow-md p-1">
-        {NAV_LINKS.map((navItem, index) => (
-          <Link
-            key={index}
-            href={navItem.href}
-            className="flex flex-col items-center justify-center py-1 hover:bg-gray-300 hover:rounded-xl"
-          >
-            <span>{navItem.svg}</span>
-            <p
-              className="leading-5 sm:text-sm max-sm:text-xs sm:tracking-wide max-sm:tracking-tight sm:font-bold max-sm:font-semibold"
-              key={navItem.key}
+    <>
+      <SavedModal
+        isOpen={isSavedModalOpen}
+        onClose={closeSavedModal}
+        title="Saved Spots"
+      >
+        <p>Saved Spots Contents</p>
+      </SavedModal>
+      <div className="absolute bottom-3 z-[800] max-w-fit mx-auto flex inset-x-0 justify-center select-none rounded-2xl">
+        <div className="grid grid-flow-col grid-cols-4 gap-1 sm:w-[400px] max-sm:w-[300px] bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.2)] shadow-md p-1">
+          {NAV_LINKS.map((navItem, index) => (
+            <Link
+              key={index}
+              href={navItem.href}
+              onClick={navItem.handleClick}
+              className="flex flex-col items-center justify-center py-1 hover:bg-gray-300 hover:rounded-xl"
             >
-              {navItem.label}
-            </p>
-          </Link>
-        ))}
+              <span>{navItem.svg}</span>
+              <p
+                className="leading-5 sm:text-sm max-sm:text-xs sm:tracking-wide max-sm:tracking-tight sm:font-bold max-sm:font-semibold"
+                key={navItem.key}
+              >
+                {navItem.label}
+              </p>
+            </Link>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
-}
+};
+
+export default memo(Navbar);

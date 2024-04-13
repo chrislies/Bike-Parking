@@ -20,6 +20,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import getCoordinates from "../lib/getCoordinates";
+import getCoordinates2 from "../lib/getCoordinates2";
 import getUserCoordinates from "../lib/getUserCoordinates";
 import {
   Bookmark,
@@ -56,6 +57,10 @@ import "./css/style.css";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
+import "leaflet-easybutton/src/easy-button.js";
+import "leaflet-easybutton/src/easy-button.css";
+import { FaLocationArrow } from "react-icons/fa";
+import SavedModal from "./modals/SavedModal";
 
 interface MarkerData {
   x?: number;
@@ -69,8 +74,9 @@ interface MarkerData {
   from_street?: string;
   to_street?: string;
   sign_description?: string;
-  sign_x_coord?: number;
-  sign_y_coord?: number;
+  sign_code?: string;
+  X?: number;
+  Y?: number;
   favorite: boolean;
 }
 interface UserCoordinatesItem {
@@ -127,7 +133,8 @@ function UserLocationMarker() {
               setLocationStatus("error");
               break;
           }
-        }
+        },
+        { enableHighAccuracy: true }
       );
       return () => {
         if (watchId) {
@@ -174,22 +181,6 @@ function UserLocationMarker() {
   );
 }
 
-const locateMe = async (map: any) => {
-  // console.log("Locating...");
-  try {
-    const userCoords = await getUserCoordinates();
-    console.log(userCoords);
-    if (userCoords) {
-      map.flyTo([userCoords.latitude, userCoords.longitude], 19, {
-        animate: true,
-        duration: 1,
-      });
-    }
-  } catch (e) {
-    console.log(`Error: ${e}`);
-  }
-};
-
 interface MemoizedMarkerProps {
   marker: MarkerData;
   isFavoriteMarker: (marker: MarkerData) => boolean;
@@ -203,86 +194,154 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
   handleSaveFavorite,
 }) => {
   const imageSize = 700;
+
   return (
-    <Marker
-      key={marker.site_id}
-      icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}
-      position={[marker.y!, marker.x!]}
-    >
-      <Popup minWidth={170}>
-        {/* <Popup minWidth={200}> */}
-        <div className="popup-rack flex flex-col">
-          <div className="flex flex-col font-bold">
-            <p className="side_id !m-0 !p-0 text-base">{marker.site_id}</p>
-            <p className="rack_type !m-0 !p-0 text-base">{marker.rack_type}</p>
-            {/* TODO: Add # of reports here */}
-          </div>
-          <div className="my-1 flex justify-center items-center select-none pointer-events-none">
-            {marker.rack_type && getImageSource(marker.rack_type) ? (
-              <Image
-                className="rounded-md shadow"
-                src={getImageSource(marker.rack_type)}
-                alt={marker.rack_type}
-                height={imageSize}
-                width={imageSize}
-              />
-            ) : (
-              <div className="flex flex-col w-full items-center bg-slate-200 border-[1px] border-slate-300 rounded-lg p-3">
-                <NoImage />
-                <p className="!p-0 !m-0 text-xs">No image available</p>
+    <>
+      {marker.site_id && (
+        <Marker
+          key={marker.site_id}
+          icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}
+          position={[marker.y!, marker.x!]}
+        >
+          <Popup minWidth={170}>
+            {/* <Popup minWidth={200}> */}
+            <div className="popup-rack flex flex-col">
+              <div className="flex flex-col font-bold">
+                <p className="side_id !m-0 !p-0 text-base">{marker.site_id}</p>
+                <p className="rack_type !m-0 !p-0 text-base">
+                  {marker.rack_type}
+                </p>
+                {/* TODO: Add # of reports here */}
               </div>
-            )}
-          </div>
-          <p className="ifo_address text-center text-base overflow-x-auto !p-0 !m-0">
-            {marker.ifoaddress}
-          </p>
-          <div className="flex flex-col gap-2 mt-1 mb-3">
-            <button
-              onClick={() => handleSaveFavorite(marker)}
-              title="Save Location"
-              aria-label="Save Location"
-              aria-disabled="false"
-              className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
-            >
-              <Bookmark
-                className={`h-7 w-7 hover:cursor-pointer ${
-                  isFavoriteMarker(marker)
-                    ? "fill-yellow-300"
-                    : "fill-transparent"
-                }`}
-              />
-              Save
-            </button>
-            <button
-              onClick={() => {}}
-              title="Directions"
-              aria-label="Directions"
-              aria-disabled="false"
-              className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
-            >
-              <Directions
-                className={`h-7 w-7 hover:cursor-pointer items-end`}
-              />
-              Directions
-            </button>
-          </div>
-          <div className="flex justify-between items-end">
-            <p className="date_installed italic text-xs !m-0 !p-0">
-              {`Date Installed: `}
-              {marker.date_inst &&
-              new Date(marker.date_inst).getFullYear() === 1900
-                ? "N/A"
-                : formatDate(marker.date_inst!)}
-            </p>
-          </div>
-          {/* <button className="popup-buttons" onClick={() => handleSaveFavorite(marker)}>Save as favorite</button> */}
-        </div>
-      </Popup>
-    </Marker>
+              <div className="my-1 flex justify-center items-center select-none pointer-events-none">
+                {marker.rack_type && getImageSource(marker.rack_type) ? (
+                  <Image
+                    className="rounded-md shadow"
+                    src={getImageSource(marker.rack_type)}
+                    alt={marker.rack_type}
+                    height={imageSize}
+                    width={imageSize}
+                  />
+                ) : (
+                  <div className="flex flex-col w-full items-center bg-slate-200 border-[1px] border-slate-300 rounded-lg p-3">
+                    <NoImage />
+                    <p className="!p-0 !m-0 text-xs">No image available</p>
+                  </div>
+                )}
+              </div>
+              <p className="ifo_address text-center text-base overflow-x-auto !p-0 !m-0">
+                {marker.ifoaddress}
+              </p>
+              <div className="flex flex-col gap-2 mt-1 mb-3">
+                <button
+                  onClick={() => handleSaveFavorite(marker)}
+                  title="Save Location"
+                  aria-label="Save Location"
+                  aria-disabled="false"
+                  className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
+                >
+                  <Bookmark
+                    className={`h-7 w-7 hover:cursor-pointer ${
+                      isFavoriteMarker(marker)
+                        ? "fill-yellow-300"
+                        : "fill-transparent"
+                    }`}
+                  />
+                  Save
+                </button>
+                <button
+                  onClick={() => {}}
+                  title="Directions"
+                  aria-label="Directions"
+                  aria-disabled="false"
+                  className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
+                >
+                  <Directions
+                    className={`h-7 w-7 hover:cursor-pointer items-end`}
+                  />
+                  Directions
+                </button>
+              </div>
+              <div className="flex justify-between items-end">
+                <p className="date_installed italic text-xs !m-0 !p-0">
+                  {`Date Installed: `}
+                  {marker.date_inst &&
+                  new Date(marker.date_inst).getFullYear() === 1900
+                    ? "N/A"
+                    : formatDate(marker.date_inst!)}
+                </p>
+              </div>
+              {/* <button className="popup-buttons" onClick={() => handleSaveFavorite(marker)}>Save as favorite</button> */}
+            </div>
+          </Popup>
+        </Marker>
+      )}
+      {marker.order_number && (
+        <Marker
+          key={marker.order_number}
+          icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}
+          position={[marker.Y!, marker.X!]}
+        >
+          <Popup minWidth={170}>
+            {/* <Popup minWidth={200}> */}
+            <div className="popup-rack flex flex-col">
+              <div className="flex flex-col font-bold">
+                <p className="side_id !m-0 !p-0 text-base">
+                  {marker.order_number}
+                </p>
+                <p className="rack_type !m-0 !p-0 text-base">Street Sign</p>
+                {/* TODO: Add # of reports here */}
+              </div>
+              <div className="my-1 flex justify-center items-center select-none pointer-events-none">
+                <div className="flex flex-col w-full items-center bg-slate-200 border-[1px] border-slate-300 rounded-lg p-3">
+                  <NoImage />
+                  <p className="!p-0 !m-0 text-xs">No image available</p>
+                </div>
+              </div>
+              <p className="ifo_address text-center text-base overflow-x-auto !p-0 !m-0">
+                {`${marker.on_street} ${marker.from_street} ${marker.to_street}`}
+              </p>
+              <div className="flex flex-col gap-2 mt-1 mb-3">
+                <button
+                  onClick={() => handleSaveFavorite(marker)}
+                  title="Save Location"
+                  aria-label="Save Location"
+                  aria-disabled="false"
+                  className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
+                >
+                  <Bookmark
+                    className={`h-7 w-7 hover:cursor-pointer ${
+                      isFavoriteMarker(marker)
+                        ? "fill-yellow-300"
+                        : "fill-transparent"
+                    }`}
+                  />
+                  Save
+                </button>
+                <button
+                  onClick={() => {}}
+                  title="Directions"
+                  aria-label="Directions"
+                  aria-disabled="false"
+                  className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
+                >
+                  <Directions
+                    className={`h-7 w-7 hover:cursor-pointer items-end`}
+                  />
+                  Directions
+                </button>
+              </div>
+            </div>
+          </Popup>
+        </Marker>
+      )}
+    </>
   );
 };
 
 const MapComponent: FC = () => {
+  console.log("MapComponent rendered");
+  const [map, setMap] = useState(null);
   const [userCoordinates, setUserCoordinates] =
     useState<UserCoordinatesItem | null>(null);
   const [markerData, setMarkerData] = useState<MarkerData[] | null>(null);
@@ -304,7 +363,7 @@ const MapComponent: FC = () => {
       const fetchData = async () => {
         setLoading(true);
         try {
-          const data = await getCoordinates();
+          const data = await getCoordinates2();
           setMarkerData(data);
         } catch (error) {
           console.error(error);
@@ -327,15 +386,41 @@ const MapComponent: FC = () => {
         });
       }
     };
-
+    // useEffect to trigger the map fly when userCoordinates changes
     // useEffect(() => {
     //   if (userCoordinates) {
-    //     flyToMarker([userCoordinates.latitude, userCoordinates.longitude], 19);
+    //     toast.success("LOCATING USER");
+    //     map.flyTo([userCoordinates.latitude, userCoordinates.longitude], 19);
+    //   } else {
+    //     toast.error("Failed to locate user");
     //   }
     // }, [userCoordinates]);
 
-    return null;
+    useEffect(() => {
+      L.easyButton("<FaLocationArrow />", () => {
+        map.locate().on("locationfound", function (e) {
+          map.flyTo(e.latlng, 19, { animate: true, duration: 1.5 });
+        });
+        // map.flyTo([1, 1], 19, { animate: true, duration: 1.5 });
+      }).addTo(map);
+    }, [map]);
+
+    return null; // Return null since nothing is rendered in the DOM
   };
+
+  // const locateMe = async () => {
+  //   try {
+  //     navigator.geolocation.getCurrentPosition((position) => {
+  //       setUserCoordinates({
+  //         latitude: position.coords.latitude,
+  //         longitude: position.coords.longitude,
+  //       });
+  //     });
+  //   } catch (error) {
+  //     toast.error(`Error: ${error}`);
+  //   }
+  //   return null;
+  // };
 
   const toggleLayer = () => {
     setMapLayer(mapLayer === "street" ? "satellite" : "street");
@@ -626,7 +711,7 @@ const MapComponent: FC = () => {
       {loading && <Loader />}
       <div className="absolute sm:bottom-0 max-sm:top-0 max-sm:right-0 flex flex-col max-sm:flex-col-reverse max-sm:items-end justify-between m-3 gap-3">
         <button
-          onClick={() => locateMe(mapRef.current)}
+          // onClick={() => locateMe(mapRef.current)}
           title="Locate Me"
           aria-label="Locate Me"
           aria-disabled="false"
@@ -684,21 +769,25 @@ const MapComponent: FC = () => {
           subdomains={["mt1", "mt2", "mt3"]}
         /> */}
         <TempMarkerComponent />
-        {!loading && (
-          <MarkerClusterGroup chunkedLoading maxClusterRadius={160}>
-            {markerData?.map((marker) =>
-              marker.site_id ? (
-                <MemoizedMarker
-                  key={marker.site_id}
-                  marker={marker}
-                  isFavoriteMarker={isFavoriteMarker}
-                  handleSaveFavorite={handleSaveFavorite}
-                />
-              ) : null
-            )}
-          </MarkerClusterGroup>
-        )}
-
+        <MarkerClusterGroup chunkedLoading maxClusterRadius={160}>
+          {markerData?.map((marker) =>
+            marker.site_id ? (
+              <MemoizedMarker
+                key={marker.site_id}
+                marker={marker}
+                isFavoriteMarker={isFavoriteMarker}
+                handleSaveFavorite={handleSaveFavorite}
+              />
+            ) : (
+              <MemoizedMarker
+                key={marker.order_number}
+                marker={marker}
+                isFavoriteMarker={isFavoriteMarker}
+                handleSaveFavorite={handleSaveFavorite}
+              />
+            )
+          )}
+        </MarkerClusterGroup>
         <UserLocationMarker />
         <ZoomHandler />
         {/* <RoutingMachine />  */}
@@ -708,4 +797,4 @@ const MapComponent: FC = () => {
   );
 };
 
-export default MapComponent;
+export default memo(MapComponent);

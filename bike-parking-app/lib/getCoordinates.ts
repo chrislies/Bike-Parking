@@ -24,12 +24,13 @@ async function getCoordinates(): Promise<DataItem[] | null> {
     while (hasMoreData) {
       const [bikeRacksResponse, streetSignsResponse] = await Promise.all([
         fetch(
-          `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
-          // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=1000&$offset=${offset}`
+          // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
+          `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=10&$offset=${offset}`
         ),
         fetch(
           // `https://data.cityofnewyork.us/resource/nfid-uabd.json?$limit=50000&$offset=${offset}`
           `https://data.cityofnewyork.us/resource/nfid-uabd.json?$limit=1&$offset=${offset}`
+          // `https://raw.githubusercontent.com/chrislies/Bike-Parking/backend_streetsigns/backend/db.json`
         ),
       ]);
 
@@ -37,6 +38,8 @@ async function getCoordinates(): Promise<DataItem[] | null> {
         bikeRacksResponse.json(),
         streetSignsResponse.json(),
       ]);
+      console.log(bikeRacksData);
+      console.log(streetSignsData.street_signs);
 
       // Count the different types of racks
       // bikeRacksData.forEach((item: any) => {
