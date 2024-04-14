@@ -6,6 +6,7 @@ import { debounce } from "@/hooks/useDebounce";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 
 
+
 interface Report {
   option: string;
   description: string;
@@ -204,6 +205,7 @@ const addReport = debounce(async (reportData: ReportData) => {
                 ))}
                 <button className="report-button" onClick={switchToSubmit}>File a Report</button>
               </div>
+              
             ) : (
               <div>
                 {view === 'submit' && (
