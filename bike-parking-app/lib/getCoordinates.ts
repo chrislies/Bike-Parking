@@ -1,89 +1,15 @@
-interface DataItem {
-  x?: number;
-  y?: number;
-  site_id?: string;
-  ifoaddress?: string;
-  rack_type?: string;
-  date_inst?: string;
-  order_number?: string;
-  on_street?: string;
-  from_street?: string;
-  to_street?: string;
-  sign_description?: string;
-  sign_x_coord?: number;
-  sign_y_coord?: number;
-  favorite: boolean;
-}
-
-async function getCoordinates(): Promise<DataItem[] | null> {
+async function getCoordinates(): Promise<MarkerData[] | null> {
   try {
-    let allData: DataItem[] = [];
+    let allData: any[] = [];
     let offset = 0;
     let hasMoreData = true;
-    let rackTypes = new Map<string, number>();
     while (hasMoreData) {
-      const [bikeRacksResponse, streetSignsResponse] = await Promise.all([
-        fetch(
-          // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
-          `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=10&$offset=${offset}`
-        ),
-        fetch(
-          // `https://data.cityofnewyork.us/resource/nfid-uabd.json?$limit=50000&$offset=${offset}`
-          `https://data.cityofnewyork.us/resource/nfid-uabd.json?$limit=1&$offset=${offset}`
-          // `https://raw.githubusercontent.com/chrislies/Bike-Parking/backend_streetsigns/backend/db.json`
-        ),
-      ]);
-
-      const [bikeRacksData, streetSignsData] = await Promise.all([
-        bikeRacksResponse.json(),
-        streetSignsResponse.json(),
-      ]);
-      console.log(bikeRacksData);
-      console.log(streetSignsData.street_signs);
-
-      // Count the different types of racks
-      // bikeRacksData.forEach((item: any) => {
-      //   if (!rackTypes.has(item.rack_type)) {
-      //     rackTypes.set(item.rack_type, 1);
-      //   } else {
-      //     const count = rackTypes.get(item.rack_type) || 0;
-      //     rackTypes.set(item.rack_type, count + 1);
-      //   }
-      // });
-      // console.log(rackTypes);
-      //       rack types:
-      // {"Bike Corral" => 759} // same as GFI sled
-      // {"LARGE HOOP" => 11160}
-      // {"WAVE RACK" => 1541}
-      // {"U RACK" => 8612}
-      // {"SMALL HOOP" => 9417}
-      // {"UNDETERMINED" => 55}
-      // {"WAVE RACK (PARKS)" => 18}
-      // {"STAPLE (PARKS)" => 1}
-      // {"DOT SLED (BLACK)" => 7}
-      // {"GFI SLED (SILVER)" => 48}
-      // {"Opal Rack (Parks)" => 18}
-
-      // Filter bike data by rack_type
-      // const filteredBikeRacksData = bikeRacksData.filter(
-      //   (item: DataItem) =>
-      //     item.rack_type?.toLowerCase() === "UNDETERMINED".toLowerCase()
-      // );
-
-      // Filter bike data by year
-      // const filteredBikeRacksData = bikeRacksData.filter((item: DataItem) => {
-      //   if (item.date_inst) {
-      //     const year = new Date(item.date_inst).getFullYear();
-      //     if (year === 1900) {
-      //       item.date_inst = "N/A";
-      //     }
-      //   }
-      // });
-
-      const combinedData: DataItem[] = [
-        ...bikeRacksData.map((item: DataItem) => ({ ...item })),
-        ...streetSignsData.map((item: DataItem) => ({ ...item })),
-      ];
+      const bikeRacksResponse = await fetch(
+        `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
+        // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=1000&$offset=${offset}`
+      );
+      const bikeRacksData: MarkerData[] = await bikeRacksResponse.json();
+      const combinedData: MarkerData[] = [...bikeRacksData];
 
       if (combinedData.length === 0) {
         hasMoreData = false;
@@ -93,21 +19,30 @@ async function getCoordinates(): Promise<DataItem[] | null> {
       }
     }
 
-    const info: DataItem[] = allData.map((item) => ({
-      x: item.x,
-      y: item.y,
-      site_id: item.site_id,
-      ifoaddress: item.ifoaddress,
+    const streetSignsResponse = await fetch(
+      `https://raw.githubusercontent.com/chrislies/Bike-Parking/backend_streetsigns/backend/db.json`
+    );
+
+    const streetSignsData: { street_signs: MarkerData[] } =
+      await streetSignsResponse.json();
+    const limitData = streetSignsData.street_signs.slice(0, 20000);
+    // const limitData = streetSignsData.street_signs.slice(0, 1000);
+    const combinedData: MarkerData[] = [...limitData];
+
+    allData = [...allData, ...combinedData];
+
+    // prettier-ignore
+    const info: MarkerData[] = allData.map((item) => ({
+      x: item.x || item.X,
+      y: item.y || item.Y,
+      id: item.site_id ? `R${item.site_id.substring(1)}` : `S.${item.index}`,
+      address: item.ifoaddress || `${item.on_street} ${item.from_street} ${item.to_street}`,
       rack_type: item.rack_type,
       date_inst: item.date_inst,
-      order_number: item.order_number,
-      on_street: item.on_street,
-      from_street: item.from_street,
-      to_street: item.to_street,
       sign_description: item.sign_description,
-      sign_x_coord: item.sign_x_coord,
-      sign_y_coord: item.sign_y_coord,
+      sign_code: item.sign_code,
       favorite: false,
+      type: item.rack_type ? "rack" : "sign",
     }));
 
     return info.length > 0 ? info : null;
