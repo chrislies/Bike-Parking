@@ -13,15 +13,24 @@ import {
   FavoriteMarker,
   Layers,
   Locate,
-  MyMarker,
+  RackMarker,
   UserMarker,
   SearchPin,
-  TempMarker
+  TempMarker,
+  SignMarker,
 } from "./svgs";
 
-const customIcon = L.divIcon({
+const rackIcon = L.divIcon({
   className: "custom-icon",
-  html: ReactDOMServer.renderToString(<MyMarker />),
+  html: ReactDOMServer.renderToString(<RackMarker />),
+  // iconSize: [10, 10],
+  iconAnchor: [20, 30],
+  popupAnchor: [3, -16],
+});
+
+const signIcon = L.divIcon({
+  className: "custom-icon",
+  html: ReactDOMServer.renderToString(<SignMarker />),
   // iconSize: [10, 10],
   iconAnchor: [20, 30],
   popupAnchor: [3, -16],
@@ -53,7 +62,7 @@ const tempIcon = L.divIcon({
   className: "temp-icon",
   html: ReactDOMServer.renderToString(<TempMarker />),
   iconAnchor: [22.5, 45],
-  popupAnchor: [0, -45]
+  popupAnchor: [0, -45],
 });
 
 const createClusterCustomIcon = function (cluster: MarkerCluster) {
@@ -65,7 +74,8 @@ const createClusterCustomIcon = function (cluster: MarkerCluster) {
 };
 
 export {
-  customIcon,
+  rackIcon,
+  signIcon,
   favoriteIcon,
   userIcon,
   queryIcon,
