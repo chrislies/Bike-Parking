@@ -189,7 +189,8 @@ const buttonText = reports.length > 0 ? `[${reports.length} reports]` : 'Report'
       <button className="report-button" onClick={openModal}>{buttonText}</button>
       {isModalOpen && (
         <div className="modal">
-          <div className="modal-content">
+          {/* <div className="modal-content"> */}
+          <div className={`modal-content ${view === 'submit' ? "modal-file-report-content" : "modal-report-content"}`}>
             <span className="close-button" onClick={closeModal}>&times;</span>
             {view === 'comments' ? (
               <div>
@@ -203,7 +204,7 @@ const buttonText = reports.length > 0 ? `[${reports.length} reports]` : 'Report'
                     <p></p>
                   </div>
                 ))}
-                <button className="report-button" onClick={switchToSubmit}>File a Report</button>
+                <button className="file-report-button" onClick={switchToSubmit}>File a Report</button>
               </div>
               
             ) : (
