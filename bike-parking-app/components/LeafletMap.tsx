@@ -192,7 +192,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
                 {/* TODO: Add # of reports here */}
               </div>
               <div className="my-1 flex justify-center items-center select-none pointer-events-none">
-                {marker.rack_type ? (
+                {marker.rack_type && getImageSource(marker.rack_type) ? (
                   <Image
                     className="rounded-md shadow"
                     src={getImageSource(marker.rack_type)}
