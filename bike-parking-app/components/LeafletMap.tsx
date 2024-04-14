@@ -20,7 +20,6 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import getCoordinates from "../lib/getCoordinates";
-import getCoordinates2 from "../lib/getCoordinates2";
 import getUserCoordinates from "../lib/getUserCoordinates";
 import {
   Bookmark,
@@ -31,7 +30,8 @@ import {
   NoImage,
 } from "./svgs";
 import {
-  customIcon,
+  rackIcon,
+  signIcon,
   favoriteIcon,
   userIcon,
   createClusterCustomIcon,
@@ -60,29 +60,6 @@ import toast, { Toaster } from "react-hot-toast";
 import "leaflet-easybutton/src/easy-button.js";
 import "leaflet-easybutton/src/easy-button.css";
 import { FaLocationArrow } from "react-icons/fa";
-import SavedModal from "./modals/SavedModal";
-
-interface MarkerData {
-  x?: number;
-  y?: number;
-  site_id?: string;
-  ifoaddress?: string;
-  rack_type?: string;
-  date_inst?: string;
-  order_number?: string;
-  on_street?: string;
-  from_street?: string;
-  to_street?: string;
-  sign_description?: string;
-  sign_code?: string;
-  X?: number;
-  Y?: number;
-  favorite: boolean;
-}
-interface UserCoordinatesItem {
-  longitude: number;
-  latitude: number;
-}
 
 type GeolocationPosition = {
   lat: number;
@@ -197,28 +174,37 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
 
   return (
     <>
-      {marker.site_id && (
+      {marker.id && (
         <Marker
-          key={marker.site_id}
-          icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}
+          key={marker.id}
+          // prettier-ignore
+          icon={isFavoriteMarker(marker) ? favoriteIcon : (marker.type === "rack" ? rackIcon : signIcon)}
           position={[marker.y!, marker.x!]}
         >
           <Popup minWidth={170}>
             {/* <Popup minWidth={200}> */}
             <div className="popup-rack flex flex-col">
               <div className="flex flex-col font-bold">
-                <p className="side_id !m-0 !p-0 text-base">{marker.site_id}</p>
+                <p className="side_id !m-0 !p-0 text-base">{marker.id}</p>
                 <p className="rack_type !m-0 !p-0 text-base">
-                  {marker.rack_type}
+                  {marker.rack_type ? marker.rack_type : "Street Sign"}
                 </p>
                 {/* TODO: Add # of reports here */}
               </div>
               <div className="my-1 flex justify-center items-center select-none pointer-events-none">
-                {marker.rack_type && getImageSource(marker.rack_type) ? (
+                {marker.rack_type ? (
                   <Image
                     className="rounded-md shadow"
                     src={getImageSource(marker.rack_type)}
                     alt={marker.rack_type}
+                    height={imageSize}
+                    width={imageSize}
+                  />
+                ) : marker.type === "sign" ? (
+                  <Image
+                    className="rounded-md shadow"
+                    src={"/images/streetsign.jpg"}
+                    alt={"street sign"}
                     height={imageSize}
                     width={imageSize}
                   />
@@ -229,8 +215,9 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
                   </div>
                 )}
               </div>
-              <p className="ifo_address text-center text-base overflow-x-auto !p-0 !m-0">
-                {marker.ifoaddress}
+              {/* prettier-ignore */}
+              <p className={`ifo_address text-center ${marker.type === 'rack' ? 'text-base overflow-x-auto' : 'max-w-[170px] text-sm tracking-tight'} !p-0 !m-0`}>
+                {marker.address}
               </p>
               <div className="flex flex-col gap-2 mt-1 mb-3">
                 <button
@@ -262,75 +249,17 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
                   Directions
                 </button>
               </div>
-              <div className="flex justify-between items-end">
-                <p className="date_installed italic text-xs !m-0 !p-0">
-                  {`Date Installed: `}
-                  {marker.date_inst &&
-                  new Date(marker.date_inst).getFullYear() === 1900
-                    ? "N/A"
-                    : formatDate(marker.date_inst!)}
-                </p>
-              </div>
-              {/* <button className="popup-buttons" onClick={() => handleSaveFavorite(marker)}>Save as favorite</button> */}
-            </div>
-          </Popup>
-        </Marker>
-      )}
-      {marker.order_number && (
-        <Marker
-          key={marker.order_number}
-          icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}
-          position={[marker.Y!, marker.X!]}
-        >
-          <Popup minWidth={170}>
-            {/* <Popup minWidth={200}> */}
-            <div className="popup-rack flex flex-col">
-              <div className="flex flex-col font-bold">
-                <p className="side_id !m-0 !p-0 text-base">
-                  {marker.order_number}
-                </p>
-                <p className="rack_type !m-0 !p-0 text-base">Street Sign</p>
-                {/* TODO: Add # of reports here */}
-              </div>
-              <div className="my-1 flex justify-center items-center select-none pointer-events-none">
-                <div className="flex flex-col w-full items-center bg-slate-200 border-[1px] border-slate-300 rounded-lg p-3">
-                  <NoImage />
-                  <p className="!p-0 !m-0 text-xs">No image available</p>
+              {marker.type === "rack" ? (
+                <div className="flex justify-between items-end">
+                  <p className="date_installed italic text-xs !m-0 !p-0">
+                    {`Date Installed: `}
+                    {marker.date_inst &&
+                    new Date(marker.date_inst).getFullYear() === 1900
+                      ? "N/A"
+                      : formatDate(marker.date_inst!)}
+                  </p>
                 </div>
-              </div>
-              <p className="ifo_address text-center text-base overflow-x-auto !p-0 !m-0">
-                {`${marker.on_street} ${marker.from_street} ${marker.to_street}`}
-              </p>
-              <div className="flex flex-col gap-2 mt-1 mb-3">
-                <button
-                  onClick={() => handleSaveFavorite(marker)}
-                  title="Save Location"
-                  aria-label="Save Location"
-                  aria-disabled="false"
-                  className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
-                >
-                  <Bookmark
-                    className={`h-7 w-7 hover:cursor-pointer ${
-                      isFavoriteMarker(marker)
-                        ? "fill-yellow-300"
-                        : "fill-transparent"
-                    }`}
-                  />
-                  Save
-                </button>
-                <button
-                  onClick={() => {}}
-                  title="Directions"
-                  aria-label="Directions"
-                  aria-disabled="false"
-                  className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
-                >
-                  <Directions
-                    className={`h-7 w-7 hover:cursor-pointer items-end`}
-                  />
-                  Directions
-                </button>
-              </div>
+              ) : null}
             </div>
           </Popup>
         </Marker>
@@ -363,7 +292,7 @@ const MapComponent: FC = () => {
       const fetchData = async () => {
         setLoading(true);
         try {
-          const data = await getCoordinates2();
+          const data = await getCoordinates();
           setMarkerData(data);
         } catch (error) {
           console.error(error);
@@ -454,7 +383,7 @@ const MapComponent: FC = () => {
 
   // Check if a marker is a favorite
   const isFavoriteMarker = (marker: MarkerData): boolean => {
-    return favoriteMarkers.includes(marker.site_id || "");
+    return favoriteMarkers.includes(marker.id || "");
   };
 
   // Memoize the handleSaveFavorite function
@@ -470,18 +399,19 @@ const MapComponent: FC = () => {
 
       const updateFavorites = debounce(async () => {
         try {
-          if (!favoriteMarkers.includes(marker.site_id || "")) {
+          let values = {};
+          if (!favoriteMarkers.includes(marker.id || "")) {
             // Check if the marker is already a favorite
             // if not, add it to the list of favoriteMarkers
             setFavoriteMarkers((prevMarkers) => [
               ...prevMarkers,
-              marker.site_id || "",
+              marker.id || "",
             ]);
-            const values = {
+            values = {
               uuid,
               username,
-              location_id: marker.site_id,
-              location_address: marker.ifoaddress,
+              location_id: marker.id,
+              location_address: marker.address,
               x_coord: marker.x,
               y_coord: marker.y,
             };
@@ -496,13 +426,13 @@ const MapComponent: FC = () => {
           } else {
             // Remove the marker from the list of favoriteMarkers
             setFavoriteMarkers((prevMarkers) =>
-              prevMarkers.filter((id) => id !== marker.site_id)
+              prevMarkers.filter((id) => id !== marker.id)
             );
             const { data, error } = await supabase
               .from("Favorites")
               .delete()
               .eq("user_id", uuid)
-              .eq("location_id", marker.site_id);
+              .eq("location_id", marker.id);
             if (error) {
               console.log(`Error removing spot from favortes: ${error}`);
             }
@@ -770,23 +700,14 @@ const MapComponent: FC = () => {
         /> */}
         <TempMarkerComponent />
         <MarkerClusterGroup chunkedLoading maxClusterRadius={160}>
-          {markerData?.map((marker) =>
-            marker.site_id ? (
-              <MemoizedMarker
-                key={marker.site_id}
-                marker={marker}
-                isFavoriteMarker={isFavoriteMarker}
-                handleSaveFavorite={handleSaveFavorite}
-              />
-            ) : (
-              <MemoizedMarker
-                key={marker.order_number}
-                marker={marker}
-                isFavoriteMarker={isFavoriteMarker}
-                handleSaveFavorite={handleSaveFavorite}
-              />
-            )
-          )}
+          {markerData?.map((marker) => (
+            <MemoizedMarker
+              key={marker.id}
+              marker={marker}
+              isFavoriteMarker={isFavoriteMarker}
+              handleSaveFavorite={handleSaveFavorite}
+            />
+          ))}
         </MarkerClusterGroup>
         <UserLocationMarker />
         <ZoomHandler />
