@@ -172,10 +172,3 @@ const LoginModal = () => {
 };
 
 export default LoginModal;
-<<<<<<< HEAD
-  );
-};
-
-export default LoginModal;
-=======
->>>>>>> parent of 03503a5 (Merge pull request #35 from chrislies/update_delete)
