@@ -33,6 +33,7 @@ const BusyComponent = ({ x, y }: BusyComponentProps) => {
     return (
         <div>
             {isBusy ? (
+                // Need to add icon here
                 <span className="busy-icon">Busy</span>
             ) : (
                 <span className="not-busy-icon">Not Busy</span>

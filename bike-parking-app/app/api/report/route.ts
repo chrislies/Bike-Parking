@@ -33,3 +33,27 @@ export async function POST(req: Request) {
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
+
+
+// Temp Version
+export async function DELETE(req: Request) {
+  try {
+    const { reportId } = await req.json();
+
+    const { data, error } = await supabase
+      .from("Report")
+      .delete()
+      .match({ id: reportId });
+
+    if (error) {
+      console.error("Error deleting report:", error);
+      return new NextResponse("Error deleting report", { status: 500 });
+    }
+
+    console.log("Report successfully deleted:", data);
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Server error:", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+}
