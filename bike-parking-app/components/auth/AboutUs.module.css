@@ -1,0 +1,72 @@
+.page {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+  }
+  
+  .aboutSection {
+    padding: 50px;
+    text-align: center;
+    background-color: #474e5d;
+    color: white;
+  }
+  
+  .centerText {
+    text-align: center;
+  }
+  
+  .row {
+    display: flex;
+    flex-wrap: wrap; /* Allows for wrapping on smaller screens */
+    margin-right: -8px;
+    margin-left: -8px;
+  }
+  
+  .column {
+    flex: 1 0 25%; /* Each column takes up 25% of the row */
+    max-width: 25%; /* Ensures it does not grow beyond 25% */
+    padding-right: 8px;
+    padding-left: 8px;
+    box-sizing: border-box;
+    margin-bottom: 16px; /* Spacing between rows when wrapped */
+  }
+  
+  .card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    margin: 8px;
+    text-align: center; /* Centering text inside the card */
+  }
+  
+  .width100 {
+    width: 100%; /* Image width to fill the container */
+  }
+  
+  .container {
+    padding: 16px;
+  }
+  
+  .title {
+    color: grey;
+  }
+  
+  .button {
+    border: none;
+    outline: 0;
+    display: inline-block;
+    padding: 8px;
+    color: white;
+    background-color: #000;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  .button:hover {
+    background-color: #555;
+  }
+  
+  @media screen and (max-width: 650px) {
+    .column {
+      flex: 0 0 100%; /* Takes full width on small screens */
+      max-width: 100%; /* Ensures it does not grow beyond 100% on small screens */
+    }
+  }
