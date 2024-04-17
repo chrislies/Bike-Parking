@@ -205,7 +205,7 @@ const addReport = debounce(async (reportData: ReportData) => {
                     <p></p>
                   </div>
                 ))}
-                <button className="report-button" onClick={switchToSubmit}>File a Report</button>
+                <button className="file-report-button" onClick={switchToSubmit}>File a Report</button>
                 <br></br>
                 <DeleteComponent x={x} y={y} site_id={siteId} />
               </div>
