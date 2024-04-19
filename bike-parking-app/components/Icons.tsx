@@ -21,7 +21,7 @@ import {
 } from "./svgs";
 
 const rackIcon = L.divIcon({
-  className: "custom-icon",
+  className: "rack-icon",
   html: ReactDOMServer.renderToString(<RackMarker />),
   // iconSize: [10, 10],
   iconAnchor: [20, 30],
@@ -29,7 +29,7 @@ const rackIcon = L.divIcon({
 });
 
 const signIcon = L.divIcon({
-  className: "custom-icon",
+  className: "sign-icon",
   html: ReactDOMServer.renderToString(<SignMarker />),
   // iconSize: [10, 10],
   iconAnchor: [20, 30],
