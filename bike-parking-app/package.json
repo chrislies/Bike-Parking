@@ -11,6 +11,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.18",
     "@hookform/resolvers": "^3.3.4",
+    "@react-leaflet/core": "^2.1.0",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "@types/leaflet.markercluster": "^1.5.4",
@@ -19,7 +20,6 @@
     "leaflet": "^1.9.4",
     "leaflet-control-geocoder": "^2.4.0",
     "leaflet-defaulticon-compatibility": "^0.1.2",
-    "leaflet-easybutton": "^2.4.0",
     "leaflet-rotate": "^0.2.8",
     "leaflet-routing-machine": "^3.2.12",
     "next": "latest",
