@@ -57,9 +57,13 @@ import "./css/style.css";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
-import "leaflet-easybutton/src/easy-button.js";
-import "leaflet-easybutton/src/easy-button.css";
-import { FaLocationArrow } from "react-icons/fa";
+import dynamic from "next/dynamic";
+import MyMarkerLayer from "./map/layers/MyMarkerLayer";
+
+const LocateButton = dynamic(
+  async () => (await import("./map/LocateButton")).LocateButton,
+  { ssr: false }
+);
 
 type GeolocationPosition = {
   lat: number;
@@ -158,115 +162,121 @@ function UserLocationMarker() {
   );
 }
 
-interface MemoizedMarkerProps {
-  marker: MarkerData;
-  isFavoriteMarker: (marker: MarkerData) => boolean;
-  handleSaveFavorite: (marker: MarkerData) => void;
-}
+// interface MemoizedMarkerProps {
+//   marker: MarkerData;
+//   isFavoriteMarker: (marker: MarkerData) => boolean;
+//   handleSaveFavorite: (marker: MarkerData) => void;
+//   index: number;
+//   totalMarkers: number;
+// }
 
-// Memoize Marker component to prevent unnecessary re-renders
-const MemoizedMarker: FC<MemoizedMarkerProps> = ({
-  marker,
-  isFavoriteMarker,
-  handleSaveFavorite,
-}) => {
-  const imageSize = 700;
+// // Memoize Marker component to prevent unnecessary re-renders
+// const MemoizedMarker: FC<MemoizedMarkerProps> = ({
+//   marker,
+//   isFavoriteMarker,
+//   handleSaveFavorite,
+//   index,
+//   totalMarkers,
+// }) => {
+//   const imageSize = 700;
 
-  return (
-    <>
-      {marker.id && (
-        <Marker
-          key={marker.id}
-          // prettier-ignore
-          icon={isFavoriteMarker(marker) ? favoriteIcon : (marker.type === "rack" ? rackIcon : signIcon)}
-          position={[marker.y!, marker.x!]}
-        >
-          <Popup minWidth={170}>
-            {/* <Popup minWidth={200}> */}
-            <div className="popup-rack flex flex-col">
-              <div className="flex flex-col font-bold">
-                <p className="side_id !m-0 !p-0 text-base">{marker.id}</p>
-                <p className="rack_type !m-0 !p-0 text-base">
-                  {marker.rack_type ? marker.rack_type : "Street Sign"}
-                </p>
-                {/* TODO: Add # of reports here */}
-              </div>
-              <div className="my-1 flex justify-center items-center select-none pointer-events-none">
-                {marker.rack_type && getImageSource(marker.rack_type) ? (
-                  <Image
-                    className="rounded-md shadow"
-                    src={getImageSource(marker.rack_type)}
-                    alt={marker.rack_type}
-                    height={imageSize}
-                    width={imageSize}
-                  />
-                ) : marker.type === "sign" ? (
-                  <Image
-                    className="rounded-md shadow"
-                    src={"/images/streetsign.jpg"}
-                    alt={"street sign"}
-                    height={imageSize}
-                    width={imageSize}
-                  />
-                ) : (
-                  <div className="flex flex-col w-full items-center bg-slate-200 border-[1px] border-slate-300 rounded-lg p-3">
-                    <NoImage />
-                    <p className="!p-0 !m-0 text-xs">No image available</p>
-                  </div>
-                )}
-              </div>
-              {/* prettier-ignore */}
-              <p className={`ifo_address text-center ${marker.type === 'rack' ? 'text-base overflow-x-auto' : 'max-w-[170px] text-sm tracking-tight'} !p-0 !m-0`}>
-                {marker.address}
-              </p>
-              <div className="flex flex-col gap-2 mt-1 mb-3">
-                <button
-                  onClick={() => handleSaveFavorite(marker)}
-                  title="Save Location"
-                  aria-label="Save Location"
-                  aria-disabled="false"
-                  className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
-                >
-                  <Bookmark
-                    className={`h-7 w-7 hover:cursor-pointer ${
-                      isFavoriteMarker(marker)
-                        ? "fill-yellow-300"
-                        : "fill-transparent"
-                    }`}
-                  />
-                  Save
-                </button>
-                <button
-                  onClick={() => {}}
-                  title="Directions"
-                  aria-label="Directions"
-                  aria-disabled="false"
-                  className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
-                >
-                  <Directions
-                    className={`h-7 w-7 hover:cursor-pointer items-end`}
-                  />
-                  Directions
-                </button>
-              </div>
-              {marker.type === "rack" ? (
-                <div className="flex justify-between items-end">
-                  <p className="date_installed italic text-xs !m-0 !p-0">
-                    {`Date Installed: `}
-                    {marker.date_inst &&
-                    new Date(marker.date_inst).getFullYear() === 1900
-                      ? "N/A"
-                      : formatDate(marker.date_inst!)}
-                  </p>
-                </div>
-              ) : null}
-            </div>
-          </Popup>
-        </Marker>
-      )}
-    </>
-  );
-};
+//   console.log(`Rendering MemoizedMarker ${index} / ${totalMarkers}`);
+
+//   return (
+//     <>
+//       {marker.id && (
+//         <Marker
+//           key={marker.id}
+//           // prettier-ignore
+//           icon={isFavoriteMarker(marker) ? favoriteIcon : (marker.type === "rack" ? rackIcon : signIcon)}
+//           position={[marker.y!, marker.x!]}
+//         >
+//           <Popup minWidth={170}>
+//             {/* <Popup minWidth={200}> */}
+//             <div className="popup-rack flex flex-col">
+//               <div className="flex flex-col font-bold">
+//                 <p className="side_id !m-0 !p-0 text-base">{marker.id}</p>
+//                 <p className="rack_type !m-0 !p-0 text-base">
+//                   {marker.rack_type ? marker.rack_type : "Street Sign"}
+//                 </p>
+//                 {/* TODO: Add # of reports here */}
+//               </div>
+//               <div className="my-1 flex justify-center items-center select-none pointer-events-none">
+//                 {marker.rack_type && getImageSource(marker.rack_type) ? (
+//                   <Image
+//                     className="rounded-md shadow"
+//                     src={getImageSource(marker.rack_type)}
+//                     alt={marker.rack_type}
+//                     height={imageSize}
+//                     width={imageSize}
+//                   />
+//                 ) : marker.type === "sign" ? (
+//                   <Image
+//                     className="rounded-md shadow"
+//                     src={"/images/streetsign.jpg"}
+//                     alt={"street sign"}
+//                     height={imageSize}
+//                     width={imageSize}
+//                   />
+//                 ) : (
+//                   <div className="flex flex-col w-full items-center bg-slate-200 border-[1px] border-slate-300 rounded-lg p-3">
+//                     <NoImage />
+//                     <p className="!p-0 !m-0 text-xs">No image available</p>
+//                   </div>
+//                 )}
+//               </div>
+//               {/* prettier-ignore */}
+//               <p className={`ifo_address text-center ${marker.type === 'rack' ? 'text-base overflow-x-auto' : 'max-w-[170px] text-sm tracking-tight'} !p-0 !m-0`}>
+//                 {marker.address}
+//               </p>
+//               <div className="flex flex-col gap-2 mt-1 mb-3">
+//                 <button
+//                   onClick={() => handleSaveFavorite(marker)}
+//                   title="Save Location"
+//                   aria-label="Save Location"
+//                   aria-disabled="false"
+//                   className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
+//                 >
+//                   <Bookmark
+//                     className={`h-7 w-7 hover:cursor-pointer ${
+//                       isFavoriteMarker(marker)
+//                         ? "fill-yellow-300"
+//                         : "fill-transparent"
+//                     }`}
+//                   />
+//                   Save
+//                 </button>
+//                 <button
+//                   onClick={() => {}}
+//                   title="Directions"
+//                   aria-label="Directions"
+//                   aria-disabled="false"
+//                   className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
+//                 >
+//                   <Directions
+//                     className={`h-7 w-7 hover:cursor-pointer items-end`}
+//                   />
+//                   Directions
+//                 </button>
+//               </div>
+//               {marker.type === "rack" ? (
+//                 <div className="flex justify-between items-end">
+//                   <p className="date_installed italic text-xs !m-0 !p-0">
+//                     {`Date Installed: `}
+//                     {marker.date_inst &&
+//                     new Date(marker.date_inst).getFullYear() === 1900
+//                       ? "N/A"
+//                       : formatDate(marker.date_inst!)}
+//                   </p>
+//                 </div>
+//               ) : null}
+//             </div>
+//           </Popup>
+//         </Marker>
+//       )}
+//     </>
+//   );
+// };
 
 const MapComponent: FC = () => {
   console.log("MapComponent rendered");
@@ -324,15 +334,6 @@ const MapComponent: FC = () => {
     //     toast.error("Failed to locate user");
     //   }
     // }, [userCoordinates]);
-
-    useEffect(() => {
-      L.easyButton("<FaLocationArrow />", () => {
-        map.locate().on("locationfound", function (e) {
-          map.flyTo(e.latlng, 19, { animate: true, duration: 1.5 });
-        });
-        // map.flyTo([1, 1], 19, { animate: true, duration: 1.5 });
-      }).addTo(map);
-    }, [map]);
 
     return null; // Return null since nothing is rendered in the DOM
   };
@@ -638,8 +639,8 @@ const MapComponent: FC = () => {
   return (
     <>
       <Toaster />
-      {loading && <Loader />}
-      <div className="absolute sm:bottom-0 max-sm:top-0 max-sm:right-0 flex flex-col max-sm:flex-col-reverse max-sm:items-end justify-between m-3 gap-3">
+      {/* {loading && <Loader />} */}
+      {/* <div className="absolute sm:bottom-0 max-sm:top-0 max-sm:right-0 flex flex-col max-sm:flex-col-reverse max-sm:items-end justify-between m-3 gap-3">
         <button
           // onClick={() => locateMe(mapRef.current)}
           title="Locate Me"
@@ -662,58 +663,64 @@ const MapComponent: FC = () => {
             <Layers />
           </span>
         </button>
-      </div>
-      <Navbar />
-      <MapContainer
-        ref={mapRef}
-        attributionControl={false}
-        center={[40.71151957593488, -73.88017135962203]}
-        zoom={11}
-        // maxZoom={maxZoom}
-        minZoom={1}
-        style={{ height: "100vh", width: "100vw" }}
-        rotate={true}
-        touchRotate={true}
-        rotateControl={{
-          closeOnZeroBearing: false,
-        }}
-      >
-        {mapLayer === "street" ? (
-          <TileLayer
-            // maxZoom={maxZoom}
-            maxZoom={24}
-            maxNativeZoom={19}
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-        ) : (
-          <TileLayer
-            // maxZoom={maxZoom}
-            maxZoom={24}
-            maxNativeZoom={18}
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-          />
-        )}
-        {/* <TileLayer
-          maxZoom={maxZoom}
-          url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-          subdomains={["mt1", "mt2", "mt3"]}
-        /> */}
-        <TempMarkerComponent />
-        <MarkerClusterGroup chunkedLoading maxClusterRadius={160}>
-          {markerData?.map((marker) => (
-            <MemoizedMarker
-              key={marker.id}
-              marker={marker}
-              isFavoriteMarker={isFavoriteMarker}
-              handleSaveFavorite={handleSaveFavorite}
+      </div> */}
+      <div className="min-h-screen">
+        <MapContainer
+          ref={mapRef}
+          attributionControl={false}
+          center={[40.71151957593488, -73.88017135962203]}
+          zoom={11}
+          // maxZoom={maxZoom}
+          minZoom={1}
+          style={{ height: "100vh", width: "100vw" }}
+          rotate={true}
+          touchRotate={true}
+          rotateControl={{
+            closeOnZeroBearing: false,
+          }}
+        >
+          {mapLayer === "street" ? (
+            <TileLayer
+              // maxZoom={maxZoom}
+              maxZoom={24}
+              maxNativeZoom={19}
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              // url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             />
-          ))}
-        </MarkerClusterGroup>
-        <UserLocationMarker />
-        <ZoomHandler />
-        {/* <RoutingMachine />  */}
-        <ControlGeocoder />
-      </MapContainer>
+          ) : (
+            <TileLayer
+              // maxZoom={maxZoom}
+              maxZoom={24}
+              maxNativeZoom={18}
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            />
+          )}
+          {/* <TileLayer
+            maxZoom={maxZoom}
+            url="https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+            subdomains={["mt1", "mt2", "mt3"]}
+          /> */}
+          <TempMarkerComponent />
+          {/* <MarkerClusterGroup chunkedLoading maxClusterRadius={160}>
+            {markerData?.map((marker, index) => (
+              <MemoizedMarker
+                key={marker.id}
+                marker={marker}
+                isFavoriteMarker={isFavoriteMarker}
+                handleSaveFavorite={handleSaveFavorite}
+                index={index + 1}
+                totalMarkers={markerData.length}
+              />
+            ))}
+          </MarkerClusterGroup> */}
+          <MyMarkerLayer />
+          <UserLocationMarker />
+          <ZoomHandler />
+          <LocateButton />
+          {/* <RoutingMachine />  */}
+          <ControlGeocoder />
+        </MapContainer>
+      </div>
     </>
   );
 };
