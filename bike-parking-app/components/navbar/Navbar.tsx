@@ -4,8 +4,10 @@ import { Add, Map, NavbarBookmark, User } from "../svgs";
 import Link from "next/link";
 import { memo, useEffect, useState } from "react";
 import SavedModal from "../modals/SavedModal";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
+  const router = useRouter();
   const [svgSize, setSvgSize] = useState(6);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
 
@@ -30,31 +32,32 @@ const Navbar = () => {
     setIsSavedModalOpen(false);
   };
 
+  const handleAccountClick = () => {
+    router.push("/account");
+  };
+
   const NAV_LINKS = [
     {
-      href: "#",
       key: "map",
       label: "Map",
       svg: <Map className={`h-${svgSize} w-${svgSize}`} />,
     },
     {
-      href: "#",
-      handleClick: openSavedModal,
       key: "saved",
       label: "Saved",
       svg: <NavbarBookmark className={`h-${svgSize} w-${svgSize}`} />,
+      handleClick: openSavedModal,
     },
     {
-      href: "#",
       key: "contribute",
       label: "Contribute",
       svg: <Add className={`h-${svgSize} w-${svgSize}`} />,
     },
     {
-      href: "/account",
       key: "account",
       label: "Account",
       svg: <User className={`h-${svgSize} w-${svgSize}`} />,
+      handleClick: handleAccountClick,
     },
   ];
 
@@ -70,11 +73,11 @@ const Navbar = () => {
       <div className="absolute bottom-3 z-[800] max-w-fit mx-auto flex inset-x-0 justify-center select-none rounded-2xl">
         <div className="grid grid-flow-col grid-cols-4 gap-1 sm:w-[400px] max-sm:w-[300px] bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.2)] shadow-md p-1">
           {NAV_LINKS.map((navItem, index) => (
-            <Link
+            <div
               key={index}
-              href={navItem.href}
+              // href={navItem.href}
               onClick={navItem.handleClick}
-              className="flex flex-col items-center justify-center py-1 hover:bg-gray-300 hover:rounded-xl"
+              className="cursor-pointer flex flex-col items-center justify-center py-1 hover:bg-gray-300 hover:rounded-xl"
             >
               <span>{navItem.svg}</span>
               <p
@@ -83,7 +86,7 @@ const Navbar = () => {
               >
                 {navItem.label}
               </p>
-            </Link>
+            </div>
           ))}
         </div>
       </div>
