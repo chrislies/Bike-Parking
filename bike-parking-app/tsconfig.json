@@ -30,8 +30,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "components/LeafletControlGeocoder.tsx",
-    "components/LeafletRoutingMachine.jsx",
-    "components/LeafletMap2.jsx"
+    "components/LeafletRoutingMachine.jsx"
   ],
   "exclude": ["node_modules"]
 }
