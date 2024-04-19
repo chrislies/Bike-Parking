@@ -1,5 +1,8 @@
 async function getCoordinates(): Promise<MarkerData[] | null> {
   try {
+    console.log("Fetching data from API");
+    const startTotal = window.performance.now();
+    const startRack = window.performance.now();
     let allData: any[] = [];
     let offset = 0;
     let hasMoreData = true;
@@ -60,6 +63,7 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
       }
     }
 
+    const startSign = window.performance.now();
     const streetSignsResponse = await fetch(
       `https://raw.githubusercontent.com/chrislies/Bike-Parking/backend_streetsigns/backend/db.json`
     );
@@ -71,6 +75,7 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     const combinedData: MarkerData[] = [...limitData];
 
     allData = [...allData, ...combinedData];
+    const endSign = window.performance.now();
 
     // prettier-ignore
     const info: MarkerData[] = allData.map((item) => ({
@@ -86,6 +91,12 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
       type: item.rack_type ? "rack" : "sign",
     }));
 
+    const endTotal = window.performance.now();
+    console.log(`
+      Total time: ${(endTotal - startTotal) / 1000}
+      Rack time: ${(startSign - startRack) / 1000}
+      Sign time: ${(endSign - startSign) / 1000}
+    `);
     return info.length > 0 ? info : null;
   } catch (error) {
     console.error(error);
