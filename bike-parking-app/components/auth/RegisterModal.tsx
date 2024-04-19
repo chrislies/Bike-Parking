@@ -235,7 +235,7 @@ const RegisterModal = () => {
                 </p>
               ) : (
                 <div className="h-5" />
-              )}{" "}
+              )}
             </div>
           </div>
           {/* <p className="mb-1 select-none opacity-0 text-red-500 text-xs italic">
