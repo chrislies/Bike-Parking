@@ -113,7 +113,7 @@ const LoginModal = () => {
                 <div className="h-5" />
               )}
               <Link
-                href="#"
+                href="/forgot-password"
                 className="font-bold text-sm text-blue-500 hover:text-blue-800"
               >
                 Forgot Password?
@@ -159,12 +159,14 @@ const LoginModal = () => {
               Sign up
             </Link>
           </p>
-          <Link
-            href="/map"
-            className="flex justify-center text-sm font-semibold text-gray-400 hover:cursor-pointer hover:text-gray-500"
-          >
-            Continue as Guest
-          </Link>
+          <div className="text-center">
+            <Link
+              href="/map"
+              className="text-sm font-semibold text-gray-400 hover:cursor-pointer hover:text-gray-500"
+            >
+              Continue as Guest
+            </Link>
+          </div>
         </form>
       </div>
     </>
