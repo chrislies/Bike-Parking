@@ -106,7 +106,7 @@ const DeleteComponent: FC<DeleteComponentProps> = ({ x, y, site_id }) => {
                 console.error("Server error:", error);
             }
         }, 300)
-        //updatePending();
+        updatePending();
     };
 
     return (
