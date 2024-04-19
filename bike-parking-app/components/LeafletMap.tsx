@@ -80,6 +80,12 @@ interface MarkerData {
   sign_y_coord?: number;
   favorite: boolean;
 }
+
+interface UserMarker {
+  x?: number;
+  y?: number;
+  email?: string;
+}
 interface UserCoordinatesItem {
   longitude: number;
   latitude: number;
@@ -658,49 +664,51 @@ const MapComponent: FC = () => {
     );
   };
 
-  // const handleDeleteRequest = (marker: MarkerData) => {
-  //   const username = session?.user.user_metadata.username;
-  //   const uuid = session?.user.id;
-  //   const email = session?.user.email;
-  
-  //   if (!uuid) {
-  //     toast.error("Sign in to delete locations!");
-  //     return;
-  //   }
-  
-  //   // Prompt the user to enter a message
-  //   const message = prompt("Please enter your message:");
-  
-  //   // Check if the user has entered a message
-  //   if (!message) {
-  //     toast.error("Message is required!");
-  //     return;
-  //   }
-  
-  //   const updatePending = debounce(async () => {
-  //     try {
-  //       const requestData = {
-  //         x_coord: marker?.x,
-  //         y_coord: marker?.y,
-  //         site_id:marker?.site_id,
-  //         request_type: "Delete",
-  //         email: email,
-  //         description: message, // Use the message entered by the user
-  //       };
-  
-  //       const response = await axios.post("/api/request", requestData);
-  //       if (response.status === 200) {
-  //         console.log("Request successfully added:", response.data);
-  //       } else {
-  //         console.log("Error adding request:", response.statusText);
-  //       }
-  //     } catch (error) {
-  //       console.error("Server error:", error);
-  //     }
-  //   }, 300);
-  
-  //   updatePending();
-  // }
+  // Making Marker for user added location
+  function UserAddMarker() {
+    const [usermarkerData, setUserMarkerData] = useState<UserMarker[] | null>(null);
+    const supabase = createSupabaseBrowserClient();
+
+    useEffect(() => {
+      async function fetchData() {
+        try {
+          const { data, error } = await supabase
+            .from('UserAdded')
+            .select('x_coord, y_coord, email');
+
+          if (error) {
+            throw error;
+          }
+
+          if (data) {
+            const userMarkers: UserMarker[] = data.map((item: any) => ({
+              x: item.x_coord,
+              y: item.y_coord,
+              email: item.email,
+            }));
+            setUserMarkerData(userMarkers);
+          }
+        } catch (error:any) {
+          console.error('Error fetching data from Supabase:', error.message);
+        }
+      }
+
+      fetchData();
+    }, []);
+    return (
+      <div style={{ height: '400px' }}> 
+          {usermarkerData &&
+            usermarkerData.map((marker, index) => (
+              <Marker key={index} position={[marker.y || 0, marker.x || 0]} icon={userIcon}>
+                <Popup>Added by: {marker.email} </Popup>
+              </Marker>
+            ))}
+      
+      </div>
+    );
+  };
+
+
 
   // Return the JSX for rendering
   return (
@@ -767,6 +775,7 @@ const MapComponent: FC = () => {
           subdomains={["mt1", "mt2", "mt3"]}
         /> */}
         <TempMarkerComponent />
+        <UserAddMarker/>
         {!loading && (
           <MarkerClusterGroup chunkedLoading maxClusterRadius={160}>
             {markerData?.map((marker) =>
