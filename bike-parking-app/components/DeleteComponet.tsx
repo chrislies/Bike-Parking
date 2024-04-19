@@ -63,7 +63,7 @@ const DeleteComponent: FC<DeleteComponentProps> = ({ x, y, site_id }) => {
         }
     };
 
-    const handleDeleteRequest = async () => {
+    const handleDeleteRequest = async (event: React.MouseEvent<HTMLButtonElement>) => {
 
         if (!uuid) {
             toast.error("Sign in to delete locations!");
@@ -75,6 +75,10 @@ const DeleteComponent: FC<DeleteComponentProps> = ({ x, y, site_id }) => {
             toast.error("Please provide a description!");
             return;
         }
+
+        event.preventDefault();
+        event.stopPropagation();
+        
 
 
         setDeleteModalOpen(false);

@@ -37,7 +37,7 @@ export default function Navbar() {
       svg: <NavbarBookmark className={`h-${svgSize} w-${svgSize}`} />,
     },
     {
-      href: "#",
+      href: "/contributes",
       key: "contribute",
       label: "Contribute",
       svg: <Add className={`h-${svgSize} w-${svgSize}`} />,

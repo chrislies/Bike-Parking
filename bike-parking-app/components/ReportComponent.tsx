@@ -182,13 +182,14 @@ const addReport = debounce(async (reportData: ReportData) => {
 }, 300);
 
 
-
+//Generate button text based on the number of reports
+const buttonText = reports.length > 0 ? `[${reports.length} reports]` : 'Report';
 
 
 
   return (
     <div>
-      <button className="report-button" onClick={openModal}>Report</button>
+      <button className="report-button" onClick={openModal}>{buttonText}</button>
       {isModalOpen && (
         <div className="modal">
           <div className="modal-content">
@@ -205,7 +206,7 @@ const addReport = debounce(async (reportData: ReportData) => {
                     <p></p>
                   </div>
                 ))}
-                <button className="report-button" onClick={switchToSubmit}>File a Report</button>
+                <button className="file-report-button" onClick={switchToSubmit}>File a Report</button>
                 <br></br>
                 <DeleteComponent x={x} y={y} site_id={siteId} />
               </div>
