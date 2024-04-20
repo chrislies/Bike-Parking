@@ -38,7 +38,7 @@ export default function MapPage() {
       </div>
 
       <Navbar />
-      <DynamicMapComponent />
+      <ClientMap />
     </div>
   );
   // return (

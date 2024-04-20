@@ -2,6 +2,7 @@
 
 import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
 import MarkerLayer from "./layers/MarkerLayer";
+import MarkerLayer2 from "./layers/MyMarkerLayer";
 
 const RootMap = () => {
   return (
@@ -22,6 +23,7 @@ const RootMap = () => {
 
       <LayersControl position="topright">
         <MarkerLayer />
+        <MarkerLayer2 />
       </LayersControl>
     </MapContainer>
   );

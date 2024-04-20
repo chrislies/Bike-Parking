@@ -35,71 +35,29 @@ const MarkerLayer = () => {
     setProgress(percentage);
     console.log(percentage);
   };
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const fetchData = async () => {
-  //       setLoading(true);
-  //       try {
-  //         const data = await getCoordinates();
-  //         setMarkers(data);
-  //         console.log(data);
-  //       } catch (error) {
-  //         console.error(error);
-  //       }
-  //       setLoading(false);
-  //     };
-  //     fetchData();
-  //   }
-  // }, []);
-
-  const [markerss, setMarkerss] = useState<any[]>([]);
 
   useEffect(() => {
-    setLoading(true);
-    const fetchData = () => {
-      let markerss = [];
-      for (let i = 0; i < 50000; i++) {
-        markerss.push({
-          position: {
-            lng: -122.673447 + Math.random() * 200.0,
-            lat: 45.5225581 - 60 + Math.random() * 80,
-          },
-        });
-      }
-      setMarkerss(markerss);
-      setLoading(false);
-    };
-    fetchData();
+    if (typeof window !== "undefined") {
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          const data = await getCoordinates();
+          setMarkers(data);
+          console.log(data);
+        } catch (error) {
+          console.error(error);
+        }
+        setLoading(false);
+      };
+      fetchData();
+    }
   }, []);
 
   return (
     <>
       {loading && <Loader />}
       <p className="z-[999] text-center">Progress: {progress}%</p>
-      {markerss && (
-        <>
-          <LayersControl.Overlay name="Marker" checked>
-            <LayerGroup>
-              <MarkerClusterGroup
-                chunkedLoading={true}
-                maxClusterRadius={160}
-                removeOutsideVisibleBounds={true}
-                chunkProgress={chunkProgressHandler}
-              >
-                {markerss.map((marker, index) => (
-                  <Marker
-                    key={index}
-                    position={[marker.position.lat, marker.position.lng]}
-                    icon={rackIcon}
-                  ></Marker>
-                ))}
-              </MarkerClusterGroup>
-            </LayerGroup>
-          </LayersControl.Overlay>
-        </>
-      )}
-
-      {/* {markers && (
+      {markers && (
         <>
           <LayersControl.Overlay name="Marker" checked>
             <LayerGroup>
@@ -110,25 +68,30 @@ const MarkerLayer = () => {
                 chunkProgress={chunkProgressHandler}
               >
                 {markers.map((marker, index) => (
-                  <MyMarker
+                  // <MyMarker
+                  //   key={marker.id}
+                  //   x={marker.x}
+                  //   y={marker.y}
+                  //   id={marker.id}
+                  //   address={marker.address}
+                  //   rack_type={marker.rack_type}
+                  //   date_inst={marker.date_inst}
+                  //   sign_description={marker.sign_description}
+                  //   sign_code={marker.sign_code}
+                  //   favorite={marker.favorite}
+                  //   type={marker.type}
+                  // />
+                  <Marker
                     key={marker.id}
-                    x={marker.x}
-                    y={marker.y}
-                    id={marker.id}
-                    address={marker.address}
-                    rack_type={marker.rack_type}
-                    date_inst={marker.date_inst}
-                    sign_description={marker.sign_description}
-                    sign_code={marker.sign_code}
-                    favorite={marker.favorite}
-                    type={marker.type}
-                  />
+                    position={[marker.y!, marker.x!]}
+                    icon={rackIcon}
+                  ></Marker>
                 ))}
               </MarkerClusterGroup>
             </LayerGroup>
           </LayersControl.Overlay>
         </>
-      )} */}
+      )}
     </>
   );
 };

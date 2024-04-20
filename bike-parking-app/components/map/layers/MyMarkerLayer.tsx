@@ -21,7 +21,7 @@ interface MarkerData {
   type: string;
 }
 
-const MyMarkerLayer = () => {
+const MarkerLayer2 = () => {
   const [markers, setMarkers] = useState<MarkerData[] | null>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
@@ -35,23 +35,6 @@ const MyMarkerLayer = () => {
     setProgress(percentage);
     console.log(percentage);
   };
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const fetchData = async () => {
-  //       setLoading(true);
-  //       try {
-  //         const data = await getCoordinates();
-  //         setMarkers(data);
-  //         console.log(data);
-  //       } catch (error) {
-  //         console.error(error);
-  //       }
-  //       setLoading(false);
-  //     };
-  //     fetchData();
-  //   }
-  // }, []);
-
   const [markerss, setMarkerss] = useState<any[]>([]);
 
   useEffect(() => {
@@ -76,7 +59,7 @@ const MyMarkerLayer = () => {
     <>
       {loading && <Loader />}
       <p className="z-[999] text-center">Progress: {progress}%</p>
-      {markers && (
+      {markerss && (
         <>
           <LayersControl.Overlay name="Marker" checked>
             <LayerGroup>
@@ -86,20 +69,12 @@ const MyMarkerLayer = () => {
                 removeOutsideVisibleBounds={true}
                 chunkProgress={chunkProgressHandler}
               >
-                {markers.map((marker, index) => (
-                  <MyMarker
-                    key={marker.id}
-                    x={marker.x}
-                    y={marker.y}
-                    id={marker.id}
-                    address={marker.address}
-                    rack_type={marker.rack_type}
-                    date_inst={marker.date_inst}
-                    sign_description={marker.sign_description}
-                    sign_code={marker.sign_code}
-                    favorite={marker.favorite}
-                    type={marker.type}
-                  />
+                {markerss.map((marker, index) => (
+                  <Marker
+                    key={index}
+                    position={[marker.position.lat, marker.position.lng]}
+                    icon={rackIcon}
+                  ></Marker>
                 ))}
               </MarkerClusterGroup>
             </LayerGroup>
@@ -110,4 +85,4 @@ const MyMarkerLayer = () => {
   );
 };
 
-export default MyMarkerLayer;
+export default MarkerLayer2;
