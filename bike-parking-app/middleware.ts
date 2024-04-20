@@ -75,9 +75,35 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
+  // If user is not signed in and the current path is '/reset-password'
+  if (!user && request.nextUrl.pathname === "/reset-password") {
+    // Check if the request contains the 'token' query parameter
+    if (request.nextUrl.searchParams.has("token")) {
+      const tokenHash = request.nextUrl.searchParams.get("token");
+
+      if (tokenHash) {
+        // Verify the token hash using Supabase's verifyOtp method with type 'recovery'
+        const { data: verificationData, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' });
+
+        if (error || !verificationData) {
+          // if token hash is invalid or expired, redirect unauthenticated users to '/'
+          return NextResponse.redirect(new URL("/", request.url));
+        }
+
+        return response; // Allow access to the reset password page when the token hash is valid
+      } else {
+        // Redirect unauthenticated users to '/' if tokenHash is null
+        return NextResponse.redirect(new URL("/", request.url));
+      }
+    } else {
+      // Redirect unauthenticated users to '/'
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
   return response;
 }
 
 export const config = {
-  matcher: ["/", "/map", "/favorites", "/account", "/register"],
+  matcher: ["/", "/map", "/favorites", "/account", "/register", "/reset-password"],
 };
