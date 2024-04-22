@@ -21,13 +21,8 @@ const MyMarker: FC<MyMarkerProps> = ({
   return (
     <Marker
       key={marker.id}
-      icon={
-        isFavoriteMarker(marker)
-          ? favoriteIcon
-          : marker.type === "rack"
-          ? rackIcon
-          : signIcon
-      }
+      // prettier-ignore
+      icon={isFavoriteMarker(marker) ? favoriteIcon : marker.type === "rack" ? rackIcon : signIcon}
       position={[marker.y!, marker.x!]}
     >
       <Popup minWidth={170}>
