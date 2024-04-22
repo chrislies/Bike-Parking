@@ -54,9 +54,9 @@ export default function ForgotPasswordModal() {
             Forgot password?
           </h1>
           <p className="mb-8 text-base max-md:leading-5 ">
-            No worries! Please enter the email address associated with your
+            {`No worries! Please enter the email address associated with your
             account. We'll send you an email with instructions on how to reset
-            your password.
+            your password.`}
           </p>
           <label
             htmlFor="email"
