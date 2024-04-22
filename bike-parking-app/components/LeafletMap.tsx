@@ -58,12 +58,6 @@ import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
 import dynamic from "next/dynamic";
-import MyMarkerLayer from "./map/layers/MyMarkerLayer";
-
-const LocateButton = dynamic(
-  async () => (await import("./map/LocateButton")).LocateButton,
-  { ssr: false }
-);
 
 type GeolocationPosition = {
   lat: number;
@@ -713,10 +707,8 @@ const MapComponent: FC = () => {
               />
             ))}
           </MarkerClusterGroup> */}
-          <MyMarkerLayer />
           <UserLocationMarker />
           <ZoomHandler />
-          <LocateButton />
           {/* <RoutingMachine />  */}
           <ControlGeocoder />
         </MapContainer>
