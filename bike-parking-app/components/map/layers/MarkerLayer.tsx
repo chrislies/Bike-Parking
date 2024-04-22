@@ -150,9 +150,8 @@ const MarkerLayer = () => {
 
   return (
     <>
-      <Toaster />
       {loading && <Loader />}
-      <p className="z-[999] text-center">Progress: {progress}%</p>
+      {/* <p className="z-[999] text-center">Progress: {progress}%</p> */}
       {!loading && (
         <>
           <LayersControl.Overlay name="Marker" checked>
