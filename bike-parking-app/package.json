@@ -22,6 +22,7 @@
     "leaflet-defaulticon-compatibility": "^0.1.2",
     "leaflet-rotate": "^0.2.8",
     "leaflet-routing-machine": "^3.2.12",
+    "leaflet.markercluster": "^1.5.3",
     "next": "latest",
     "next-auth": "^4.24.7",
     "npm": "^10.5.0",
