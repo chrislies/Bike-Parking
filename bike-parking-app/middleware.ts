@@ -1,43 +1,3 @@
-// import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
-// import { NextResponse } from "next/server";
-
-// import type { NextRequest } from "next/server";
-
-// export async function middleware(req: NextRequest) {
-//   const res = NextResponse.next();
-//   const supabase = createMiddlewareClient({ req, res });
-
-//   const {
-//     data: { user },
-//   } = await supabase.auth.getUser();
-
-//   // If user is signed in and the current path is '/' redirect the user to '/map'
-//   if (user && req.nextUrl.pathname === "/") {
-//     return NextResponse.redirect(new URL("/map", req.url));
-//   }
-
-//   // If user is not signed in and the current path is not '/' redirect the user to '/'
-//   // if (!user && req.nextUrl.pathname !== "/") {
-//   //   return NextResponse.redirect(new URL("/", req.url));
-//   // }
-
-//   // If user is not signed in and the current path is '/favorites' redirect the user to '/register'
-//   if (!user && req.nextUrl.pathname === "/favorites") {
-//     return NextResponse.redirect(new URL("/register", req.url));
-//   }
-
-//   // If user is not signed in and the current path is '/account' redirect the user to '/'
-//   if (!user && req.nextUrl.pathname === "/account") {
-//     return NextResponse.redirect(new URL("/", req.url));
-//   }
-
-//   return res;
-// }
-
-// export const config = {
-//   matcher: ["/", "/map", "/favorites", "/account", "/register"],
-// };
-
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseReqResClient } from "./utils/supabase/server-client";
 
@@ -83,7 +43,9 @@ export async function middleware(request: NextRequest) {
 
       if (tokenHash) {
         // Verify the token hash using Supabase's verifyOtp method with type 'recovery'
-        const { data: verificationData, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' });
+        const { data: verificationData, error } = await supabase.auth.verifyOtp(
+          { token_hash: tokenHash, type: "recovery" }
+        );
 
         if (error || !verificationData) {
           // if token hash is invalid or expired, redirect unauthenticated users to '/'
@@ -105,5 +67,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/map", "/favorites", "/account", "/register", "/reset-password"],
+  matcher: [
+    "/",
+    "/map",
+    "/favorites",
+    "/account",
+    "/register",
+    "/reset-password",
+  ],
 };
