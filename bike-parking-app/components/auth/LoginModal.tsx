@@ -35,7 +35,7 @@ const LoginModal = () => {
     try {
       const { error } = await supabase.auth.signInWithPassword(values);
       if (error?.message) {
-        toast.error(error.message);
+        toast.error(error.message, { id: "signInWithPasswordError" });
         setLoading(false);
         return;
       } else {
@@ -43,7 +43,7 @@ const LoginModal = () => {
         router.refresh();
       }
     } catch (error) {
-      toast.error(`Sign-in error: ${error}`);
+      toast.error(`Sign-in error: ${error}`, { id: "signInError" });
     } finally {
       setLoading(false);
     }

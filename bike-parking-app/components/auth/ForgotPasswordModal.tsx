@@ -11,7 +11,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 const EmailSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
-})
+});
 
 export default function ForgotPasswordModal() {
   const router = useRouter();
@@ -20,28 +20,36 @@ export default function ForgotPasswordModal() {
   const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof EmailSchema>>({
     resolver: zodResolver(EmailSchema),
-    defaultValues: {email:"",},
-  })
+    defaultValues: { email: "" },
+  });
 
-  const onSubmit: SubmitHandler<z.infer<typeof EmailSchema>> = async (values) => {
+  const onSubmit: SubmitHandler<z.infer<typeof EmailSchema>> = async (
+    values
+  ) => {
     setLoading(true);
     try {
-      const {data, error} = await supabase.auth.resetPasswordForEmail(values.email, {
-        redirectTo: `${window.location.href}reset-password`
-      });
-      toast.success(`We've sent password reset instructions to ${values.email}`, {duration: 20000})
+      const { data, error } = await supabase.auth.resetPasswordForEmail(
+        values.email,
+        {
+          redirectTo: `${window.location.href}reset-password`,
+        }
+      );
+      toast.success(
+        `We've sent password reset instructions to ${values.email}`,
+        { duration: 20000, id: "resetPasswordForEmailSuccess" }
+      );
       setLoading(false);
-    } catch(error) {
+    } catch (error) {
       setLoading(false);
-      toast.error(`Error: ${error}`)
-    } 
-  }
+      toast.error(`Error: ${error}`, { id: "resetPasswordForEmailError" });
+    }
+  };
 
   return (
     <>
       <Toaster position="top-right" />
       <div className="w-full max-w-sm">
-      <form className="bg-white shadow-md rounded px-8 py-6">
+        <form className="bg-white shadow-md rounded px-8 py-6">
           <h1 className="font-semibold text-2xl text-center mb-4">
             Forgot password?
           </h1>

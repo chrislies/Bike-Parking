@@ -113,6 +113,7 @@ const RegisterModal = () => {
           "Successfully signed up. Please check your email to confirm your account.",
           {
             duration: 10000,
+            id: "signUpSuccessful",
           }
         );
 

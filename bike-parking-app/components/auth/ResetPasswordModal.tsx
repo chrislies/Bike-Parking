@@ -8,17 +8,18 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast, { Toaster } from "react-hot-toast";
 
-const PasswordSchema = z.object({
-  password: z
-    .string()
-    .min(1, "Password is required")
-    .min(8, "Must be at least 8 characters"),
-  confirmPassword: z.string(),
-})
-.refine((data) => data.password === data.confirmPassword, {
-  path: ["confirmPassword"],
-  message: "Passwords do not match",
-});
+const PasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(1, "Password is required")
+      .min(8, "Must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
 
 export default function ResetPasswordModal() {
   const router = useRouter();
@@ -27,26 +28,31 @@ export default function ResetPasswordModal() {
   const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof PasswordSchema>>({
     resolver: zodResolver(PasswordSchema),
-    defaultValues: {password:"",},
-  })
+    defaultValues: { password: "" },
+  });
 
-  const onSubmit: SubmitHandler<z.infer<typeof PasswordSchema>> = async (values) => {
+  const onSubmit: SubmitHandler<z.infer<typeof PasswordSchema>> = async (
+    values
+  ) => {
     setLoading(true);
     try {
-      const {data, error} = await supabase.auth.updateUser({
-        password: values.password
-      })
+      const { data, error } = await supabase.auth.updateUser({
+        password: values.password,
+      });
       if (data) {
-        toast.success("Password successfully reset!", {duration: 10000});
+        toast.success("Password successfully reset!", {
+          duration: 10000,
+          id: "updateUserSuccessful",
+        });
         router.push("/login");
         router.refresh();
       }
       setLoading(false);
-    } catch(error) {
+    } catch (error) {
       setLoading(false);
-      toast.error(`Error ${error}`);
+      toast.error(`Error ${error}`, { id: "updateUserError" });
     }
-  }
+  };
 
   return (
     <>
@@ -91,7 +97,11 @@ export default function ResetPasswordModal() {
               <input
                 {...form.register("confirmPassword")}
                 className={`shadow appearance-none border rounded-md w-full py-2 px-3 text-gray-700 mb-1 leading-tight focus:outline-none focus:shadow-outline
-                  ${form.formState.errors.confirmPassword ? "border-red-500" : ""}`}
+                  ${
+                    form.formState.errors.confirmPassword
+                      ? "border-red-500"
+                      : ""
+                  }`}
                 id="confirmPassword"
                 type="password"
                 placeholder="Confirm New Password"
