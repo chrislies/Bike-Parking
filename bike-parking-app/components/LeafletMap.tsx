@@ -80,7 +80,6 @@ interface MarkerData {
   sign_y_coord?: number;
   favorite: boolean;
 }
-
 interface UserMarker {
   x?: number;
   y?: number;

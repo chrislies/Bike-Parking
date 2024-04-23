@@ -1,10 +1,10 @@
-import React, { useState, useEffect, MouseEvent } from 'react';
+import React, { useState, useEffect, MouseEvent, useRef } from 'react';
 import "./css/style.css";
 import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
 import { debounce } from "@/hooks/useDebounce";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
-import DeleteComponent from './DeleteComponet';
+import axios from "axios";
 
 interface Report {
   option: string;
@@ -15,8 +15,8 @@ interface Report {
 
 interface ReportComponentProps {
   siteId: string;
-  x?:number;
-  y?:number;
+  x?: number;
+  y?: number;
 }
 
 interface ReportData {
@@ -27,7 +27,8 @@ interface ReportData {
 
 }
 
-const ReportComponent: React.FC<ReportComponentProps> = ({ siteId,x,y }) => {
+
+const ReportComponent: React.FC<ReportComponentProps> = ({ siteId, x, y }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [view, setView] = useState('comments');
   const [selectedOption, setSelectedOption] = useState('');
@@ -40,6 +41,12 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId,x,y }) => {
   const site_id = siteId;
   const [otherOption, setOtherOption] = useState('');
   const supabase = createSupabaseBrowserClient();
+  // For delete Request 
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [description, setdescription] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const email = session?.user.email;
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
 
   const fetchReports = async () => {
@@ -71,6 +78,11 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId,x,y }) => {
   const switchToSubmit = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     setView('submit');
+  };
+  const switchToRequest = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    setView('Delete');
+    setDeleteModalOpen(true);
   };
 
   const switchToComments = (event: MouseEvent<HTMLButtonElement>) => {
@@ -150,40 +162,124 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId,x,y }) => {
   };
 
 
-const addReport = debounce(async (reportData: ReportData) => {
-  try {
+  const addReport = debounce(async (reportData: ReportData) => {
+    try {
 
-    const { username, option, site_id, description } = reportData;
+      const { username, option, site_id, description } = reportData;
 
-    const requestData = {
-      username: username,
-      option: option,
-      site_id: site_id,
-      description: description,
-    };
+      const requestData = {
+        username: username,
+        option: option,
+        site_id: site_id,
+        description: description,
+      };
 
-    const response = await fetch("/api/report", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(requestData)
-    });
+      const response = await fetch("/api/report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(requestData)
+      });
 
-    if (response.ok) {
-      const responseData = await response.json();
-      console.log("Report successfully added:", responseData);
-    } else {
-      console.error("Error adding report:", response.statusText);
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log("Report successfully added:", responseData);
+      } else {
+        console.error("Error adding report:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Server error when adding report:", error);
     }
-  } catch (error) {
-    console.error("Server error when adding report:", error);
-  }
-}, 300);
+  }, 300);
+
+  const openDeleteModal = () => {
+    setDeleteModalOpen(true); // Open the modal when the button is clicked
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false); // Close the modal when needed
+  };
 
 
-//Generate button text based on the number of reports
-const buttonText = reports.length > 0 ? `[${reports.length} reports]` : 'Report';
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      if (file && (file.type === "image/jpeg" || file.type === "image/png")) {
+        const reader = new FileReader();
+        reader.onload = (loadEvent: ProgressEvent<FileReader>) => {
+          const target = loadEvent.target as FileReader;
+          if (target && target.result) {
+            setSelectedImage(target.result.toString());
+          }
+        };
+        reader.readAsDataURL(file);
+      } else {
+        console.log("Only JPG and PNG files are allowed.");
+      }
+    }
+  };
+  const handleRemoveImage = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    setSelectedImage(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleDeleteRequest = async (event: React.MouseEvent<HTMLButtonElement>) => {
+
+    if (!uuid) {
+      toast.error("Sign in to delete locations!");
+      return;
+    }
+
+    // Check if image and description are provided
+    if (!description) {
+      toast.error("Please provide a description!");
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+
+
+    setDeleteModalOpen(false);
+    const updatePending = debounce(async () => {
+      try {
+        const requestData = {
+          x_coord: x,
+          y_coord: y,
+          site_id: site_id,
+          request_type: "Delete",
+          email: email,
+          description: description,
+          image: selectedImage,
+
+        };
+
+        const response = await axios.post("/api/request", requestData);
+        if (response.status === 200) {
+          console.log(requestData.image);
+          console.log("Request successfully added:", response.data);
+        } else {
+          console.log("Error adding request:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Server error:", error);
+      }
+    }, 300)
+    updatePending();
+       setModalOpen(false);
+       setdescription('');
+       setSelectedImage('');
+  };
+
+
+  //Generate button text based on the number of reports
+  const buttonText = reports.length > 0 ? `[${reports.length} reports]` : 'Report';
 
 
 
@@ -208,69 +304,120 @@ const buttonText = reports.length > 0 ? `[${reports.length} reports]` : 'Report'
                 ))}
                 <button className="file-report-button" onClick={switchToSubmit}>File a Report</button>
                 <br></br>
-                <DeleteComponent x={x} y={y} site_id={siteId} />
+                <button className="delete-button" onClick={switchToRequest}>Delete Request</button>
+               
+                {/* <DeleteComponent x={x} y={y} site_id={siteId} /> */}
               </div>
-            ) : (
-              <div>
-                {view === 'submit' && (
-                  <div>
-                    <button className="back-button" onClick={switchToComments}>&larr;</button>
-                    {/* <form>
-                      <h3 className="report-title">Your Report</h3>
-                    </form> */}
-                  </div>
-                )}
-                <form>
-                  <h3 className="report-title" >File a Report</h3>
-                  <h4 className="option-title">Choose Option</h4>
-                  <div className="options">
-                    <label className="option">
-                      <input type="radio" name="reportOption" value="Theft" onChange={handleOptionChange}/>
-                      Theft
-                    </label>
-                    <label className="option">
-                      <input type="radio" name="reportOption" value="Unsafe" onChange={handleOptionChange}/>
-                      Unsafe
-                    </label>
-                    <label className="option">
-                      <input type="radio" name="reportOption" value="Inaccurate" onChange={handleOptionChange}/>
-                      Inaccurate
-                    </label>
-                    <label className="option">
-                      <input type="radio" name="reportOption" value="Other" onChange={handleOptionChange}/>
-                      Other: 
-                      <input
-                        type="text"
-                        className="other-specify-input"
-                        placeholder="Please specify"
-                        disabled={selectedOption !== 'Other'}
-                        value={otherOption}
-                        onFocus={handleOtherInputChange}
-                        onChange={(e) => setOtherOption(e.target.value)}
-                      />
-                    </label>
-                  </div>
-                  {showAlert && <p className="alert">Please select Other to specify.</p>}
-                  <br />
-                  <h5>Description</h5>
-                  {/* <textarea placeholder='Type your report here...'></textarea> */}
-                  <textarea
-                    placeholder='Type your report here...'
-                    value={reportText}
-                    onChange={(e) => setReportText(e.target.value)}
-                  ></textarea>
-                  <button 
-                    type='button' 
-                    onClick={handleSubmitReport} 
+            ) :
+
+              (
+                <div>
+                  {view === 'submit' && (
+                    <div>
+                      <button className="back-button" onClick={switchToComments}>&larr;</button>
+                      { <form>
+                    <h3 className="report-title" >File a Report</h3>
+                    <h4 className="option-title">Choose Option</h4>
+                    <div className="options">
+                      <label className="option">
+                        <input type="radio" name="reportOption" value="Theft" onChange={handleOptionChange} />
+                        Theft
+                      </label>
+                      <label className="option">
+                        <input type="radio" name="reportOption" value="Unsafe" onChange={handleOptionChange} />
+                        Unsafe
+                      </label>
+                      <label className="option">
+                        <input type="radio" name="reportOption" value="Inaccurate" onChange={handleOptionChange} />
+                        Inaccurate
+                      </label>
+                      <label className="option">
+                        <input type="radio" name="reportOption" value="Other" onChange={handleOptionChange} />
+                        Other:
+                        <input
+                          type="text"
+                          className="other-specify-input"
+                          placeholder="Please specify"
+                          disabled={selectedOption !== 'Other'}
+                          value={otherOption}
+                          onFocus={handleOtherInputChange}
+                          onChange={(e) => setOtherOption(e.target.value)}
+                        />
+                      </label>
+                    </div>
+                    {showAlert && <p className="alert">Please select Other to specify.</p>}
+                    <br />
+                    <h5>Description</h5>
+                    {/* <textarea placeholder='Type your report here...'></textarea> */}
+                    <textarea
+                      placeholder='Type your report here...'
+                      value={reportText}
+                      onChange={(e) => setReportText(e.target.value)}
+                    ></textarea>
+                    <button
+                      type='button'
+                      onClick={handleSubmitReport}
                     //disabled={!selectedOption || !reportText.trim()}
                     >Submit Report
-                  </button>
-                </form>
+                    </button>
+                  </form>}
+                    </div>
+                  )}
+                </div>
+              )}
+            {/* Delete oPTION */}
+            {view === 'Delete' && (
+              <div>
+                {/* <button className="file-delete-Request" onClick={switchToRequest}>File a Delete Request</button> */}
+                {isDeleteModalOpen && (
+                  <div className="modal">
+                    <div className="modal-content">
+                     <button className="back-button" onClick={switchToComments}>&larr;</button> 
+                      <h3 className="report-title">Enter Description</h3>
+                      <input
+                        ref={fileInputRef}
+                        className="file-upload-button"
+                        type="file"
+                        accept=".jpg,.jpeg,.png"
+                        onChange={handleFileChange}
+                      />
+                      {selectedImage && (
+                        <div>
+                          <img
+                            src={selectedImage}
+                            alt="Preview"
+                            style={{ width: "100%", marginTop: "10px" }}
+                          />
+                          <button onClick={handleRemoveImage}>Remove</button>
+                          <button
+                            onClick={handleDeleteRequest}
+                            style={{
+                              position: "absolute",
+                              bottom: "10px",
+                              right: "10px",
+                              zIndex: 1000,
+                            }}
+                          >
+                            Submit
+                          </button>
+                        </div>
+                      )}
+                      <textarea
+                        className="delete-description"
+                        placeholder="Enter description"
+                        value={description}
+                        onChange={(e) => setdescription(e.target.value)}
+                      ></textarea>
+
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
       )}
+     
     </div>
   );
 };
