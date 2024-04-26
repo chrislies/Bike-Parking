@@ -32,6 +32,8 @@ const BikeRackLayer = () => {
 
   const params = useParams();
 
+  const parentGroup1: L.LayerGroup = L.layerGroup();
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const fetchData = async () => {
