@@ -15,6 +15,9 @@ import useSession from "@/utils/supabase/use-session";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import getBikeRackCoords from "@/lib/getBikeRackCoords";
+import NewMarker from "../NewMarker";
+import * as L from "leaflet";
+import "leaflet.featuregroup.subgroup";
 
 const BikeRackLayer = () => {
   const [markers, setMarkers] = useState<MarkerData[] | null>([]);
@@ -66,10 +69,12 @@ const BikeRackLayer = () => {
           (favorite) => favorite.location_id
         );
         setFavoriteMarkers(favoriteLocations);
-        // console.log(favoriteLocations, favoriteMarkers);
+        // console.log(`favoriteLocations: ${favoriteLocations}`);
+        // return favoriteLocations;
       }
     } catch (error) {
       console.error("Error fetching favorite locations:", error);
+      // return [];
     }
   };
 
@@ -81,73 +86,74 @@ const BikeRackLayer = () => {
   }, [uuid]);
 
   // Check if a marker is a favorite
-  const isFavoriteMarker = (marker: MarkerData): boolean => {
-    return favoriteMarkers.includes(marker.id || "");
-  };
+  // const isFavoriteMarker = (marker: MarkerData): boolean => {
+  //   return favoriteMarkers.includes(marker.id || "");
+  // };
 
-  const handleSaveFavorite = useCallback(
-    (marker: MarkerData) => {
-      const username = session?.user.user_metadata.username;
-      const uuid = session?.user.id;
+  // const handleSaveFavorite = useCallback(
+  //   (marker: MarkerData) => {
+  //     const username = session?.user.user_metadata.username;
+  //     const uuid = session?.user.id;
 
-      if (!uuid) {
-        toast.error("Sign in to favorite locations!", {
-          id: "signInToFavoriteLocationsError",
-        });
-        return;
-      }
+  //     if (!uuid) {
+  //       toast.error("Sign in to favorite locations!", {
+  //         id: "signInToFavoriteLocationsError",
+  //       });
+  //       return;
+  //     }
 
-      const updateFavorites = debounce(async () => {
-        try {
-          let values = {};
-          if (!favoriteMarkers.includes(marker.id || "")) {
-            // Check if the marker is already a favorite
-            // if not, add it to the list of favoriteMarkers
-            setFavoriteMarkers((prevMarkers) => [
-              ...prevMarkers,
-              marker.id || "",
-            ]);
-            values = {
-              uuid,
-              username,
-              location_id: marker.id,
-              location_address: marker.address,
-              x_coord: marker.x,
-              y_coord: marker.y,
-            };
-            const url = queryString.stringifyUrl({
-              url: "api/favorite",
-              query: {
-                id: params?.id,
-              },
-            });
-            await axios.post(url, values);
-            marker.favorite = true;
-          } else {
-            // Remove the marker from the list of favoriteMarkers
-            setFavoriteMarkers((prevMarkers) =>
-              prevMarkers.filter((id) => id !== marker.id)
-            );
-            const { data, error } = await supabase
-              .from("Favorites")
-              .delete()
-              .eq("user_id", uuid)
-              .eq("location_id", marker.id);
-            if (error) {
-              console.log(`Error removing spot from favortes: ${error}`);
-            }
-            marker.favorite = false;
-          }
-        } catch (error) {
-          console.error("Something went wrong:", error);
-        }
-      }, 300); // Debounce for x milliseconds (100ms = 1s)
+  //     const updateFavorites = async () => {
+  //       const favoriteLocations = await fetchFavoriteLocations();
+  //       try {
+  //         let values = {};
+  //         if (!favoriteMarkers.includes(marker.id || "")) {
+  //           // Check if the marker is already a favorite
+  //           // if not, add it to the list of favoriteMarkers
+  //           // setFavoriteMarkers((prevMarkers) => [
+  //           //   ...prevMarkers,
+  //           //   marker.id || "",
+  //           // ]);
+  //           values = {
+  //             uuid,
+  //             username,
+  //             location_id: marker.id,
+  //             location_address: marker.address,
+  //             x_coord: marker.x,
+  //             y_coord: marker.y,
+  //           };
+  //           const url = queryString.stringifyUrl({
+  //             url: "api/favorite",
+  //             query: {
+  //               id: params?.id,
+  //             },
+  //           });
+  //           await axios.post(url, values);
+  //           marker.favorite = true;
+  //         } else {
+  //           // Remove the marker from the list of favoriteMarkers
+  //           // setFavoriteMarkers((prevMarkers) =>
+  //           //   prevMarkers.filter((id) => id !== marker.id)
+  //           // );
+  //           const { data, error } = await supabase
+  //             .from("Favorites")
+  //             .delete()
+  //             .eq("user_id", uuid)
+  //             .eq("location_id", marker.id);
+  //           if (error) {
+  //             console.log(`Error removing spot from favortes: ${error}`);
+  //           }
+  //           marker.favorite = false;
+  //         }
+  //       } catch (error) {
+  //         console.error("Something went wrong:", error);
+  //       }
+  //     }; // Debounce for x milliseconds (1000ms = 1s)
 
-      // Call the debounced function to update favorites
-      updateFavorites();
-    },
-    [favoriteMarkers]
-  );
+  //     // Call the debounced function to update favorites
+  //     updateFavorites();
+  //   },
+  //   [favoriteMarkers]
+  // );
 
   return (
     <>
@@ -164,11 +170,10 @@ const BikeRackLayer = () => {
                 // chunkProgress={chunkProgressHandler}
               >
                 {markers?.map((marker, index) => (
-                  <MyMarker
+                  <NewMarker
                     key={marker.id}
                     marker={marker}
-                    isFavoriteMarker={isFavoriteMarker}
-                    handleSaveFavorite={handleSaveFavorite}
+                    favoriteLocations={favoriteMarkers}
                   />
                 ))}
               </MarkerClusterGroup>

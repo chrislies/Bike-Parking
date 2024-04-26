@@ -11,8 +11,8 @@ async function getStreetSignCoords(): Promise<MarkerData[] | null> {
 
     const streetSignsData: { street_signs: MarkerData[] } =
       await streetSignsResponse.json();
-    const limitData = streetSignsData.street_signs.slice(0, 20000);
-    // const limitData = streetSignsData.street_signs.slice(0, 1000);
+    // const limitData = streetSignsData.street_signs.slice(0, 20000);
+    const limitData = streetSignsData.street_signs.slice(0, 1000);
 
     // allData = [...allData, ...streetSignsData.street_signs];
     allData = [...allData, ...limitData];

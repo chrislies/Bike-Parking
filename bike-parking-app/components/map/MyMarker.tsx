@@ -1,10 +1,10 @@
 import { getImageSource } from "@/lib/getImageSource";
 import Image from "next/image";
-import { FC } from "react";
-import { Marker, Popup } from "react-leaflet";
+import { FC, useCallback, useRef } from "react";
+import { Marker, Popup, useMapEvents } from "react-leaflet";
 import { Bookmark, Directions, NoImage } from "../svgs";
 import { formatDate } from "@/lib/formatDate";
-import { favoriteIcon, rackIcon, signIcon } from "../Icons";
+import { favoriteIcon, queryIcon, rackIcon, signIcon } from "../Icons";
 
 interface MyMarkerProps {
   marker: MarkerData;
@@ -18,12 +18,46 @@ const MyMarker: FC<MyMarkerProps> = ({
   handleSaveFavorite,
 }) => {
   const imageSize = 700;
+  console.log(`rendering marker`);
+
+  const map = useMapEvents({});
+  const markerRef = useRef<any>(null);
+
+  const handleFlyTo = useCallback(() => {
+    const currentZoom = map.getZoom() > 19 ? map.getZoom() : 20;
+    map.flyTo([marker.y!, marker.x!], currentZoom, {
+      animate: true,
+      duration: 1.5,
+    });
+  }, [map]);
+
+  const handleColorChange = useCallback(() => {
+    // Change marker icon to queryIcon
+    if (markerRef.current) {
+      markerRef.current.setIcon(queryIcon);
+    }
+  }, []);
+
+  const memoizedHandleSaveFavorite = useCallback(
+    () => {
+      handleSaveFavorite(marker);
+    },
+    [handleSaveFavorite, marker] // Add handleSaveFavorite and marker to the dependency array
+  );
+
   return (
     <Marker
       key={marker.id}
+      ref={markerRef}
       // prettier-ignore
       icon={isFavoriteMarker(marker) ? favoriteIcon : marker.type === "rack" ? rackIcon : signIcon}
       position={[marker.y!, marker.x!]}
+      eventHandlers={{
+        click: () => {
+          handleFlyTo();
+          handleColorChange();
+        },
+      }}
     >
       <Popup minWidth={170}>
         {/* <Popup minWidth={200}> */}
@@ -66,7 +100,7 @@ const MyMarker: FC<MyMarkerProps> = ({
           </p>
           <div className="flex flex-col gap-2 mt-1 mb-3">
             <button
-              onClick={() => handleSaveFavorite(marker)}
+              onClick={memoizedHandleSaveFavorite}
               title="Save Location"
               aria-label="Save Location"
               aria-disabled="false"
