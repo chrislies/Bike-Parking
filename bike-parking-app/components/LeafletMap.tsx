@@ -696,17 +696,23 @@ const MapComponent: FC = () => {
     }, []);
     return (
       <div style={{ height: '400px' }}> 
-          {usermarkerData &&
-            usermarkerData.map((marker, index) => (
-              <Marker key={index} position={[marker.y || 0, marker.x || 0]} icon={userIcon}>
-                <Popup>Added by: {marker.email} </Popup>
+        {usermarkerData && 
+          usermarkerData.map((marker, index) => (
+            <div key={index}>
+              <Marker position={[marker.y || 0, marker.x || 0]} icon={userIcon}>
+                <Popup>Added by: {marker.email}
+                <ReportComponent siteId={""} x={marker.x} y={marker.y}/>
+                </Popup>
+                
               </Marker>
-            ))}
-      
+              
+            </div>
+          ))
+        }
       </div>
     );
+    
   };
-
 
 
   // Return the JSX for rendering
