@@ -14,7 +14,7 @@ interface Report {
 }
 
 interface ReportComponentProps {
-  siteId: string;
+  siteId?: string;
   x?: number;
   y?: number;
 }
@@ -22,7 +22,7 @@ interface ReportComponentProps {
 interface ReportData {
   username: string;
   option: string;
-  site_id: string;
+  site_id?: string;
   description: string;
 
 }
