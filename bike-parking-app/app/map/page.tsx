@@ -1,6 +1,6 @@
 import Loader from "@/components/Loader";
-import Navbar from "@/components/navbar/Navbar";
 import dynamic from "next/dynamic";
+import { Toaster } from "react-hot-toast";
 const ClientMap = dynamic(() => import("../../components/map/Map"), {
   loading: () => <Loader />,
   ssr: false,
@@ -9,7 +9,7 @@ const ClientMap = dynamic(() => import("../../components/map/Map"), {
 export default function MapPage() {
   return (
     <div className="container">
-      <Navbar />
+      <Toaster />
       <ClientMap />
     </div>
   );
