@@ -1,20 +1,19 @@
 "use client";
 import L from "leaflet";
 import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
-import { Toaster } from "react-hot-toast";
 import LocateUser from "./LocateUser";
 import MarkerLayer from "./layers/MarkerLayer";
 import "leaflet-rotate";
 import ControlGeocoder from "../LeafletControlGeocoder";
-import BikeRackLayer from "./layers/BikeRackLayer";
+// import BikeRackLayer from "./layers/BikeRackLayer";
 import StreetSignLayer from "./layers/StreetSignLayer";
+import Navbar from "../navbar/Navbar";
 
 const { BaseLayer } = LayersControl;
 
 const RootMap = () => {
   return (
     <>
-      <Toaster />
       <MapContainer
         center={[40.71151957593488, -73.88017135962203]}
         zoom={11}
@@ -46,12 +45,13 @@ const RootMap = () => {
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             />
           </BaseLayer>
-          {/* <MarkerLayer /> */}
-          <BikeRackLayer />
-          <StreetSignLayer />
+          <MarkerLayer />
         </LayersControl>
+        {/* <StreetSignLayer /> */}
+        {/* <BikeRackLayer /> */}
         <LocateUser />
         <ControlGeocoder />
+        <Navbar />
       </MapContainer>
     </>
   );
