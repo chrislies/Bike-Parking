@@ -1,21 +1,39 @@
 import { getImageSource } from "@/lib/getImageSource";
 import Image from "next/image";
-import { FC, useCallback, useRef } from "react";
+import { FC, useCallback, useRef, useState } from "react";
 import { Marker, Popup, useMapEvents } from "react-leaflet";
 import { Bookmark, Directions, NoImage } from "../svgs";
 import { formatDate } from "@/lib/formatDate";
 import { favoriteIcon, queryIcon, rackIcon, signIcon } from "../Icons";
+import toast from "react-hot-toast";
+import { useParams } from "next/navigation";
+import queryString from "query-string";
+import axios from "axios";
 
 interface NewMarkerProps {
   marker: MarkerData;
   favoriteLocations: string[];
+  supabase: any;
+  session: any;
+  username: any;
+  uuid: any;
 }
 
-const NewMarker: FC<NewMarkerProps> = ({ marker, favoriteLocations }) => {
+const NewMarker: FC<NewMarkerProps> = ({
+  marker,
+  favoriteLocations,
+  supabase,
+  session,
+  username,
+  uuid,
+}) => {
+  const params = useParams();
+
   console.log(`rendering marker`);
   const imageSize = 700;
-  const favorite = favoriteLocations.includes(marker.id!) ? true : false;
-
+  const [isBookmarked, setIsBookmarked] = useState(
+    favoriteLocations.includes(marker.id!)
+  );
   const map = useMapEvents({});
   const markerRef = useRef<any>(null);
 
@@ -27,24 +45,70 @@ const NewMarker: FC<NewMarkerProps> = ({ marker, favoriteLocations }) => {
     });
   }, [map]);
 
-  const handleColorChange = useCallback(() => {
-    // Change marker icon to queryIcon
-    if (markerRef.current) {
-      markerRef.current.setIcon(queryIcon);
+  const handleSaveLocation = useCallback(async () => {
+    if (!uuid) {
+      toast.error("Sign in to favorite locations!", {
+        id: "signInToFavoriteLocationsError",
+      });
+      return;
     }
-  }, []);
+    // fetch list of user favorites from supabase
+    try {
+      const { data: savedSpots, error } = await supabase
+        .from("Favorites")
+        .select("location_id")
+        .eq("user_id", uuid);
+      if (error) {
+        toast.error(`Error saving spot: ${error}`);
+      }
+      const savedSpotIds = savedSpots.map((spot: any) => spot.location_id);
+      const isAlreadySaved = savedSpotIds.includes(marker.id!);
+
+      // Check if the marker is already saved
+      if (!isAlreadySaved) {
+        // if not, add it to the list of saved locations
+        const values = {
+          uuid,
+          username,
+          location_id: marker.id,
+          location_address: marker.address,
+          x_coord: marker.x,
+          y_coord: marker.y,
+        };
+        const url = queryString.stringifyUrl({
+          url: "api/favorite",
+          query: {
+            id: params?.id,
+          },
+        });
+        await axios.post(url, values);
+      } else {
+        // Remove the marker from the list of saved locations
+        const { data, error } = await supabase
+          .from("Favorites")
+          .delete()
+          .eq("user_id", uuid)
+          .eq("location_id", marker.id);
+        if (error) {
+          toast.error(`Error removing spot from favortes: ${error}`);
+        }
+      }
+      setIsBookmarked(!isAlreadySaved);
+    } catch (error) {
+      toast.error(`Something went wrong: ${error}`);
+    }
+  }, [markerRef, queryIcon, isBookmarked]);
 
   return (
     <Marker
       key={marker.id}
       ref={markerRef}
       // prettier-ignore
-      icon={favorite ? favoriteIcon : marker.type === "rack" ? rackIcon : signIcon}
+      icon={isBookmarked ? favoriteIcon : marker.type === "rack" ? rackIcon : signIcon}
       position={[marker.y!, marker.x!]}
       eventHandlers={{
         click: () => {
           handleFlyTo();
-          handleColorChange();
         },
       }}
     >
@@ -89,15 +153,15 @@ const NewMarker: FC<NewMarkerProps> = ({ marker, favoriteLocations }) => {
           </p>
           <div className="flex flex-col gap-2 mt-1 mb-3">
             <button
-              onClick={() => {}}
+              onClick={handleSaveLocation}
               title="Save Location"
               aria-label="Save Location"
               aria-disabled="false"
               className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
             >
               <Bookmark
-                className={`h-7 w-7 hover:cursor-pointer ${
-                  favorite ? "fill-yellow-300" : "fill-transparent"
+                className={`h-7 w-7 hover:cursor-pointer fill-transparent ${
+                  isBookmarked ? "fill-yellow-300" : "fill-transparent"
                 }`}
               />
               Save
