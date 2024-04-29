@@ -1,6 +1,6 @@
 "use client";
 import { useMapEvents, Marker, Popup, Circle } from "react-leaflet";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useState } from "react";
 import { userIcon } from "../Icons";
 import { Locate } from "../svgs";
