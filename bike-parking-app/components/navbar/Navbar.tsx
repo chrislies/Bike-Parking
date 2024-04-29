@@ -5,11 +5,13 @@ import Link from "next/link";
 import { memo, useEffect, useState } from "react";
 import SavedModal from "../modals/SavedModal";
 import { useRouter } from "next/navigation";
+import ProfileModal from "../modals/ProfileModal";
 
 const Navbar = () => {
   const router = useRouter();
   const [svgSize, setSvgSize] = useState(6);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   useEffect(() => {
     const updateSvgSize = () => {
@@ -27,13 +29,14 @@ const Navbar = () => {
   const openSavedModal = () => {
     setIsSavedModalOpen(true);
   };
-
   const closeSavedModal = () => {
     setIsSavedModalOpen(false);
   };
-
-  const handleAccountClick = () => {
-    router.push("/account");
+  const openProfileModal = () => {
+    setIsProfileModalOpen(true);
+  };
+  const closeProfileModal = () => {
+    setIsProfileModalOpen(false);
   };
 
   const NAV_LINKS = [
@@ -54,10 +57,10 @@ const Navbar = () => {
       svg: <Add className={`h-${svgSize} w-${svgSize}`} />,
     },
     {
-      key: "account",
-      label: "Account",
+      key: "profile",
+      label: "Profile",
       svg: <User className={`h-${svgSize} w-${svgSize}`} />,
-      handleClick: handleAccountClick,
+      handleClick: openProfileModal,
     },
   ];
 
@@ -66,10 +69,11 @@ const Navbar = () => {
       <SavedModal
         isOpen={isSavedModalOpen}
         onClose={closeSavedModal}
-        title="Saved Spots"
-      >
-        <p>Saved Spots Contents</p>
-      </SavedModal>
+      ></SavedModal>
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={closeProfileModal}
+      ></ProfileModal>
       <div className="absolute bottom-3 z-[800] max-w-fit mx-auto flex inset-x-0 justify-center select-none rounded-2xl">
         <div className="grid grid-flow-col grid-cols-4 gap-1 sm:w-[400px] max-sm:w-[300px] bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.2)] shadow-md p-1">
           {NAV_LINKS.map((navItem, index) => (
