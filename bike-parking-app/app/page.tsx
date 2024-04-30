@@ -4,7 +4,7 @@ import AuthLayout from "./(entry)/layout";
 export default async function Home() {
   return (
     <AuthLayout>
-      <LoginModal />
+      <LoginModal insideModal={false} />
     </AuthLayout>
   );
 }
