@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useMapEvents } from "react-leaflet";
 import toast from "react-hot-toast";
 import { Spinner } from "../svgs";
+import LoginModal from "../auth/LoginModal";
+import RegisterModal from "../auth/RegisterModal";
 
 interface ModalProps {
   isOpen: boolean;
@@ -30,6 +32,8 @@ const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [listOfFavorites, setListOfFavorites] = useState<Favorites[] | null>(
     null
   );
+
+  const [loginView, setLoginView] = useState(true);
 
   const supabase = createSupabaseBrowserClient();
   const session = useSession();
@@ -128,13 +132,43 @@ const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                   as="h3"
                   className="text-lg font-medium leading-6 text-gray-900"
                 >
-                  Saved Spots
+                  {!uuid ? (
+                    <h1 className="text-base text-center mb-6">
+                      <span
+                        className="font-bold hover:underline cursor-pointer"
+                        onClick={() => setLoginView(true)}
+                      >
+                        Sign in
+                      </span>
+                      {` or `}
+                      <span
+                        className="font-bold hover:underline cursor-pointer"
+                        onClick={() => setLoginView(false)}
+                      >
+                        create an account
+                      </span>
+                      {` to `}
+                      <span className="italic">view saved spots</span>
+                    </h1>
+                  ) : (
+                    <div className="flex justify-center">
+                      <h1 className="bg-gray-300 rounded-xl py-1 px-4 shadow-inner text-xl font-bold tracking-wider uppercase max-w-fit">
+                        Saved Spots
+                      </h1>
+                    </div>
+                  )}
                 </Dialog.Title>
                 <div className="mt-2">
                   {
                     <>
                       {!uuid ? (
-                        <h1>Sign in to view saved spots</h1>
+                        <div className="flex justify-center">
+                          {loginView ? (
+                            <LoginModal insideModal={true} />
+                          ) : (
+                            <RegisterModal insideModal={true} />
+                          )}
+                        </div>
                       ) : isLoading ? (
                         <h1 className="absolute inset-0 flex justify-center items-center text-2xl">
                           <div className="flex justify-center items-center gap-2">
@@ -148,8 +182,8 @@ const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                           <p className="text-base">Loading... </p>
                         </div>
                       ) : listOfFavorites.length === 0 ? (
-                        <div className="absolute inset-0 flex flex-col justify-center items-center gap-4">
-                          <h1 className="text-2xl">No spots favorited yet!</h1>
+                        <div className="text-center">
+                          <h1 className="text-base">No spots saved yet!</h1>
                         </div>
                       ) : (
                         <div className="flex flex-col justify-center">
