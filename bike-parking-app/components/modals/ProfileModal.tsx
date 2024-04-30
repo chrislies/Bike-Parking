@@ -1,5 +1,4 @@
 "use client";
-
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import { Dialog, Transition } from "@headlessui/react";
@@ -8,6 +7,8 @@ import Loader from "../Loader";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { formatDate } from "@/lib/formatDate";
+import LoginModal from "../auth/LoginModal";
+import RegisterModal from "../auth/RegisterModal";
 
 interface ModalProps {
   isOpen: boolean;
@@ -21,6 +22,8 @@ const ProfileModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const uuid = session?.user.id;
   const createdAt = session?.user.created_at;
   const router = useRouter();
+
+  const [loginView, setLoginView] = useState(true);
 
   const signOutUser = async () => {
     const { error } = await supabase.auth.signOut();
@@ -67,13 +70,43 @@ const ProfileModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                   as="h3"
                   className="text-lg font-medium leading-6 text-gray-900"
                 >
-                  Profile
+                  {!uuid ? (
+                    <h1 className="text-base text-center mb-6">
+                      <span
+                        className="font-bold hover:underline cursor-pointer"
+                        onClick={() => setLoginView(true)}
+                      >
+                        Sign in
+                      </span>
+                      {` or `}
+                      <span
+                        className="font-bold hover:underline cursor-pointer"
+                        onClick={() => setLoginView(false)}
+                      >
+                        create an account
+                      </span>
+                      {` to `}
+                      <span className="italic">view profile</span>
+                    </h1>
+                  ) : (
+                    <div className="flex justify-center">
+                      <h1 className="bg-gray-300 rounded-xl py-1 px-4 shadow-inner text-xl font-bold tracking-wider uppercase max-w-fit">
+                        Profile
+                      </h1>
+                    </div>
+                  )}
                 </Dialog.Title>
                 <div className="mt-2">
                   {
                     <>
                       {!uuid ? (
-                        <h1>Sign in to view profile</h1>
+                        <div className="flex justify-center">
+                          {loginView ? (
+                            <LoginModal insideModal={true} />
+                          ) : (
+                            <RegisterModal insideModal={true} />
+                          )}
+                        </div>
                       ) : (
                         <>
                           <div className="flex flex-col items-center justify-center gap-5">
