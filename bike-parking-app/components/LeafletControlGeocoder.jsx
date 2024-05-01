@@ -31,21 +31,13 @@ export default function ControlGeocoder() {
         }
       }
 
-      const geocoderControl = L.Control.geocoder({
+      L.Control.geocoder({
         query: "",
         placeholder: "Search here...",
         defaultMarkGeocode: false,
         geocoder,
         position: "topleft",
-      }).addTo(map);
-
-      geocoderControl
-        .getContainer()
-        .addEventListener("mousedown", function (e) {
-          e.stopPropagation();
-        });
-
-      geocoderControl
+      })
         .on("markgeocode", function (e) {
           const latlng = e.geocode.center;
           // Remove previous marker if it exists
