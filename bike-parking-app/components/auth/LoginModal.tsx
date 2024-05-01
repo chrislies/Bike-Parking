@@ -128,6 +128,7 @@ const LoginModal: React.FC<{ insideModal: boolean }> = ({ insideModal }) => {
                     <div className="h-5" />
                   )}
                   {insideModal ? (
+                    // TODO: open new 'forgot password' modal on click
                     <span className="font-bold text-sm text-blue-500 hover:text-blue-800 cursor-pointer">
                       Forgot Password?
                     </span>
