@@ -19,7 +19,7 @@ const RootMap = () => {
         zoom={11}
         minZoom={3}
         scrollWheelZoom={true}
-        className="absolute h-full w-full"
+        className="absolute h-svh w-full"
         rotate={true}
         touchRotate={true}
         rotateControl={{
