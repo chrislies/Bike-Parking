@@ -47,8 +47,8 @@ const NewMarker: FC<NewMarkerProps> = ({
 
   const handleSaveLocation = useCallback(async () => {
     if (!uuid) {
-      toast.error("Sign in to favorite locations!", {
-        id: "signInToFavoriteLocationsError",
+      toast.error("Sign in to Save locations!", {
+        id: "signInToSaveLocationsError",
       });
       return;
     }
