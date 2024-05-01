@@ -17,7 +17,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <main className="relative overflow-hidden min-h-screen">
+          {children}
+        </main>
+      </body>
     </html>
   );
 }
