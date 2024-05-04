@@ -9,6 +9,7 @@ interface PendingRequest {
   x_coord: number;
   y_coord: number;
   request_type: string;
+  site_id:string;
   created_at: string;
   description: string;
   image: string;
@@ -52,7 +53,7 @@ const DashboardPage: React.FC = () => {
     if (tableName === 'BlackList') {
       // For BlackList, use x_coord as location_id and generate current timestamp for created_at
       payload = {
-        location_id: request.x_coord,
+        location_id: request.site_id,
         created_at: new Date().toISOString()  // ISO 8601 format, accepted by most databases including PostgreSQL
       };
     } else if (tableName === 'UserAdded') {
