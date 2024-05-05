@@ -93,7 +93,7 @@ const DashboardPage: React.FC = () => {
         await handleInsert('BlackList', {
           id: request.id,
           created_at: new Date().toISOString(), // Assuming you want to set the current timestamp
-          location_id: '', // Replace with the appropriate value if available
+          location_id: request.site_id, // Replace with the appropriate value if available
           // Include other fields as necessary
         });
       }
