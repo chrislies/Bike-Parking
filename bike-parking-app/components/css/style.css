@@ -74,20 +74,6 @@
   text-decoration: underline;
 }
 
-.file-report-button {
-  color: red;
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-}
-
-.delete-button {
-  color: red;
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-}
-
 
 .location-address {
   font-weight: normal;
@@ -118,3 +104,4 @@
 .comment:last-child {
   border-bottom: none;
 }
+

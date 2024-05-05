@@ -1,0 +1,75 @@
+
+.page {
+  min-height: 100vh; /* Minimum height of the viewport */
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, Helvetica, sans-serif;
+  background: url('/image.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+}
+.aboutSection {
+  padding: 50px;
+  text-align: center;
+  background-color: rgba(70, 76, 88, 0.8); /* Optional: Add transparency to make text more readable */
+}
+
+.centerText {
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -8px;
+  margin-left: -8px;
+}
+
+.column {
+  flex: 1 0 25%; /* Adjusts each column to take up 25% */
+  max-width: 25%; /* Ensures it does not grow beyond 25% */
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.8); /* Add a light background to card for better readability */
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  margin: 8px;
+  text-align: center;
+}
+
+.width100 {
+  width: 100%;
+}
+
+.container {
+  padding: 16px;
+}
+
+.title {
+  color: grey;
+}
+
+.button {
+  border: none;
+  outline: 0;
+  display: inline-block;
+  padding: 8px;
+  color: white;
+  background-color: #000;
+  text-align: center;
+  cursor: pointer;
+  width: 100%;
+}
+
+.button:hover {
+  background-color: #574d4d;
+}
+
+@media screen and (max-width: 650px) {
+  .column {
+    flex: 0 0 100%; /* Takes full width on small screens */
+    max-width: 100%;
+  }
+}

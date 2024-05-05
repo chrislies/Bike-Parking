@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
+import styles from './LoginModal.module.css';
 
 const RegisterSchema = z
   .object({
@@ -137,7 +138,23 @@ const RegisterModal = () => {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="w-full max-w-md">
+      <div className={`fixed inset-0 z-0 ${styles.backgroundImageFade}`}></div>
+      <div className="fixed inset-x-0 top-0 z-10 flex justify-between items-center p-6 bg-transparent">
+        <h2 className="text-xl font-bold text-white">BikOU</h2>
+        <div className="flex items-center space-x-4">
+        <Link href="/about-us">
+            <button className="py-2 px-4 rounded-md text-white bg-green-500 hover:bg-green-700 font-semibold">
+              About Us
+            </button>
+          </Link>
+          <Link href="/login">
+            <button className="py-2 px-4 rounded-md text-white bg-blue-500 hover:bg-blue-700 font-semibold">
+              Login
+            </button>
+          </Link>
+        </div>
+      </div>
+      <div className="w-full max-w-sm z-20 mx-auto pt-20">
         <form className="bg-white shadow-md rounded px-8 py-6">
           <h1 className="text-center text-2xl pb-3 font-bold">Sign Up</h1>
           <div className="">
