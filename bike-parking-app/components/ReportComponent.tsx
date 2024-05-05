@@ -292,23 +292,23 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId, x, y }) => {
           <div className="modal-content">
             <span className="close-button" onClick={closeModal}>&times;</span>
             {view === 'comments' ? (
-              <div>
-                {/* <p>Here are the comments...</p>
-                <button className="report-button" onClick={switchToSubmit}>File a Report</button> */}
+              <div className="comments-modal-wrapper">
+              <div className="comments-header">
                 <p className="comments-title">Reports</p>
+              </div>
+              <div className="comments-scrollable-body">
                 {reports.map((report, index) => (
                   <div key={index} className="comment">
                     <p>{report.option} : {report.description}</p>
-                    <p>Post by: {report.username} , {report.created_at}</p>
-                    <p></p>
+                    <p>Post by: {report.username}, {report.created_at}</p>
                   </div>
                 ))}
-                <button className="file-report-button" onClick={switchToSubmit}>File a Report</button>
-                <br></br>
-                <button className="delete-button" onClick={switchToRequest}>Delete Request</button>
-               
-                {/* <DeleteComponent x={x} y={y} site_id={siteId} /> */}
               </div>
+              <div className="comments-footer">
+                <button className="report-button" onClick={switchToSubmit}>File a Report</button>
+                <button className="report-button" onClick={switchToRequest}>Delete Request</button>
+              </div>
+            </div>
             ) :
 
               (
