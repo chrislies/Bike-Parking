@@ -64,6 +64,11 @@ import BusyComponent from './BusyComponent';
 
 
 
+
+
+
+
+
 interface MarkerData {
   x?: number;
   y?: number;
@@ -84,17 +89,20 @@ interface UserMarker {
   x?: number;
   y?: number;
   email?: string;
+  selectedOption?:string;
 }
 interface UserCoordinatesItem {
   longitude: number;
   latitude: number;
 }
 
+
 type GeolocationPosition = {
   lat: number;
   lng: number;
 };
 type LocationStatus = "accessed" | "denied" | "unknown" | "error";
+
 
 function UserLocationMarker() {
   const [locationStatus, setLocationStatus] =
@@ -104,7 +112,9 @@ function UserLocationMarker() {
   const [prevPosition, setPrevPosition] = useState<LatLng | null>(null);
   const [userMarkerInView, setUserMarkerInView] = useState<boolean>(false);
 
+
   const map = useMap();
+
 
   useEffect(() => {
     map.locate().on("locationfound", function (e) {
@@ -112,6 +122,7 @@ function UserLocationMarker() {
       map.flyTo(e.latlng, 19, { animate: true, duration: 1.5 });
     });
   }, [map]);
+
 
   useEffect(() => {
     let watchId: number | null = null;
@@ -149,6 +160,7 @@ function UserLocationMarker() {
     }
   }, []);
 
+
   useEffect(() => {
     if (position) {
       // console.log(`Position moved: ${position.lat} ${position.lng}`);
@@ -170,6 +182,7 @@ function UserLocationMarker() {
     }
   }, [position]);
 
+
   return position === null ? null : (
     <>
       <Marker position={position} icon={userIcon}>
@@ -185,6 +198,7 @@ function UserLocationMarker() {
     </>
   );
 }
+
 
 const locateMe = async (map: any) => {
   // console.log("Locating...");
@@ -202,19 +216,21 @@ const locateMe = async (map: any) => {
   }
 };
 
+
 interface MemoizedMarkerProps {
   marker: MarkerData;
   isFavoriteMarker: (marker: MarkerData) => boolean;
   handleSaveFavorite: (marker: MarkerData) => void;
-  
+ 
 }
+
 
 // Memoize Marker component to prevent unnecessary re-renders
 const MemoizedMarker: FC<MemoizedMarkerProps> = ({
   marker,
   isFavoriteMarker,
   handleSaveFavorite,
-  
+ 
 }) => {
   const imageSize = 700;
   return (
@@ -297,6 +313,8 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
             </button> */}
 
 
+
+
           </div>
           <div className="flex justify-between items-end">
             <p className="date_installed italic text-xs !m-0 !p-0">
@@ -314,6 +332,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
   );
 };
 
+
 const MapComponent: FC = () => {
   const [userCoordinates, setUserCoordinates] =
     useState<UserCoordinatesItem | null>(null);
@@ -326,10 +345,12 @@ const MapComponent: FC = () => {
   const [favoriteMarkers, setFavoriteMarkers] = useState<string[]>([]);
   const imageSize = 700;
 
+
   const supabase = createSupabaseBrowserClient();
   const session = useSession();
   const username = session?.user.user_metadata.username;
   const uuid = session?.user.id;
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -344,12 +365,15 @@ const MapComponent: FC = () => {
         setLoading(false);
       };
 
+
       fetchData();
     }
   }, []);
 
+
   const ZoomHandler: FC = () => {
     const map = useMap();
+
 
     const flyToMarker = (coordinates: [number, number], zoom: number) => {
       if (coordinates && typeof coordinates[0] !== "undefined") {
@@ -360,19 +384,23 @@ const MapComponent: FC = () => {
       }
     };
 
+
     // useEffect(() => {
     //   if (userCoordinates) {
     //     flyToMarker([userCoordinates.latitude, userCoordinates.longitude], 19);
     //   }
     // }, [userCoordinates]);
 
+
     return null;
   };
+
 
   const toggleLayer = () => {
     setMapLayer(mapLayer === "street" ? "satellite" : "street");
     // console.log(mapLayer);
   };
+
 
   const fetchFavoriteLocations = async () => {
     try {
@@ -392,6 +420,7 @@ const MapComponent: FC = () => {
     }
   };
 
+
   // Call fetchFavoriteLocations when user is authenticated
   useEffect(() => {
     if (uuid) {
@@ -399,10 +428,12 @@ const MapComponent: FC = () => {
     }
   }, [uuid]);
 
+
   // Check if a marker is a favorite
   const isFavoriteMarker = (marker: MarkerData): boolean => {
     return favoriteMarkers.includes(marker.site_id || "");
   };
+
 
   // Memoize the handleSaveFavorite function
   const handleSaveFavorite = useCallback(
@@ -410,10 +441,12 @@ const MapComponent: FC = () => {
       const username = session?.user.user_metadata.username;
       const uuid = session?.user.id;
 
+
       if (!uuid) {
         toast.error("Sign in to favorite locations!");
         return;
       }
+
 
       const updateFavorites = debounce(async () => {
         try {
@@ -460,11 +493,13 @@ const MapComponent: FC = () => {
         }
       }, 300); // Debounce for x milliseconds (100ms = 1s)
 
+
       // Call the debounced function to update favorites
       updateFavorites();
     },
     [favoriteMarkers]
   );
+
 
   // Convert a Base64 encoded string to a Blob object
   function base64ToBlob(base64: string): Blob {
@@ -474,6 +509,7 @@ const MapComponent: FC = () => {
     }
     const mime = match[1];
 
+
     const byteString = atob(base64.split(",")[1]);
     const ab = new ArrayBuffer(byteString.length);
     const ia = new Uint8Array(ab);
@@ -481,8 +517,10 @@ const MapComponent: FC = () => {
       ia[i] = byteString.charCodeAt(i);
     }
 
+
     return new Blob([ab], { type: mime });
   }
+
 
   // Handles the addition, display and removal of temporary markers on the map, as well as image upload and submission functions.
   // Memoize the TempMarkerComponent function
@@ -498,6 +536,12 @@ const MapComponent: FC = () => {
     const request_type = "add_request";
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [description, setDescription] = useState('');
+   
+    //For update Add
+    const [showAlert, setShowAlert] = useState(false);
+    const [selectedOption, setSelectedOption] = useState('');
+
+
 
 
     // Listen for events on the map
@@ -509,10 +553,12 @@ const MapComponent: FC = () => {
         setSelectedImage(null);
         setDescription('');
 
+
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
       },
+
 
       // remove temp marker when pop-uo close
       popupclose: (e) => {
@@ -523,12 +569,14 @@ const MapComponent: FC = () => {
       },
     });
 
+
     // Monitor changes in showFileInput status
     useEffect(() => {
       if (!showFileInput) {
         setSelectedImage(null);
       }
     }, [showFileInput]);
+
 
     const addRequest = debounce(async () => {
       try {
@@ -539,7 +587,9 @@ const MapComponent: FC = () => {
           request_type: request_type,
           email: email,
           description: description,
+          selectedOption: selectedOption,
         };
+
 
         const response = await axios.post("/api/request", requestData);
         if (response.status === 200) {
@@ -552,13 +602,20 @@ const MapComponent: FC = () => {
       }
     }, 300);
 
+
     // Check if the user is logged in. Then, if there is an image selected, call base64ToBlob function to covert the object
     const handleSubmit = async () => {
       if (!uuid) {
         toast.error("Sign in to submit request!");
         return;
       }
+      if (selectedOption === "") {
+        toast.error("Please select a type");
+        return;
+      }
+   
       addRequest();
+      
       const request_type = "add_request";
       console.log(email);
       let imageBlob: Blob | null = null;
@@ -569,10 +626,14 @@ const MapComponent: FC = () => {
       console.log(tempMarkerPos?.lat);
       console.log(tempMarkerPos?.lng);
       console.log(request_type);
-      console.log(description)
+      console.log(description);
+      console.log(selectedOption);
+
 
       setDescription('');
+      setSelectedOption('');
     };
+
 
     // Handle file selection input and Set the selectedImage state so that the image preview is displayed.
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -593,15 +654,23 @@ const MapComponent: FC = () => {
       }
     };
 
+
     // Clear the selectedImage state and reset the file input box, thereby removing the image preview.
     const handleRemoveImage = (event: React.MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
       setSelectedImage(null);
 
+
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     };
+    const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSelectedOption(event.target.value);
+      setShowAlert(false);
+      console.log("Option selected:", event.target.value);
+    };
+
 
     return (
       <>
@@ -635,6 +704,38 @@ const MapComponent: FC = () => {
                         style={{ width: "100%", marginTop: "10px" }}
                       />
                       <button onClick={handleRemoveImage}>Remove</button>
+
+
+                      {/* Option to let user to delcare the type of bike stop */}
+                      <div className="options">
+                      <label className="option">
+                        <input type="radio" name="reportOption" value="u rack" onChange={handleOptionChange} />
+                        U-Rack
+                      </label>
+                      <label className="option">
+                        <input type="radio" name="reportOption" value="large hoop" onChange={handleOptionChange} />
+                        large hoop
+                      </label>
+                      <label className="option">
+                        <input type="radio" name="reportOption" value="small hoop" onChange={handleOptionChange} />
+                        small hoop
+                      </label>
+                      <label className="option">
+                        <input type="radio" name="reportOption" value="wave" onChange={handleOptionChange} />
+                        wave
+                      </label>
+                      <label className="option">
+                        <input type="radio" name="reportOption" value="opal" onChange={handleOptionChange} />
+                        opal
+                      </label>
+                      <label className="option">
+                        <input type="radio" name="reportOption" value="staple" onChange={handleOptionChange} />
+                        staple
+                      </label>
+                    </div>
+                    {/* {showAlert && <p className="alert">Please select a type.</p>} */}
+
+
                       <button
                         onClick={handleSubmit}
                         style={{
@@ -663,27 +764,32 @@ const MapComponent: FC = () => {
     );
   };
 
+
   // Making Marker for user added location
   function UserAddMarker() {
     const [usermarkerData, setUserMarkerData] = useState<UserMarker[] | null>(null);
     const supabase = createSupabaseBrowserClient();
+
 
     useEffect(() => {
       async function fetchData() {
         try {
           const { data, error } = await supabase
             .from('UserAdded')
-            .select('x_coord, y_coord, email');
+            .select('x_coord, y_coord, email,selectedOption');
+
 
           if (error) {
             throw error;
           }
+
 
           if (data) {
             const userMarkers: UserMarker[] = data.map((item: any) => ({
               x: item.x_coord,
               y: item.y_coord,
               email: item.email,
+              selectedOption:item.selectedOption,
             }));
             setUserMarkerData(userMarkers);
           }
@@ -692,27 +798,47 @@ const MapComponent: FC = () => {
         }
       }
 
+
       fetchData();
     }, []);
     return (
-      <div style={{ height: '400px' }}> 
-        {usermarkerData && 
+      <div style={{ height: '400px' }}>
+        {usermarkerData &&
           usermarkerData.map((marker, index) => (
             <div key={index}>
               <Marker position={[marker.y || 0, marker.x || 0]} icon={userIcon}>
                 <Popup>Added by: {marker.email}
-                <ReportComponent siteId={""} x={marker.x} y={marker.y}/>
+                <div className="my-1 flex justify-center items-center select-none pointer-events-none">
+            {marker.selectedOption && getImageSource(marker.selectedOption) ? (
+              <Image
+                className="rounded-md shadow"
+                src={getImageSource(marker.selectedOption)}
+                alt={marker.selectedOption}
+                height={imageSize}
+                width={imageSize}
+              />
+            ) : (
+              <div className="flex flex-col w-full items-center bg-slate-200 border-[1px] border-slate-300 rounded-lg p-3">
+                <NoImage />
+                <p className="!p-0 !m-0 text-xs">No image available</p>
+              </div>
+            )}
+          </div>
+                {/* <ReportComponent siteId={""} x={marker.x} y={marker.y}/> */}
+                {/* Need some change in ReportComponet since useradded location wouldn't have site_id */}
                 </Popup>
-                
+           
               </Marker>
-              
+             
             </div>
           ))
         }
       </div>
     );
-    
+   
   };
+
+
 
 
   // Return the JSX for rendering
@@ -797,6 +923,7 @@ const MapComponent: FC = () => {
           </MarkerClusterGroup>
         )}
 
+
         <UserLocationMarker />
         <ZoomHandler />
         {/* <RoutingMachine />  */}
@@ -805,5 +932,6 @@ const MapComponent: FC = () => {
     </>
   );
 };
+
 
 export default MapComponent;
