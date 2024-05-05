@@ -13,6 +13,7 @@ interface PendingRequest {
   description: string;
   image: string;
   site_id: string;
+  selectedOption:string;
 }
 
 type TableName = 'BlackList' | 'UserAdded';
@@ -24,6 +25,7 @@ interface Payload {
   email?: string;
   x_coord?: number;
   y_coord?: number;
+  selectedOption?:string;
 }
 
 const DashboardPage: React.FC = () => {
@@ -88,6 +90,7 @@ const DashboardPage: React.FC = () => {
           x_coord: request.x_coord,
           y_coord: request.y_coord,
           created_at: request.created_at,
+          selectedOption:request.selectedOption,
         });
       } else if (request.request_type.toLowerCase() === 'delete') {
         await handleInsert('BlackList', {
@@ -140,6 +143,7 @@ const DashboardPage: React.FC = () => {
               <td className="td">{request.request_type}</td>
               <td className="td">{request.created_at || 'null'}</td>
               <td className="td">{request.description}</td>
+              {/* <td className="td">{request.selectedOption || 'null'}</td> */}
               <td className="td">
                 <button className="button greenButton" onClick={() => handlePushToUserAddedOrBlackList(request.id)}>✔</button>
                 <button className="button redButton" onClick={() => handleDeleteFromPending(request.id)}>X</button>
