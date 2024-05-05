@@ -185,6 +185,7 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId, x, y }) => {
       if (response.ok) {
         const responseData = await response.json();
         console.log("Report successfully added:", responseData);
+        fetchReports();
       } else {
         console.error("Error adding report:", response.statusText);
       }
