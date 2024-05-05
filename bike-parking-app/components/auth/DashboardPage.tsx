@@ -9,10 +9,21 @@ interface PendingRequest {
   x_coord: number;
   y_coord: number;
   request_type: string;
-  site_id:string;
   created_at: string;
   description: string;
   image: string;
+  site_id: string;
+}
+
+type TableName = 'BlackList' | 'UserAdded';
+
+interface Payload {
+  id?: number;
+  created_at?: string;
+  location_id?: string;
+  email?: string;
+  x_coord?: number;
+  y_coord?: number;
 }
 
 const DashboardPage: React.FC = () => {
@@ -23,8 +34,10 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     const fetchPendingRequests = async () => {
       const { data, error } = await supabaseClient.from('Pending').select('*');
-      if (!error) {
-        setPendingRequests(data);
+      if (error) {
+        console.error('Error fetching pending requests:', error);
+      } else {
+        setPendingRequests(data || []);
       }
     };
     fetchPendingRequests();
@@ -33,54 +46,68 @@ const DashboardPage: React.FC = () => {
   const handleImageClick = (imageSrc: string) => {
     setSelectedImage(imageSrc);
     setIsModalOpen(true);
-    document.body.style.overflow = 'hidden'; // Disable scroll on body when modal is open
+    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedImage(null);
-    document.body.style.overflow = 'auto'; // Enable scroll on body when modal is closed
+    document.body.style.overflow = 'auto';
   };
 
-  const handleAddToTableAndRemoveFromPending = async (requestId: number, tableName: 'BlackList' | 'UserAdded') => {
+  const handleInsert = async (tableName: TableName, payload: Payload) => {
+    const { error } = await supabaseClient.from(tableName).insert([payload]);
+    if (error) {
+      console.error(`Error inserting into ${tableName}:`, error);
+      return false;
+    }
+    return true;
+  };
+
+  const handleDeleteFromTable = async (tableName: string, requestId: number) => {
+    const { error } = await supabaseClient.from(tableName).delete().eq('id', requestId);
+    if (error) {
+      console.error(`Error deleting from ${tableName}:`, error);
+      return false;
+    }
+    return true;
+  };
+
+  const handlePushToUserAddedOrBlackList = async (requestId: number) => {
     const request = pendingRequests.find(request => request.id === requestId);
     if (!request) {
       console.error('Request not found');
       return;
     }
-  
-    let payload;
-    if (tableName === 'BlackList') {
-      // For BlackList, use x_coord as location_id and generate current timestamp for created_at
-      payload = {
-        location_id: request.site_id,
-        created_at: new Date().toISOString()  // ISO 8601 format, accepted by most databases including PostgreSQL
-      };
-    } else if (tableName === 'UserAdded') {
-      // Assuming UserAdded uses a different schema that you might need to adjust similarly
-      payload = {
-        email: request.email,
-        x_coord: request.x_coord,
-        y_coord: request.y_coord
-      };
+
+    try {
+      if (request.request_type.toLowerCase() === 'add_request') {
+        await handleInsert('UserAdded', {
+          id: request.id,
+          email: request.email,
+          x_coord: request.x_coord,
+          y_coord: request.y_coord,
+          created_at: request.created_at,
+        });
+      } else if (request.request_type.toLowerCase() === 'delete') {
+        await handleInsert('BlackList', {
+          id: request.id,
+          created_at: new Date().toISOString(), // Assuming you want to set the current timestamp
+          location_id: '', // Replace with the appropriate value if available
+          // Include other fields as necessary
+        });
+      }
+
+      await handleDeleteFromTable('Pending', requestId);
+      setPendingRequests(prev => prev.filter(req => req.id !== requestId));
+    } catch (error) {
+      console.error('Error pushing to UserAdded or BlackList:', error);
     }
-  
-    // Insert into BlackList or UserAdded table
-    const { error: insertError } = await supabaseClient.from(tableName).insert([payload]);
-    if (insertError) {
-      console.error('Error inserting to ' + tableName + ':', insertError);
-      return;
-    }
-  
-    // If insert successful, then delete from Pending
-    const { data: deleteData, error: deleteError } = await supabaseClient.from('Pending').delete().eq('id', requestId);
-    if (deleteError) {
-      console.error('Error deleting from Pending:', deleteError);
-    } else {
-      // Update the local state to reflect the change
-      setPendingRequests(prevRequests => prevRequests.filter(request => request.id !== requestId));
-      console.log('Deleted from Pending:', deleteData);
-    }
+  };
+
+  const handleDeleteFromPending = async (requestId: number) => {
+    await handleDeleteFromTable('Pending', requestId);
+    setPendingRequests(prev => prev.filter(req => req.id !== requestId));
   };
 
   return (
@@ -114,8 +141,8 @@ const DashboardPage: React.FC = () => {
               <td className="td">{request.created_at || 'null'}</td>
               <td className="td">{request.description}</td>
               <td className="td">
-                <button className="button greenButton" onClick={() => handleAddToTableAndRemoveFromPending(request.id, 'UserAdded')}>✔</button>
-                <button className="button redButton" onClick={() => handleAddToTableAndRemoveFromPending(request.id, 'BlackList')}>✘</button>
+                <button className="button greenButton" onClick={() => handlePushToUserAddedOrBlackList(request.id)}>✔</button>
+                <button className="button redButton" onClick={() => handleDeleteFromPending(request.id)}>X</button>
               </td>
             </tr>
           ))}
