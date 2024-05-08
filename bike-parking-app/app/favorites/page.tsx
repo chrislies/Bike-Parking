@@ -102,6 +102,8 @@ export default function FavoritesPage() {
               <ol className="">
                 <li>{favorite.location_id}</li>
                 <li>{favorite.location_address}</li>
+                <li>Longitude: {favorite.x_coord}</li>
+                <li>Latitude: {favorite.y_coord}</li>
               </ol>
               <button onClick={() => removeFavorite(favorite)}>
                 <BsTrash3Fill className="fill-red-500 h-6 w-6" />

@@ -90,6 +90,7 @@ interface UserMarker {
   y?: number;
   email?: string;
   selectedOption?:string;
+  favorite: boolean;
 }
 interface UserCoordinatesItem {
   longitude: number;
@@ -298,19 +299,6 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
               Directions
             </button>
              
-            {/* Delete Button */}
-            {/* <button
-              onClick={() => handleDeleteRequest(marker)}
-              title="Delete"
-              aria-label="Delete"
-              aria-disabled="false"
-              className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
-            >
-              <Directions
-                className={`h-7 w-7 hover:cursor-pointer items-end`}
-              />
-              DeleteRequest
-            </button> */}
 
 
 
@@ -806,7 +794,7 @@ const MapComponent: FC = () => {
         {usermarkerData &&
           usermarkerData.map((marker, index) => (
             <div key={index}>
-              <Marker position={[marker.y || 0, marker.x || 0]} icon={userIcon}>
+              <Marker position={[marker.y || 0, marker.x || 0]} icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}>
                 <Popup>Added by: {marker.email}
                 <div className="my-1 flex justify-center items-center select-none pointer-events-none">
             {marker.selectedOption && getImageSource(marker.selectedOption) ? (
@@ -823,6 +811,40 @@ const MapComponent: FC = () => {
                 <p className="!p-0 !m-0 text-xs">No image available</p>
               </div>
             )}
+          </div>
+          <div className="flex flex-col gap-2 mt-1 mb-3">
+            <button
+              onClick={() => handleSaveFavorite(marker)}
+              title="Save Location"
+              aria-label="Save Location"
+              aria-disabled="false"
+              className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
+            >
+              <Bookmark
+                className={`h-7 w-7 hover:cursor-pointer ${isFavoriteMarker(marker)
+                    ? "fill-yellow-300"
+                    : "fill-transparent"
+                  }`}
+              />
+              Save
+            </button>
+            <button
+              onClick={() => { }}
+              title="Directions"
+              aria-label="Directions"
+              aria-disabled="false"
+              className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
+            >
+              <Directions
+                className={`h-7 w-7 hover:cursor-pointer items-end`}
+              />
+              Directions
+            </button>
+             
+
+
+
+
           </div>
                 {/* <ReportComponent siteId={""} x={marker.x} y={marker.y}/> */}
                 {/* Need some change in ReportComponet since useradded location wouldn't have site_id */}
