@@ -8,7 +8,9 @@ export async function POST(req: Request) {
       username,
       option,
       site_id,
-      description
+      description,
+      x,
+      y
     } = await req.json();
 
     
@@ -18,6 +20,8 @@ export async function POST(req: Request) {
         option: option,
         description: description,
         location_id: site_id,
+        x: x,
+        y: y,
       }
     ], { returning: "minimal" } as any );
 
