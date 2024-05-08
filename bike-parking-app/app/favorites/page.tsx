@@ -60,21 +60,40 @@ export default function FavoritesPage() {
   }, [uuid]);
 
   const removeFavorite = async (favorite: Favorites) => {
-    const { data, error } = await supabase
-      .from("Favorites")
-      .delete()
-      .eq("user_id", uuid)
-      .eq("location_id", favorite.location_id);
-
-    if (error) {
-      console.log(`Error removing spot from favortes: ${error}`);
-    } else {
-      // Filter out the removed favorite from the list
-      setListOfFavorites((prevList) =>
-        prevList ? prevList.filter((f) => f.id !== favorite.id) : []
-      );
+    try {
+      const { data, error } = await supabase
+        .from("Favorites")
+        .delete()
+        .eq("user_id", uuid);
+  
+      if (favorite?.location_id) {
+        await supabase
+          .from("Favorites")
+          .delete()
+          .eq("user_id", uuid)
+          .eq("location_id", favorite.location_id);
+      } else {
+        await supabase
+          .from("Favorites")
+          .delete()
+          .eq("user_id", uuid)
+          .eq("id", favorite.id);
+      }
+  
+      if (error) {
+        console.log(`Error removing spot from favorites: ${error}`);
+      } else {
+        // Filter out the removed favorite from the list
+        setListOfFavorites((prevList) =>
+          prevList ? prevList.filter((f) => f.id !== favorite.id) : []
+        );
+      }
+    } catch (error) {
+      console.log("Server error:", error);
     }
   };
+  
+  
 
   return (
     <div>

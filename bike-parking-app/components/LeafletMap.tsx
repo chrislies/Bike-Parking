@@ -84,6 +84,7 @@ interface MarkerData {
   sign_x_coord?: number;
   sign_y_coord?: number;
   favorite: boolean;
+  id?:number;
 }
 interface UserMarker {
   x?: number;
@@ -457,6 +458,7 @@ const MapComponent: FC = () => {
               url: "api/favorite",
               query: {
                 id: params?.id,
+                
               },
             });
             await axios.post(url, values);
@@ -465,15 +467,29 @@ const MapComponent: FC = () => {
             // Remove the marker from the list of favoriteMarkers
             setFavoriteMarkers((prevMarkers) =>
               prevMarkers.filter((id) => id !== marker.site_id)
+             
             );
             const { data, error } = await supabase
+            .from("Favorites")
+            .delete()
+            .eq("user_id", uuid);
+          
+          if (marker.site_id === "") {
+            await supabase
+              .from("Favorites")
+              .delete()
+              .eq("user_id", uuid)
+              .eq("id", marker.id);
+          } else {
+            await supabase
               .from("Favorites")
               .delete()
               .eq("user_id", uuid)
               .eq("location_id", marker.site_id);
-            if (error) {
-              console.log(`Error removing spot from favortes: ${error}`);
-            }
+          }
+          if (error) {
+            console.log(`Error removing spot from favorites: ${error}`);
+          }
             marker.favorite = false;
           }
         } catch (error) {
@@ -815,8 +831,8 @@ const MapComponent: FC = () => {
           <div className="flex flex-col gap-2 mt-1 mb-3">
             <button
               onClick={() => handleSaveFavorite(marker)}
-              title="Save Location"
-              aria-label="Save Location"
+              title="Save Location2"
+              aria-label="Save Location2"
               aria-disabled="false"
               className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
             >
