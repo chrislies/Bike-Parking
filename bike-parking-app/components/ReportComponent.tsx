@@ -24,6 +24,8 @@ interface ReportData {
   option: string;
   site_id?: string;
   description: string;
+  x?: number;
+  y?: number;
 
 }
 
@@ -50,6 +52,8 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId, x, y }) => {
 
 
   const fetchReports = async () => {
+
+    if(siteId) {
     const { data, error } = await supabase
       .from('Report')
       .select('created_at, username, option, description')
@@ -61,6 +65,20 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId, x, y }) => {
     } else {
       setReports(data);
     }
+  } else {
+    const { data, error } = await supabase
+      .from('Report')
+      .select('created_at, username, option, description')
+      .eq('x', x)
+      .eq('y', y)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching reports:', error);
+    } else {
+      setReports(data);
+    }
+  }
   };
 
   useEffect(() => {
@@ -101,6 +119,7 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId, x, y }) => {
     setModalOpen(false);
     setReportText('');
     setSelectedOption('');
+    setSelectedImage(null);
   };
 
 
@@ -145,6 +164,8 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId, x, y }) => {
       option: finalOption,
       site_id: site_id,
       description: reportText,
+      x: x,
+      y: y,
     };
 
     await addReport(reportData);
@@ -165,13 +186,15 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId, x, y }) => {
   const addReport = debounce(async (reportData: ReportData) => {
     try {
 
-      const { username, option, site_id, description } = reportData;
+      const { username, option, site_id, description, x, y } = reportData;
 
       const requestData = {
         username: username,
         option: option,
         site_id: site_id,
         description: description,
+        x: x,
+        y: y,
       };
 
       const response = await fetch("/api/report", {
@@ -185,6 +208,7 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId, x, y }) => {
       if (response.ok) {
         const responseData = await response.json();
         console.log("Report successfully added:", responseData);
+        fetchReports();
       } else {
         console.error("Error adding report:", response.statusText);
       }
@@ -291,23 +315,23 @@ const ReportComponent: React.FC<ReportComponentProps> = ({ siteId, x, y }) => {
           <div className="modal-content">
             <span className="close-button" onClick={closeModal}>&times;</span>
             {view === 'comments' ? (
-              <div>
-                {/* <p>Here are the comments...</p>
-                <button className="report-button" onClick={switchToSubmit}>File a Report</button> */}
+              <div className="comments-modal-wrapper">
+              <div className="comments-header">
                 <p className="comments-title">Reports</p>
+              </div>
+              <div className="comments-scrollable-body">
                 {reports.map((report, index) => (
                   <div key={index} className="comment">
                     <p>{report.option} : {report.description}</p>
-                    <p>Post by: {report.username} , {report.created_at}</p>
-                    <p></p>
+                    <p>Post by: {report.username}, {report.created_at}</p>
                   </div>
                 ))}
-                <button className="file-report-button" onClick={switchToSubmit}>File a Report</button>
-                <br></br>
-                <button className="delete-button" onClick={switchToRequest}>Delete Request</button>
-               
-                {/* <DeleteComponent x={x} y={y} site_id={siteId} /> */}
               </div>
+              <div className="comments-footer">
+                <button className="report-button" onClick={switchToSubmit}>File a Report</button>
+                <button className="report-button" onClick={switchToRequest}>Delete Request</button>
+              </div>
+            </div>
             ) :
 
               (

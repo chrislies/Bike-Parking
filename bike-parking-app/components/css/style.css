@@ -47,6 +47,28 @@
   margin-top: 10px;
 }
 
+.comments-modal-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  overflow: hidden;
+}
+
+.comments-header {
+  padding: 10px 20px;
+}
+
+.comments-scrollable-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0 20px;
+}
+
+.comments-footer {
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+}
 
 
 .report-title {
