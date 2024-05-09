@@ -809,7 +809,7 @@ const isFavoriteMarker = (marker: MarkerData): boolean => {
     }, []);
     return (
       <div style={{ height: '400px' }}>
-        {usermarkerData &&
+        {usermarkerData && 
           usermarkerData.map((marker, index) => (
             <div key={index}>
               <Marker position={[marker.y || 0, marker.x || 0]} icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}>
@@ -861,15 +861,15 @@ const isFavoriteMarker = (marker: MarkerData): boolean => {
 
 
 
-
+                    
 
                   </div>
-                  {/* <ReportComponent siteId={""} x={marker.x} y={marker.y}/> */}
-                  {/* Need some change in ReportComponet since useradded location wouldn't have site_id */}
+                  <ReportComponent siteId={""} x={marker.x} y={marker.y}/> 
+                 
+               
                 </Popup>
 
               </Marker>
-
             </div>
           ))
         }
