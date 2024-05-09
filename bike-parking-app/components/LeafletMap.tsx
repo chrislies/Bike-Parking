@@ -475,43 +475,6 @@ const isFavoriteMarker = (marker: MarkerData): boolean => {
             });
             await axios.post(url, values);
             marker.favorite = true;
-            //     } else {
-            //       // Remove the marker from the list of favoriteMarkers
-            //       setFavoriteMarkers((prevMarkers) =>
-            //         prevMarkers.filter((id) => id !== marker.site_id)
-
-            //       );
-            //       if(marker.site_id==null){
-            //       const { data, error } = await supabase
-            //       .from("Favorites")
-            //       .delete()
-            //       .eq("user_id", uuid)
-            //       .eq("x_coord", marker.x)
-            //       .eq("y_coord", marker.y);
-
-            //       if (error) {
-            //         console.log(`Error removing spot from favorites: ${error}`);
-            //       }
-            //        // marker.favorite = false;
-            //       }
-            //       if(marker.site_id!==""){
-            //         const { data, error } = await supabase
-            //           .from("Favorites")
-            //           .delete()
-            //           .eq("user_id", uuid)
-            //           .eq("location_id", marker.site_id )
-            //           if (error) {
-            //             console.log(`Error removing spot from favorites: ${error}`);
-            //           } 
-            //          // marker.favorite = false;
-            //       }
-            //       }
-
-            //       marker.favorite = false;
-            //   } catch (error) {
-            //     console.error("Something went wrong:", error);
-            //   }
-            // }, 300); // Debounce for x milliseconds (100ms = 1s)
           } else {
             setFavoriteMarkers((prevMarkers) =>
               prevMarkers.filter((favorite) => favorite.x_coord != marker.x || favorite.y_coord != marker.y)
@@ -531,7 +494,9 @@ const isFavoriteMarker = (marker: MarkerData): boolean => {
           console.error("Something went wrong:", error);
         }
       }, 300);
-      console.log(favoriteMarkers);
+
+      //Testing
+      // console.log(favoriteMarkers);
 
 
       // Call the debounced function to update favorites

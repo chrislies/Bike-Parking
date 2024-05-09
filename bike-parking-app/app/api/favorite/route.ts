@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const { uuid, location_id, x_coord,y_coord } = await req.json();
+    const { uuid, x_coord,y_coord } = await req.json();
 
     const { data, error } = await supabase
       .from("Favorites")
