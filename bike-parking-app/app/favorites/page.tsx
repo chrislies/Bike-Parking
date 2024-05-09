@@ -82,7 +82,7 @@ export default function FavoritesPage() {
         .from("Favorites")
         .delete()
         .eq("user_id", uuid)
-        .eq("id", favorite.id )
+        .eq("location_id", favorite.location_id )
         if (error) {
           console.log(`Error removing spot from favorites: ${error}`);
         } else {
