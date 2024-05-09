@@ -34,13 +34,14 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const { uuid, location_id } = await req.json();
+    const { uuid, location_id, x_coord,y_coord } = await req.json();
 
     const { data, error } = await supabase
       .from("Favorites")
       .delete()
       .eq("user_id", uuid)
-      .eq("location_id", location_id);
+      .eq("x_coord", x_coord)
+      .eq("y_coord", y_coord);
 
     if (error) {
       console.log("Error deleting favorite spot:", error);

@@ -84,12 +84,14 @@ interface MarkerData {
   sign_x_coord?: number;
   sign_y_coord?: number;
   favorite: boolean;
+  id?: number;
 }
 interface UserMarker {
   x?: number;
   y?: number;
   email?: string;
-  selectedOption?:string;
+  selectedOption?: string;
+  favorite: boolean;
 }
 interface UserCoordinatesItem {
   longitude: number;
@@ -221,7 +223,7 @@ interface MemoizedMarkerProps {
   marker: MarkerData;
   isFavoriteMarker: (marker: MarkerData) => boolean;
   handleSaveFavorite: (marker: MarkerData) => void;
- 
+
 }
 
 
@@ -230,12 +232,12 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
   marker,
   isFavoriteMarker,
   handleSaveFavorite,
- 
+
 }) => {
   const imageSize = 700;
   return (
     <Marker
-      key={marker.site_id}
+      //key={marker.site_id}
       icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}
       position={[marker.y!, marker.x!]}
     >
@@ -279,8 +281,8 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
             >
               <Bookmark
                 className={`h-7 w-7 hover:cursor-pointer ${isFavoriteMarker(marker)
-                    ? "fill-yellow-300"
-                    : "fill-transparent"
+                  ? "fill-yellow-300"
+                  : "fill-transparent"
                   }`}
               />
               Save
@@ -297,20 +299,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
               />
               Directions
             </button>
-             
-            {/* Delete Button */}
-            {/* <button
-              onClick={() => handleDeleteRequest(marker)}
-              title="Delete"
-              aria-label="Delete"
-              aria-disabled="false"
-              className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
-            >
-              <Directions
-                className={`h-7 w-7 hover:cursor-pointer items-end`}
-              />
-              DeleteRequest
-            </button> */}
+
 
 
 
@@ -342,7 +331,9 @@ const MapComponent: FC = () => {
   const mapRef = useRef<any | null>(null); // Declare useRef to reference map
   const maxZoom = 20;
   const params = useParams();
-  const [favoriteMarkers, setFavoriteMarkers] = useState<string[]>([]);
+  //const [favoriteMarkers, setFavoriteMarkers] = useState<string[]>([]);
+  const [favoriteMarkers, setFavoriteMarkers] = useState<{ x_coord?: number; y_coord?: number; }[]>([{ x_coord: 0, y_coord: 0 }]);
+
   const imageSize = 700;
 
 
@@ -406,20 +397,25 @@ const MapComponent: FC = () => {
     try {
       const response = await supabase
         .from("Favorites")
-        .select("location_id")
+        .select("x_coord, y_coord")
         .eq("user_id", uuid);
+
       if (response.data) {
-        const favoriteLocations: string[] = response.data.map(
-          (favorite) => favorite.location_id
+        const favoriteLocations: { x_coord: number; y_coord: number }[] = response.data.map(
+          (favorite) => ({
+            x_coord: favorite.x_coord,
+            y_coord: favorite.y_coord
+          })
         );
+
+        // Set the favorite locations
         setFavoriteMarkers(favoriteLocations);
-        // console.log(favoriteLocations, favoriteMarkers);
+        //console.log(favoriteMarkers);
       }
     } catch (error) {
       console.error("Error fetching favorite locations:", error);
     }
   };
-
 
   // Call fetchFavoriteLocations when user is authenticated
   useEffect(() => {
@@ -430,9 +426,12 @@ const MapComponent: FC = () => {
 
 
   // Check if a marker is a favorite
-  const isFavoriteMarker = (marker: MarkerData): boolean => {
-    return favoriteMarkers.includes(marker.site_id || "");
-  };
+const isFavoriteMarker = (marker: MarkerData): boolean => {
+  return favoriteMarkers.some(favorite =>
+    favorite.x_coord == marker.x && favorite.y_coord == marker.y
+  );
+};
+
 
 
   // Memoize the handleSaveFavorite function
@@ -450,13 +449,15 @@ const MapComponent: FC = () => {
 
       const updateFavorites = debounce(async () => {
         try {
-          if (!favoriteMarkers.includes(marker.site_id || "")) {
+          if (!isFavoriteMarker(marker)) {
             // Check if the marker is already a favorite
             // if not, add it to the list of favoriteMarkers
             setFavoriteMarkers((prevMarkers) => [
               ...prevMarkers,
-              marker.site_id || "",
+              { x_coord: marker.x, y_coord: marker.y }
             ]);
+
+
             const values = {
               uuid,
               username,
@@ -469,29 +470,68 @@ const MapComponent: FC = () => {
               url: "api/favorite",
               query: {
                 id: params?.id,
+
               },
             });
             await axios.post(url, values);
             marker.favorite = true;
+            //     } else {
+            //       // Remove the marker from the list of favoriteMarkers
+            //       setFavoriteMarkers((prevMarkers) =>
+            //         prevMarkers.filter((id) => id !== marker.site_id)
+
+            //       );
+            //       if(marker.site_id==null){
+            //       const { data, error } = await supabase
+            //       .from("Favorites")
+            //       .delete()
+            //       .eq("user_id", uuid)
+            //       .eq("x_coord", marker.x)
+            //       .eq("y_coord", marker.y);
+
+            //       if (error) {
+            //         console.log(`Error removing spot from favorites: ${error}`);
+            //       }
+            //        // marker.favorite = false;
+            //       }
+            //       if(marker.site_id!==""){
+            //         const { data, error } = await supabase
+            //           .from("Favorites")
+            //           .delete()
+            //           .eq("user_id", uuid)
+            //           .eq("location_id", marker.site_id )
+            //           if (error) {
+            //             console.log(`Error removing spot from favorites: ${error}`);
+            //           } 
+            //          // marker.favorite = false;
+            //       }
+            //       }
+
+            //       marker.favorite = false;
+            //   } catch (error) {
+            //     console.error("Something went wrong:", error);
+            //   }
+            // }, 300); // Debounce for x milliseconds (100ms = 1s)
           } else {
-            // Remove the marker from the list of favoriteMarkers
             setFavoriteMarkers((prevMarkers) =>
-              prevMarkers.filter((id) => id !== marker.site_id)
+              prevMarkers.filter((favorite) => favorite.x_coord != marker.x || favorite.y_coord != marker.y)
             );
-            const { data, error } = await supabase
+            // Remove marker from favorites
+            await supabase
               .from("Favorites")
               .delete()
               .eq("user_id", uuid)
-              .eq("location_id", marker.site_id);
-            if (error) {
-              console.log(`Error removing spot from favortes: ${error}`);
-            }
-            marker.favorite = false;
+              .eq("x_coord", marker.x)
+              .eq("y_coord", marker.y);
+
+           
           }
+          marker.favorite = false;
         } catch (error) {
           console.error("Something went wrong:", error);
         }
-      }, 300); // Debounce for x milliseconds (100ms = 1s)
+      }, 300);
+      console.log(favoriteMarkers);
 
 
       // Call the debounced function to update favorites
@@ -536,7 +576,7 @@ const MapComponent: FC = () => {
     const request_type = "add_request";
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [description, setDescription] = useState('');
-   
+
     //For update Add
     const [showAlert, setShowAlert] = useState(false);
     const [selectedOption, setSelectedOption] = useState('');
@@ -613,9 +653,9 @@ const MapComponent: FC = () => {
         toast.error("Please select a type");
         return;
       }
-   
+
       addRequest();
-      
+
       const request_type = "add_request";
       console.log(email);
       let imageBlob: Blob | null = null;
@@ -708,32 +748,32 @@ const MapComponent: FC = () => {
 
                       {/* Option to let user to delcare the type of bike stop */}
                       <div className="options">
-                      <label className="option">
-                        <input type="radio" name="reportOption" value="u rack" onChange={handleOptionChange} />
-                        U-Rack
-                      </label>
-                      <label className="option">
-                        <input type="radio" name="reportOption" value="large hoop" onChange={handleOptionChange} />
-                        large hoop
-                      </label>
-                      <label className="option">
-                        <input type="radio" name="reportOption" value="small hoop" onChange={handleOptionChange} />
-                        small hoop
-                      </label>
-                      <label className="option">
-                        <input type="radio" name="reportOption" value="wave" onChange={handleOptionChange} />
-                        wave
-                      </label>
-                      <label className="option">
-                        <input type="radio" name="reportOption" value="opal" onChange={handleOptionChange} />
-                        opal
-                      </label>
-                      <label className="option">
-                        <input type="radio" name="reportOption" value="staple" onChange={handleOptionChange} />
-                        staple
-                      </label>
-                    </div>
-                    {/* {showAlert && <p className="alert">Please select a type.</p>} */}
+                        <label className="option">
+                          <input type="radio" name="reportOption" value="u rack" onChange={handleOptionChange} />
+                          U-Rack
+                        </label>
+                        <label className="option">
+                          <input type="radio" name="reportOption" value="large hoop" onChange={handleOptionChange} />
+                          large hoop
+                        </label>
+                        <label className="option">
+                          <input type="radio" name="reportOption" value="small hoop" onChange={handleOptionChange} />
+                          small hoop
+                        </label>
+                        <label className="option">
+                          <input type="radio" name="reportOption" value="wave" onChange={handleOptionChange} />
+                          wave
+                        </label>
+                        <label className="option">
+                          <input type="radio" name="reportOption" value="opal" onChange={handleOptionChange} />
+                          opal
+                        </label>
+                        <label className="option">
+                          <input type="radio" name="reportOption" value="staple" onChange={handleOptionChange} />
+                          staple
+                        </label>
+                      </div>
+                      {/* {showAlert && <p className="alert">Please select a type.</p>} */}
 
 
                       <button
@@ -750,11 +790,11 @@ const MapComponent: FC = () => {
                     </div>
                   )}
                   <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Add description for the location"
-                style={{ width: '100%' }}
-              />
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Add description for the location"
+                    style={{ width: '100%' }}
+                  />
                 </>
               )}
             </Popup>
@@ -789,11 +829,12 @@ const MapComponent: FC = () => {
               x: item.x_coord,
               y: item.y_coord,
               email: item.email,
-              selectedOption:item.selectedOption,
+              selectedOption: item.selectedOption,
+              favorite: item.favorite,
             }));
             setUserMarkerData(userMarkers);
           }
-        } catch (error:any) {
+        } catch (error: any) {
           console.error('Error fetching data from Supabase:', error.message);
         }
       }
@@ -806,36 +847,70 @@ const MapComponent: FC = () => {
         {usermarkerData &&
           usermarkerData.map((marker, index) => (
             <div key={index}>
-              <Marker position={[marker.y || 0, marker.x || 0]} icon={userIcon}>
+              <Marker position={[marker.y || 0, marker.x || 0]} icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}>
                 <Popup>Added by: {marker.email}
-                <div className="my-1 flex justify-center items-center select-none pointer-events-none">
-            {marker.selectedOption && getImageSource(marker.selectedOption) ? (
-              <Image
-                className="rounded-md shadow"
-                src={getImageSource(marker.selectedOption)}
-                alt={marker.selectedOption}
-                height={imageSize}
-                width={imageSize}
-              />
-            ) : (
-              <div className="flex flex-col w-full items-center bg-slate-200 border-[1px] border-slate-300 rounded-lg p-3">
-                <NoImage />
-                <p className="!p-0 !m-0 text-xs">No image available</p>
-              </div>
-            )}
-          </div>
-                {/* <ReportComponent siteId={""} x={marker.x} y={marker.y}/> */}
-                {/* Need some change in ReportComponet since useradded location wouldn't have site_id */}
+                  <div className="my-1 flex justify-center items-center select-none pointer-events-none">
+                    {marker.selectedOption && getImageSource(marker.selectedOption) ? (
+                      <Image
+                        className="rounded-md shadow"
+                        src={getImageSource(marker.selectedOption)}
+                        alt={marker.selectedOption}
+                        height={imageSize}
+                        width={imageSize}
+                      />
+                    ) : (
+                      <div className="flex flex-col w-full items-center bg-slate-200 border-[1px] border-slate-300 rounded-lg p-3">
+                        <NoImage />
+                        <p className="!p-0 !m-0 text-xs">No image available</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2 mt-1 mb-3">
+                    <button
+                      onClick={() => handleSaveFavorite(marker)}
+                      title="Save Location2"
+                      aria-label="Save Location2"
+                      aria-disabled="false"
+                      className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
+                    >
+                      <Bookmark
+                        className={`h-7 w-7 hover:cursor-pointer ${isFavoriteMarker(marker)
+                          ? "fill-yellow-300"
+                          : "fill-transparent"
+                          }`}
+                      />
+                      Save
+                    </button>
+                    <button
+                      onClick={() => { }}
+                      title="Directions"
+                      aria-label="Directions"
+                      aria-disabled="false"
+                      className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
+                    >
+                      <Directions
+                        className={`h-7 w-7 hover:cursor-pointer items-end`}
+                      />
+                      Directions
+                    </button>
+
+
+
+
+
+                  </div>
+                  {/* <ReportComponent siteId={""} x={marker.x} y={marker.y}/> */}
+                  {/* Need some change in ReportComponet since useradded location wouldn't have site_id */}
                 </Popup>
-           
+
               </Marker>
-             
+
             </div>
           ))
         }
       </div>
     );
-   
+
   };
 
 
@@ -906,7 +981,7 @@ const MapComponent: FC = () => {
           subdomains={["mt1", "mt2", "mt3"]}
         /> */}
         <TempMarkerComponent />
-        <UserAddMarker/>
+        <UserAddMarker />
         {!loading && (
           <MarkerClusterGroup chunkedLoading maxClusterRadius={160}>
             {markerData?.map((marker) =>
@@ -916,7 +991,7 @@ const MapComponent: FC = () => {
                   marker={marker}
                   isFavoriteMarker={isFavoriteMarker}
                   handleSaveFavorite={handleSaveFavorite}
-         
+
                 />
               ) : null
             )}

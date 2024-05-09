@@ -60,21 +60,49 @@ export default function FavoritesPage() {
   }, [uuid]);
 
   const removeFavorite = async (favorite: Favorites) => {
-    const { data, error } = await supabase
-      .from("Favorites")
-      .delete()
-      .eq("user_id", uuid)
-      .eq("location_id", favorite.location_id);
-
-    if (error) {
-      console.log(`Error removing spot from favortes: ${error}`);
-    } else {
-      // Filter out the removed favorite from the list
-      setListOfFavorites((prevList) =>
-        prevList ? prevList.filter((f) => f.id !== favorite.id) : []
-      );
+    try {
+      if(favorite.location_id!==""){
+      const { data, error } = await supabase
+        .from("Favorites")
+        .delete()
+        .eq("user_id", uuid)
+        .eq("x_coord", favorite.x_coord )
+        .eq("y_coord", favorite.y_coord )
+        if (error) {
+          console.log(`Error removing spot from favorites: ${error}`);
+        } else {
+          // Filter out the removed favorite from the list
+          setListOfFavorites((prevList) =>
+            prevList ? prevList.filter((f) => f.id !== favorite.id) : []
+          );
+        }
+    }
+    if(favorite.location_id==null){
+      const { data, error } = await supabase
+        .from("Favorites")
+        .delete()
+        .eq("user_id", uuid)
+        .eq("location_id", favorite.location_id )
+        if (error) {
+          console.log(`Error removing spot from favorites: ${error}`);
+        } else {
+          // Filter out the removed favorite from the list
+          setListOfFavorites((prevList) =>
+            prevList ? prevList.filter((f) => f.id !== favorite.id) : []
+          );
+        }
+    }
+      
+        
+ 
+  
+      
+    } catch (error) {
+      console.log("Server error:", error);
     }
   };
+  
+  
 
   return (
     <div>
@@ -102,6 +130,8 @@ export default function FavoritesPage() {
               <ol className="">
                 <li>{favorite.location_id}</li>
                 <li>{favorite.location_address}</li>
+                <li>Longitude: {favorite.x_coord}</li>
+                <li>Latitude: {favorite.y_coord}</li>
               </ol>
               <button onClick={() => removeFavorite(favorite)}>
                 <BsTrash3Fill className="fill-red-500 h-6 w-6" />
