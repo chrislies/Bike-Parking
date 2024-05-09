@@ -237,7 +237,7 @@ const MemoizedMarker: FC<MemoizedMarkerProps> = ({
   const imageSize = 700;
   return (
     <Marker
-      key={marker.site_id}
+      //key={marker.site_id}
       icon={isFavoriteMarker(marker) ? favoriteIcon : customIcon}
       position={[marker.y!, marker.x!]}
     >
@@ -410,7 +410,7 @@ const MapComponent: FC = () => {
 
         // Set the favorite locations
         setFavoriteMarkers(favoriteLocations);
-        console.log(favoriteMarkers);
+        //console.log(favoriteMarkers);
       }
     } catch (error) {
       console.error("Error fetching favorite locations:", error);
@@ -426,11 +426,11 @@ const MapComponent: FC = () => {
 
 
   // Check if a marker is a favorite
-  const isFavoriteMarker = (marker: MarkerData): boolean => {
-    return favoriteMarkers.some(favorite =>
-      favorite.x_coord === marker.x && favorite.y_coord === marker.y
-    );
-  };
+const isFavoriteMarker = (marker: MarkerData): boolean => {
+  return favoriteMarkers.some(favorite =>
+    favorite.x_coord == marker.x && favorite.y_coord == marker.y
+  );
+};
 
 
 
@@ -513,6 +513,9 @@ const MapComponent: FC = () => {
             //   }
             // }, 300); // Debounce for x milliseconds (100ms = 1s)
           } else {
+            setFavoriteMarkers((prevMarkers) =>
+              prevMarkers.filter((favorite) => favorite.x_coord != marker.x || favorite.y_coord != marker.y)
+            );
             // Remove marker from favorites
             await supabase
               .from("Favorites")
@@ -521,14 +524,14 @@ const MapComponent: FC = () => {
               .eq("x_coord", marker.x)
               .eq("y_coord", marker.y);
 
-            setFavoriteMarkers((prevMarkers) =>
-              prevMarkers.filter((favorite) => favorite.x_coord !== marker.x || favorite.y_coord !== marker.y)
-            );
+           
           }
+          marker.favorite = false;
         } catch (error) {
           console.error("Something went wrong:", error);
         }
       }, 300);
+      console.log(favoriteMarkers);
 
 
       // Call the debounced function to update favorites
