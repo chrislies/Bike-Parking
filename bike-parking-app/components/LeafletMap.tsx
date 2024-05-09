@@ -861,9 +861,10 @@ const isFavoriteMarker = (marker: MarkerData): boolean => {
 
 
 
-                    <ReportComponent siteId={""} x={marker.x} y={marker.y}/> 
+                    
 
                   </div>
+                  <ReportComponent siteId={""} x={marker.x} y={marker.y}/> 
                  
                
                 </Popup>
