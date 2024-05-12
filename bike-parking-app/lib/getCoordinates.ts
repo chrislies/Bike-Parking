@@ -95,8 +95,9 @@ async function getCoordinates(): Promise<DataItem[] | null> {
       if (combinedData.length === 0) {
         hasMoreData = false;
       } else {
+        //Filtering out the data in BlackList table
         const filteredData = combinedData.filter(location => {
-          return !data.some(data => data.location_id === location.site_id);
+          return !data.some(data => data.location_id == location.site_id);
         });
         allData = [...allData, ...filteredData];
         offset += 50000;
