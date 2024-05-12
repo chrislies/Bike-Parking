@@ -1,3 +1,6 @@
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
+
+
 interface DataItem {
   x?: number;
   y?: number;
@@ -17,6 +20,7 @@ interface DataItem {
 
 async function getCoordinates(): Promise<DataItem[] | null> {
   try {
+    const supabase = createSupabaseBrowserClient();
     let allData: DataItem[] = [];
     let offset = 0;
     let hasMoreData = true;
@@ -77,6 +81,12 @@ async function getCoordinates(): Promise<DataItem[] | null> {
       //   }
       // });
 
+      const { data, error } = await supabase.from('BlackList').select('*');
+      if (error) {
+        throw error;
+      }
+  
+
       const combinedData: DataItem[] = [
         ...bikeRacksData.map((item: DataItem) => ({ ...item })),
         ...streetSignsData.map((item: DataItem) => ({ ...item })),
@@ -85,8 +95,13 @@ async function getCoordinates(): Promise<DataItem[] | null> {
       if (combinedData.length === 0) {
         hasMoreData = false;
       } else {
-        allData = [...allData, ...combinedData];
+        //Filtering out the data in BlackList table
+        const filteredData = combinedData.filter(location => {
+          return !data.some(data => data.location_id == location.site_id);
+        });
+        allData = [...allData, ...filteredData];
         offset += 50000;
+        
       }
     }
 
