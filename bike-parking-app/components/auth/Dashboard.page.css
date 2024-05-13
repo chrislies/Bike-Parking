@@ -1,11 +1,37 @@
+.fixed-header {
+  position: fixed; /* Keeps the header fixed at the top of the viewport */
+  top: 0;
+  left: 0;
+  right: 0; /* Ensures the header spans the entire width of the viewport */
+  z-index: 1050; /* Higher z-index to ensure it stays on top of other content */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px; /* Add padding for aesthetic spacing */
+  background-color:skyblue; /* Gives a background color to the header */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: adds shadow for better visibility */
+}
+
+.dashboardTitle {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 50px; /* Use the higher value you find necessary */
+  color: #000; /* Black for better contrast against potentially lighter backgrounds */
+}
+
 .dashboardContainer {
   text-align: center;
   overflow-y: auto;
+  width: 100vw;
+  padding-top: 100px; /* Adjust based on actual header height */
   min-height: 100vh;
   padding-bottom: 50px;
-  margin-bottom: -1200px;
+  margin-bottom: 0px;
+  background-image: url('/image.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
-  
 .dashboardTitle {
   font-size: 24px;
   font-weight: bold;
