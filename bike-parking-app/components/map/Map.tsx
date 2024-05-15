@@ -1,13 +1,14 @@
 "use client";
-import L from "leaflet";
 import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
-import LocateUser from "./LocateUser";
 import MarkerLayer from "./layers/MarkerLayer";
 import "leaflet-rotate";
 import ControlGeocoder from "../LeafletControlGeocoder";
 // import BikeRackLayer from "./layers/BikeRackLayer";
 import StreetSignLayer from "./layers/StreetSignLayer";
 import Navbar from "../navbar/Navbar";
+import UserLocationMarker from "./UserLocationMarker";
+import PixiLayer from "./layers/PixiLayer";
+import RoutingMachine from "../LeafletRoutingMachine";
 
 const { BaseLayer } = LayersControl;
 
@@ -43,11 +44,13 @@ const RootMap = () => {
             />
           </BaseLayer>
           <MarkerLayer />
+          {/* <PixiLayer /> */}
         </LayersControl>
         {/* <StreetSignLayer /> */}
         {/* <BikeRackLayer /> */}
-        <LocateUser />
+        <UserLocationMarker />
         <ControlGeocoder />
+        {/* <RoutingMachine /> */}
         <Navbar />
       </MapContainer>
     </>
