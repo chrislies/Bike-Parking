@@ -1,5 +1,6 @@
 import { getImageSource } from "@/lib/getImageSource";
 import Image from "next/image";
+import L from "leaflet";
 import { FC, useCallback, useRef, useState } from "react";
 import { Marker, Popup, useMapEvents } from "react-leaflet";
 import { Bookmark, Directions, NoImage } from "../svgs";
@@ -9,6 +10,9 @@ import toast from "react-hot-toast";
 import { useParams } from "next/navigation";
 import queryString from "query-string";
 import axios from "axios";
+import { createControlComponent } from "@react-leaflet/core";
+import { Geocoder, geocoders } from "leaflet-control-geocoder";
+import "leaflet-routing-machine";
 
 interface NewMarkerProps {
   marker: MarkerData;
@@ -47,7 +51,7 @@ const NewMarker: FC<NewMarkerProps> = ({
 
   const handleSaveLocation = useCallback(async () => {
     if (!uuid) {
-      toast.error("Sign in to Save locations!", {
+      toast.error("Sign in to save locations!", {
         id: "signInToSaveLocationsError",
       });
       return;
@@ -98,6 +102,37 @@ const NewMarker: FC<NewMarkerProps> = ({
       toast.error(`Something went wrong: ${error}`);
     }
   }, [markerRef, queryIcon, isBookmarked]);
+
+  const handleGetDirections = useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+
+          L.Routing.control({
+            waypoints: [
+              L.latLng(latitude, longitude),
+              L.latLng(marker.y!, marker.x!),
+            ],
+            lineOptions: {
+              styles: [{ color: "#6FA1EC", weight: 4 }],
+            },
+            show: false,
+            addWaypoints: false,
+            routeWhileDragging: true,
+            draggableWaypoints: true,
+            fitSelectedRoutes: true,
+            showAlternatives: false,
+          }).addTo(map);
+        },
+        (error) => {
+          toast.error(`Error getting current location: ${error.message}`);
+        }
+      );
+    } else {
+      toast.error("Geolocation is not supported by this browser.");
+    }
+  }, [map, marker.y, marker.x]);
 
   return (
     <Marker
@@ -167,7 +202,7 @@ const NewMarker: FC<NewMarkerProps> = ({
               Save
             </button>
             <button
-              onClick={() => {}}
+              onClick={handleGetDirections}
               title="Directions"
               aria-label="Directions"
               aria-disabled="false"
