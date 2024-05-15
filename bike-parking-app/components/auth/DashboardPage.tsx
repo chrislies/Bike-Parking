@@ -45,6 +45,17 @@ const DashboardPage: React.FC = () => {
     fetchPendingRequests();
   }, []);
 
+  useEffect(() => {
+    const titleElement = document.querySelector('.dashboardTitle') as HTMLElement;
+    if (titleElement) {
+      const numColumns = document.querySelectorAll('.table th').length;
+      const baseMargin = -700;
+      const increaseFactor = 18; // Increase this factor to see more noticeable changes
+      const titleMarginTop = baseMargin + increaseFactor * ((1.1 * numColumns) *20);//edit
+      titleElement.style.marginTop = `${titleMarginTop}px`;
+    }
+  }, [pendingRequests]);
+
   const handleImageClick = (imageSrc: string) => {
     setSelectedImage(imageSrc);
     setIsModalOpen(true);
@@ -109,7 +120,7 @@ const DashboardPage: React.FC = () => {
       console.error('Request not found');
       return;
     }
-
+  
     if (request.request_type.toLowerCase() === 'add_request') {
       await handleInsert('UserAdded', {
         id: request.id,
@@ -119,13 +130,22 @@ const DashboardPage: React.FC = () => {
         created_at: request.created_at,
       });
     } else if (request.request_type.toLowerCase() === 'delete') {
-      await handleInsert('BlackList', {
-        id: request.id,
-        created_at: new Date().toISOString(),
-        location_id: request.site_id,
-      });
+      if (!request.site_id) {
+        // If no site_id is provided, delete the entry from UserAdded using x_coord and y_coord
+        const { error: deleteError } = await supabaseClient.from('UserAdded').delete()
+          .match({ x_coord: request.x_coord, y_coord: request.y_coord });
+        if (deleteError) {
+          console.error('Error deleting from UserAdded:', deleteError);
+        }
+      } else {
+        await handleInsert('BlackList', {
+          id: request.id,
+          created_at: new Date().toISOString(),
+          location_id: request.site_id,
+        });
+      }
     }
-
+  
     await handleDeleteFromTable('Pending', requestId);
     setPendingRequests(prev => prev.filter(req => req.id !== requestId));
   };

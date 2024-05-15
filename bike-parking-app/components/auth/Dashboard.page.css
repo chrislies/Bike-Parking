@@ -1,108 +1,94 @@
 .fixed-header {
-  position: fixed; /* Keeps the header fixed at the top of the viewport */
+  position: fixed;
   top: 0;
   left: 0;
-  right: 0; /* Ensures the header spans the entire width of the viewport */
-  z-index: 1050; /* Higher z-index to ensure it stays on top of other content */
+  right: 0;
+  z-index: 1050;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px; /* Add padding for aesthetic spacing */
-  background-color:skyblue; /* Gives a background color to the header */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: adds shadow for better visibility */
-}
-
-.dashboardTitle {
-  font-size: 24px;
-  font-weight: bold;
-  margin-top: 50px; /* Use the higher value you find necessary */
-  color: #000; /* Black for better contrast against potentially lighter backgrounds */
+  padding: 10px 20px;
+  background-color: skyblue;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dashboardContainer {
   text-align: center;
-  overflow-y: auto;
+  overflow-y: scroll; /* Make the container scrollable */
   width: 100vw;
-  padding-top: 100px; /* Adjust based on actual header height */
-  min-height: 100vh;
-  padding-bottom: 50px;
-  margin-bottom: 0px;
+  padding-top: 70px; /* Adjust based on actual header height and margin */
   background-image: url('/image.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
 }
+
 .dashboardTitle {
   font-size: 24px;
   font-weight: bold;
-  margin-top: 50px; /* Adjust this value as needed to lower the title */
-  margin-bottom: 0px;
   color: #333;
 }
-  
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    margin-bottom: 50px; /* Space below the table */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px; /* Adjust based on the space you want between the title and the table */
+  margin-bottom: 100px; /* Space below the table */
 }
-  
-  .th, .td {
-    padding: 8px;
-    border: 1px solid #ddd;
-    background-color: #f2f2f2;
-  }
-  
-  .imageCell {
-    width: 110px;
-  }
-  
-  .image {
-    width: 100px;
-    height: 100px;
-    cursor: pointer;
-  }
-  
-  .button {
-    margin: 0 4px;
-    padding: 5px 10px;
-    cursor: pointer;
-  }
-  
-  .greenButton {
-    background-color: green;
-    color: white;
-    border-color: green;
-  }
-  
-  .redButton {
-    background-color: red;
-    color: white;
-    border-color: red;
-  }
-  
-  .modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    z-index: 1000;
-    border: 2px solid #000;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  }
-  
-  .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 999;
-  }
-  
-  .modal, .overlay {
-    position: fixed;
+
+.th,
+.td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  background-color: #f2f2f2;
+}
+
+.imageCell {
+  width: 110px;
+}
+
+.image {
+  width: 100px;
+  height: 100px;
+  cursor: pointer;
+}
+
+.button {
+  margin: 0 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.greenButton {
+  background-color: green;
+  color: white;
+  border-color: green;
+}
+
+.redButton {
+  background-color: red;
+  color: white;
+  border-color: red;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  z-index: 1000;
+  border: 2px solid #000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 999;
 }
