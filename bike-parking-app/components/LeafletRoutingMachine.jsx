@@ -1,8 +1,9 @@
-// // Leaflet routing machine is used for navigational direction
+// Leaflet routing machine is used for navigational direction
 import L from "leaflet";
 import { createControlComponent } from "@react-leaflet/core";
 import { Geocoder, geocoders } from "leaflet-control-geocoder";
 import "leaflet-routing-machine";
+import { queryIcon } from "./Icons";
 
 const createRoutingMachineLayer = (props) => {
   const instance = L.Routing.control({
@@ -20,6 +21,13 @@ const createRoutingMachineLayer = (props) => {
     fitSelectedRoutes: true,
     showAlternatives: false,
     // geocoder: L.Control.Geocoder.nominatim()
+    createMarker: function (i, waypoint, n) {
+      let icon = queryIcon;
+      return L.marker(waypoint.latLng, {
+        draggable: true,
+        icon: icon,
+      });
+    },
   });
 
   return instance;
