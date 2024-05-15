@@ -1,8 +1,8 @@
 "use client";
 
 import getCoordinates from "@/lib/getCoordinates";
-import { useCallback, useEffect, useState } from "react";
-import { LayerGroup, LayersControl, Marker } from "react-leaflet";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { LayerGroup, LayersControl, Marker, useMapEvent } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import Loader from "@/components/Loader";
 import { rackIcon } from "@/components/Icons";
@@ -15,6 +15,7 @@ import useSession from "@/utils/supabase/use-session";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import NewMarker from "../NewMarker";
+import { LatLngBounds } from "leaflet";
 
 const MarkerLayer = () => {
   const [markers, setMarkers] = useState<MarkerData[] | null>([]);
@@ -27,6 +28,16 @@ const MarkerLayer = () => {
   const uuid = session?.user.id;
 
   const params = useParams();
+
+  const sampleMapBounds = new LatLngBounds(
+    [40.75440932883489, -73.88889312744142], // SouthWest
+    [40.7958778790764, -73.72409820556642] // NorthEast
+  );
+
+  // const map = useMapEvent("moveend", () => {
+  //   const mapBounds = map.getBounds();
+  //   console.log(mapBounds);
+  // });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
