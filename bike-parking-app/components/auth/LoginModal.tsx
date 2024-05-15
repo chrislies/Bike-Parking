@@ -80,7 +80,7 @@ const LoginModal = () => {
       <div className={`fixed inset-0 z-0 ${styles.backgroundImageFade}`}></div>
       <div className="fixed inset-x-0 top-0 z-10 flex justify-between items-center p-6 bg-transparent">
   <div className="flex items-center space-x-2">
-    <img src="ezgif-4-746767027f.jpg" alt="BikOU Logo" className="h-8 w-auto" />
+    <img src="bike_parking_logo.webp" alt="BikOU Logo" className="h-8 w-auto" />
     <h2 className="text-xl font-bold text-white">BikOU</h2>
   </div>
   <div className="flex items-center space-x-4">

@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { supabaseClient } from '@/config/supabaseClient';
+import { Toaster } from 'react-hot-toast';
+import Link from 'next/link';
 import './Dashboard.page.css';
 
 interface PendingRequest {
@@ -12,8 +14,7 @@ interface PendingRequest {
   created_at: string;
   description: string;
   image: string;
-  site_id: string;
-  selectedOption:string;
+  site_id?: string; // Changed to optional to handle undefined cases
 }
 
 type TableName = 'BlackList' | 'UserAdded';
@@ -25,7 +26,6 @@ interface Payload {
   email?: string;
   x_coord?: number;
   y_coord?: number;
-  selectedOption?:string;
 }
 
 const DashboardPage: React.FC = () => {
@@ -45,6 +45,17 @@ const DashboardPage: React.FC = () => {
     fetchPendingRequests();
   }, []);
 
+  useEffect(() => {
+    const titleElement = document.querySelector('.dashboardTitle') as HTMLElement;
+    if (titleElement) {
+      const numColumns = document.querySelectorAll('.table th').length;
+      const baseMargin = -700;
+      const increaseFactor = 18; // Increase this factor to see more noticeable changes
+      const titleMarginTop = baseMargin + increaseFactor * ((1.1 * numColumns) *20);//edit
+      titleElement.style.marginTop = `${titleMarginTop}px`;
+    }
+  }, [pendingRequests]);
+
   const handleImageClick = (imageSrc: string) => {
     setSelectedImage(imageSrc);
     setIsModalOpen(true);
@@ -63,7 +74,35 @@ const DashboardPage: React.FC = () => {
       console.error(`Error inserting into ${tableName}:`, error);
       return false;
     }
+    if (tableName === 'BlackList' && payload.location_id) {
+      await removeOldBlackListEntries(payload.location_id);
+    }
     return true;
+  };
+
+  const removeOldBlackListEntries = async (locationId: string) => {
+    const { data, error } = await supabaseClient
+      .from('BlackList')
+      .select('*')
+      .eq('location_id', locationId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching BlackList entries:', error);
+      return;
+    }
+
+    if (data && data.length > 1) {
+      const idsToDelete = data.map(item => item.id).slice(1);
+      const { error: deleteError } = await supabaseClient
+        .from('BlackList')
+        .delete()
+        .in('id', idsToDelete);
+
+      if (deleteError) {
+        console.error('Error deleting old BlackList entries:', deleteError);
+      }
+    }
   };
 
   const handleDeleteFromTable = async (tableName: string, requestId: number) => {
@@ -81,31 +120,34 @@ const DashboardPage: React.FC = () => {
       console.error('Request not found');
       return;
     }
-
-    try {
-      if (request.request_type.toLowerCase() === 'add_request') {
-        await handleInsert('UserAdded', {
-          id: request.id,
-          email: request.email,
-          x_coord: request.x_coord,
-          y_coord: request.y_coord,
-          created_at: request.created_at,
-          selectedOption:request.selectedOption,
-        });
-      } else if (request.request_type.toLowerCase() === 'delete') {
+  
+    if (request.request_type.toLowerCase() === 'add_request') {
+      await handleInsert('UserAdded', {
+        id: request.id,
+        email: request.email,
+        x_coord: request.x_coord,
+        y_coord: request.y_coord,
+        created_at: request.created_at,
+      });
+    } else if (request.request_type.toLowerCase() === 'delete') {
+      if (!request.site_id) {
+        // If no site_id is provided, delete the entry from UserAdded using x_coord and y_coord
+        const { error: deleteError } = await supabaseClient.from('UserAdded').delete()
+          .match({ x_coord: request.x_coord, y_coord: request.y_coord });
+        if (deleteError) {
+          console.error('Error deleting from UserAdded:', deleteError);
+        }
+      } else {
         await handleInsert('BlackList', {
           id: request.id,
-          created_at: new Date().toISOString(), // Assuming you want to set the current timestamp
-          location_id: request.site_id, // Replace with the appropriate value if available
-          // Include other fields as necessary
+          created_at: new Date().toISOString(),
+          location_id: request.site_id,
         });
       }
-
-      await handleDeleteFromTable('Pending', requestId);
-      setPendingRequests(prev => prev.filter(req => req.id !== requestId));
-    } catch (error) {
-      console.error('Error pushing to UserAdded or BlackList:', error);
     }
+  
+    await handleDeleteFromTable('Pending', requestId);
+    setPendingRequests(prev => prev.filter(req => req.id !== requestId));
   };
 
   const handleDeleteFromPending = async (requestId: number) => {
@@ -114,54 +156,71 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
+    <>
+      <Toaster position="top-right" />
+      <div className="fixed-header">
+        <div className="flex items-center space-x-2">
+          <img src="/bike_parking_logo.webp" alt="BikOU Logo" className="h-8 w-auto" />
+          <h2 className="text-xl font-bold text-white">BikOU</h2>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Link href="/about-us">
+            <button className="py-2 px-4 rounded-md text-white bg-green-500 hover:bg-green-700 font-semibold">About Us</button>
+          </Link>
+          <Link href="/login">
+            <button className="py-2 px-4 rounded-md text-white bg-blue-500 hover:bg-blue-700 font-semibold">Login</button>
+          </Link>
+        </div>
+      </div>
+
     <div className="dashboardContainer">
       <h1 className="dashboardTitle">Pending Requests Dashboard</h1>
-      <table className="table">
-        <thead>
-          <tr>
-            <th className="th imageCell">Image</th>
-            <th className="th">ID</th>
-            <th className="th">Email</th>
-            <th className="th">X Coord</th>
-            <th className="th">Y Coord</th>
-            <th className="th">Request Type</th>
-            <th className="th">Created At</th>
-            <th className="th">Description</th>
-            <th className="th">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {pendingRequests.map((request) => (
-            <tr key={request.id}>
-              <td className="td imageCell" onClick={() => handleImageClick(request.image)}>
-                <img src={request.image} alt="Request" className="image" />
-              </td>
-              <td className="td">{request.id}</td>
-              <td className="td">{request.email}</td>
-              <td className="td">{request.x_coord}</td>
-              <td className="td">{request.y_coord}</td>
-              <td className="td">{request.request_type}</td>
-              <td className="td">{request.created_at || 'null'}</td>
-              <td className="td">{request.description}</td>
-              {/* <td className="td">{request.selectedOption || 'null'}</td> */}
-              <td className="td">
-                <button className="button greenButton" onClick={() => handlePushToUserAddedOrBlackList(request.id)}>✔</button>
-                <button className="button redButton" onClick={() => handleDeleteFromPending(request.id)}>X</button>
-              </td>
+        <table className="table">
+          <thead>
+            <tr>
+              <th className="th imageCell">Image</th>
+              <th className="th">ID</th>
+              <th className="th">Email</th>
+              <th className="th">X Coord</th>
+              <th className="th">Y Coord</th>
+              <th className="th">Request Type</th>
+              <th className="th">Created At</th>
+              <th className="th">Description</th>
+              <th className="th">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {pendingRequests.map((request) => (
+              <tr key={request.id}>
+                <td className="td imageCell" onClick={() => handleImageClick(request.image)}>
+                  <img src={request.image} alt="Request" className="image" />
+                </td>
+                <td className="td">{request.id}</td>
+                <td className="td">{request.email}</td>
+                <td className="td">{request.x_coord}</td>
+                <td className="td">{request.y_coord}</td>
+                <td className="td">{request.request_type}</td>
+                <td className="td">{request.created_at || 'null'}</td>
+                <td className="td">{request.description}</td>
+                <td className="td">
+                  <button className="button greenButton" onClick={() => handlePushToUserAddedOrBlackList(request.id)}>✔</button>
+                  <button className="button redButton" onClick={() => handleDeleteFromPending(request.id)}>X</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      {isModalOpen && (
-        <div className="overlay" onClick={closeModal}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <img src={selectedImage || ''} alt="Enlarged request" className="enlargedImage" />
-            <button onClick={closeModal}>Close</button>
+        {isModalOpen && (
+          <div className="overlay" onClick={closeModal}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <img src={selectedImage || ''} alt="Enlarged request" />
+              <button onClick={closeModal}>Close</button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 };
 

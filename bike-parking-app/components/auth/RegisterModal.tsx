@@ -140,13 +140,16 @@ const RegisterModal = () => {
       <Toaster position="top-right" />
       <div className={`fixed inset-0 z-0 ${styles.backgroundImageFade}`}></div>
       <div className="fixed inset-x-0 top-0 z-10 flex justify-between items-center p-6 bg-transparent">
-        <h2 className="text-xl font-bold text-white">BikOU</h2>
-        <div className="flex items-center space-x-4">
-        <Link href="/about-us">
-            <button className="py-2 px-4 rounded-md text-white bg-green-500 hover:bg-green-700 font-semibold">
-              About Us
-            </button>
-          </Link>
+  <div className="flex items-center space-x-2">
+    <img src="bike_parking_logo.webp" alt="BikOU Logo" className="h-8 w-auto" />
+    <h2 className="text-xl font-bold text-white">BikOU</h2>
+  </div>
+  <div className="flex items-center space-x-4">
+    <Link href="/about-us">
+      <button className="py-2 px-4 rounded-md text-white bg-green-500 hover:bg-green-700 font-semibold">
+        About Us
+      </button>
+    </Link>
           <Link href="/login">
             <button className="py-2 px-4 rounded-md text-white bg-blue-500 hover:bg-blue-700 font-semibold">
               Login
