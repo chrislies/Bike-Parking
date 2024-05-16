@@ -1,38 +1,57 @@
-// Leaflet routing machine is used for navigational direction
 import L from "leaflet";
 import { createControlComponent } from "@react-leaflet/core";
-import { Geocoder, geocoders } from "leaflet-control-geocoder";
 import "leaflet-routing-machine";
-import { queryIcon } from "./Icons";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+import { queryIcon, transparentIcon } from "./Icons";
+import toast from "react-hot-toast";
+import { useState } from "react";
 
-const createRoutingMachineLayer = (props) => {
-  const instance = L.Routing.control({
-    waypoints: [
-      L.latLng(33.52001088075479, 36.26829385757446),
-      L.latLng(33.50546582848033, 36.29547681726967),
-    ],
-    lineOptions: {
-      styles: [{ color: "#6FA1EC", weight: 4 }],
-    },
-    show: false,
-    addWaypoints: false,
-    routeWhileDragging: true,
-    draggableWaypoints: true,
-    fitSelectedRoutes: true,
-    showAlternatives: false,
-    // geocoder: L.Control.Geocoder.nominatim()
-    createMarker: function (i, waypoint, n) {
-      let icon = queryIcon;
-      return L.marker(waypoint.latLng, {
-        draggable: true,
-        icon: icon,
-      });
-    },
-  });
+const createRoutineMachineLayer = ({ position, end }) => {
+  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
 
-  return instance;
+  if (navigator.geolocation) {
+    setIsCalculatingRoute(true); // Disable the 'Directions' button
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        const instance = L.Routing.control({
+          position: position,
+          collapsible: true,
+          waypoints: [L.latLng(latitude, longitude), end],
+          router: L.Routing.osrmv1({
+            serviceUrl: "https://routing.openstreetmap.de/routed-bike/route/v1",
+            profile: "bike",
+          }),
+          lineOptions: {
+            styles: [{ color: "#757de8", weight: 4 }],
+          },
+          addWaypoints: false,
+          routeWhileDragging: true,
+          draggableWaypoints: true,
+          createMarker: function (i, waypoint, n) {
+            let icon = i === 0 ? transparentIcon : queryIcon;
+            return L.marker(waypoint.latLng, {
+              draggable: i === 1,
+              icon: icon,
+            });
+          },
+        });
+
+        return instance;
+      },
+      (error) => {
+        console.error("Error getting user location:", error);
+        toast.error("Error getting user location.");
+        setIsCalculatingRoute(false);
+      }
+    );
+  } else {
+    toast.error("Geolocation is not supported by this browser.");
+    setIsCalculatingRoute(false);
+  }
 };
 
-const RoutingMachine = createControlComponent(createRoutingMachineLayer);
+const RoutingMachine = createControlComponent(createRoutineMachineLayer);
 
 export default RoutingMachine;
