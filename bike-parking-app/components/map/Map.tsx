@@ -3,8 +3,6 @@ import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
 import MarkerLayer from "./layers/MarkerLayer";
 import "leaflet-rotate";
 import ControlGeocoder from "../LeafletControlGeocoder";
-// import BikeRackLayer from "./layers/BikeRackLayer";
-import StreetSignLayer from "./layers/StreetSignLayer";
 import Navbar from "../navbar/Navbar";
 import UserLocationMarker from "./UserLocationMarker";
 import PixiLayer from "./layers/PixiLayer";
@@ -45,8 +43,6 @@ const RootMap = () => {
           <MarkerLayer />
           {/* <PixiLayer /> */}
         </LayersControl>
-        {/* <StreetSignLayer /> */}
-        {/* <BikeRackLayer /> */}
         <UserLocationMarker />
         <ControlGeocoder />
         <Navbar />

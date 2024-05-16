@@ -30,7 +30,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "components/LeafletControlGeocoder.tsx",
-    "components/LeafletRoutingMachine.tsx",
+    "components/LeafletRoutingMachine.jsx",
     "components/map/layers/MarkerLayer.tsx",
     "components/map/layers/PixiLayer.jsx",
     "components/map/layers/RouteLayer.tsx"
