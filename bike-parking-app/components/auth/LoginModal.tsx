@@ -76,28 +76,21 @@ const LoginModal = () => {
 
   return (
     <>
-      <Toaster position="top-right" />
-      <div className={`fixed inset-0 z-0 ${styles.backgroundImageFade}`}></div>
-      <div className="fixed inset-x-0 top-0 z-10 flex justify-between items-center p-6 bg-transparent">
-  <div className="flex items-center space-x-2">
-    <img src="ezgif-4-746767027f.jpg" alt="BikOU Logo" className="h-8 w-auto" />
-    <h2 className="text-xl font-bold text-white">BikOU</h2>
-  </div>
-  <div className="flex items-center space-x-4">
-    <Link href="/about-us">
-      <button className="py-2 px-4 rounded-md text-white bg-green-500 hover:bg-green-700 font-semibold">
-        About Us
-      </button>
-    </Link>
-    <Link href="/login">
-      <button className="py-2 px-4 rounded-md text-white bg-blue-500 hover:bg-blue-700 font-semibold">
-        Login
-      </button>
-    </Link>
-  </div>
-</div>
+        <Toaster position="top-right" />
+        <div className={`fixed inset-0 z-0 ${styles.backgroundImageFade}`}></div>
+        <div className="fixed inset-x-0 top-0 z-10 flex justify-between items-center p-6 bg-transparent">
+            <h2 className="text-xl font-bold text-white">BikOU</h2>
+            <Link href="/login">
+                <button className="py-2 px-4 rounded-md text-white bg-blue-500 hover:bg-blue-700 font-semibold">
+                    Login
+                </button>
+        </Link>
+      </div>
       <div className="w-full max-w-sm z-20 mx-auto pt-20">
-        <form className="bg-white shadow-md rounded px-8 py-6" onSubmit={form.handleSubmit(onSubmit)}>
+        <form
+          className="bg-white shadow-md rounded px-8 py-6"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
           <h1 className="text-center text-2xl pb-3 font-bold">Log In</h1>
           <div className="mb-4">
             <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-1">

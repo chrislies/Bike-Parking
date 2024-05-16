@@ -1,25 +1,19 @@
 .dashboardContainer {
-  text-align: center;
-  overflow-y: auto;
-  min-height: 100vh;
-  padding-bottom: 50px;
-  margin-bottom: -1200px;
-}
+    text-align: center;
+  }
   
-.dashboardTitle {
-  font-size: 24px;
-  font-weight: bold;
-  margin-top: 50px; /* Adjust this value as needed to lower the title */
-  margin-bottom: 0px;
-  color: #333;
-}
+  .dashboardTitle {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #333;
+  }
   
   .table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    margin-bottom: 50px; /* Space below the table */
-}
+  }
   
   .th, .td {
     padding: 8px;
@@ -76,7 +70,3 @@
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 999;
   }
-  
-  .modal, .overlay {
-    position: fixed;
-}
