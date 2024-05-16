@@ -3,6 +3,7 @@ import * as L from "leaflet";
 declare module "leaflet" {
   namespace Routing {
     function control(options: ControlOptions): Control;
+    function osrmv1(options: OSRMOptions): OSRM;
 
     interface ControlOptions {
       waypoints?: L.LatLng[];
@@ -14,6 +15,9 @@ declare module "leaflet" {
       fitSelectedRoutes?: boolean;
       showAlternatives?: boolean;
       createMarker?: (i: number, waypoint: Waypoint, n: number) => L.Marker;
+      router?: OSRM;
+      position?: string;
+      collapsible?: boolean;
     }
 
     interface Control extends L.Control {
@@ -30,6 +34,19 @@ declare module "leaflet" {
       latLng: L.LatLng;
       name?: string;
       options?: { [key: string]: any };
+    }
+
+    interface OSRMOptions {
+      serviceUrl?: string;
+      profile?: string;
+      timeout?: number;
+    }
+
+    interface OSRM {
+      route(
+        waypoints: Waypoint[],
+        callback: (err: any, routes: any) => void
+      ): void;
     }
   }
 
