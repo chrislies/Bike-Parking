@@ -1,43 +1,30 @@
 "use client";
 
 import getCoordinates from "@/lib/getCoordinates";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { LayerGroup, LayersControl, Marker, useMapEvent } from "react-leaflet";
+import { useEffect, useState } from "react";
+import { LayerGroup, LayersControl, useMapEvents } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import Loader from "@/components/Loader";
-import { rackIcon } from "@/components/Icons";
-import MyMarker from "../MyMarker";
-import toast, { Toaster } from "react-hot-toast";
-import queryString from "query-string";
-import { debounce } from "@/hooks/useDebounce";
+import { queryIcon, transparentIcon } from "@/components/Icons";
+import toast from "react-hot-toast";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
-import axios from "axios";
-import { useParams } from "next/navigation";
-import NewMarker from "../NewMarker";
-import { LatLngBounds } from "leaflet";
+import MyMarker from "../MyMarker";
+import L from "leaflet";
+import "leaflet-routing-machine";
 
 const MarkerLayer = () => {
   const [markers, setMarkers] = useState<MarkerData[] | null>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [favoriteMarkers, setFavoriteMarkers] = useState<string[]>([]);
+  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
+  const [routingControl, setRoutingControl] =
+    useState<L.Routing.Control | null>(null);
 
   const supabase = createSupabaseBrowserClient();
   const session = useSession();
   const username = session?.user.user_metadata.username;
   const uuid = session?.user.id;
-
-  const params = useParams();
-
-  const sampleMapBounds = new LatLngBounds(
-    [40.75440932883489, -73.88889312744142], // SouthWest
-    [40.7958778790764, -73.72409820556642] // NorthEast
-  );
-
-  // const map = useMapEvent("moveend", () => {
-  //   const mapBounds = map.getBounds();
-  //   console.log(mapBounds);
-  // });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -79,6 +66,68 @@ const MarkerLayer = () => {
     }
   }, [uuid]);
 
+  const map = useMapEvents({});
+
+  const handleGetDirections = (marker: MarkerData) => {
+    if (navigator.geolocation) {
+      setIsCalculatingRoute(true); // Disable the 'Directions' button
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+
+          if (routingControl) {
+            routingControl.getPlan().setWaypoints([]);
+            map.removeControl(routingControl);
+          }
+
+          const newRoutingControl: any = L.Routing.control({
+            waypoints: [
+              L.latLng(latitude, longitude),
+              L.latLng(marker.y!, marker.x!),
+            ],
+            router: L.Routing.osrmv1({
+              serviceUrl:
+                "https://routing.openstreetmap.de/routed-bike/route/v1",
+              profile: "bike",
+            }),
+            lineOptions: {
+              styles: [{ color: "#757de8", weight: 4 }],
+            },
+            collapsible: true,
+            addWaypoints: false,
+            routeWhileDragging: true,
+            draggableWaypoints: true,
+            createMarker: function (i, waypoint, n) {
+              let icon = i === 0 ? transparentIcon : queryIcon;
+              return L.marker(waypoint.latLng, {
+                draggable: i === 1,
+                icon: icon,
+              });
+            },
+          }).addTo(map);
+
+          newRoutingControl.on("routesfound", (e: any) => {
+            setIsCalculatingRoute(false);
+          });
+
+          newRoutingControl.on("routingerror", (e: any) => {
+            setIsCalculatingRoute(false);
+            toast.error("Error calculating route.");
+          });
+
+          setRoutingControl(newRoutingControl);
+        },
+        (error) => {
+          toast.error(`Error getting current location: ${error.message}`);
+          setIsCalculatingRoute(false);
+        }
+      );
+    } else {
+      toast.error("Geolocation is not supported by this browser.");
+      setIsCalculatingRoute(false);
+    }
+  };
+
   return (
     <>
       {loading && <Loader />}
@@ -92,7 +141,7 @@ const MarkerLayer = () => {
                 removeOutsideVisibleBounds={true}
               >
                 {markers?.map((marker, index) => (
-                  <NewMarker
+                  <MyMarker
                     key={index}
                     marker={marker}
                     favoriteLocations={favoriteMarkers}
@@ -100,6 +149,8 @@ const MarkerLayer = () => {
                     session={session}
                     username={username}
                     uuid={uuid}
+                    handleGetDirections={handleGetDirections}
+                    isCalculatingRoute={isCalculatingRoute}
                   />
                 ))}
               </MarkerClusterGroup>

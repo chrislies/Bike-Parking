@@ -1,25 +1,46 @@
 import { getImageSource } from "@/lib/getImageSource";
 import Image from "next/image";
-import { FC, useCallback, useRef } from "react";
+import L from "leaflet";
+import React, { FC, useCallback, useRef, useState } from "react";
 import { Marker, Popup, useMapEvents } from "react-leaflet";
 import { Bookmark, Directions, NoImage } from "../svgs";
 import { formatDate } from "@/lib/formatDate";
 import { favoriteIcon, queryIcon, rackIcon, signIcon } from "../Icons";
+import toast from "react-hot-toast";
+import { useParams } from "next/navigation";
+import queryString from "query-string";
+import axios from "axios";
+import "leaflet-routing-machine";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 
 interface MyMarkerProps {
   marker: MarkerData;
-  isFavoriteMarker: (marker: MarkerData) => boolean;
-  handleSaveFavorite: (marker: MarkerData) => void;
+  favoriteLocations: string[];
+  supabase: any;
+  session: any;
+  username: any;
+  uuid: any;
+  handleGetDirections: (marker: MarkerData) => void;
+  isCalculatingRoute: boolean;
 }
 
 const MyMarker: FC<MyMarkerProps> = ({
   marker,
-  isFavoriteMarker,
-  handleSaveFavorite,
+  favoriteLocations,
+  supabase,
+  session,
+  username,
+  uuid,
+  handleGetDirections,
+  isCalculatingRoute,
 }) => {
-  const imageSize = 700;
-  console.log(`rendering marker`);
+  const params = useParams();
 
+  console.log(`rendering marker`);
+  const imageSize = 700;
+  const [isBookmarked, setIsBookmarked] = useState(
+    favoriteLocations.includes(marker.id!)
+  );
   const map = useMapEvents({});
   const markerRef = useRef<any>(null);
 
@@ -31,32 +52,69 @@ const MyMarker: FC<MyMarkerProps> = ({
     });
   }, [map]);
 
-  const handleColorChange = useCallback(() => {
-    // Change marker icon to queryIcon
-    if (markerRef.current) {
-      markerRef.current.setIcon(queryIcon);
+  const handleSaveLocation = useCallback(async () => {
+    if (!uuid) {
+      toast.error("Sign in to save locations!", {
+        id: "signInToSaveLocationsError",
+      });
+      return;
     }
-  }, []);
+    // fetch list of user favorites from supabase
+    try {
+      const { data: savedSpots, error } = await supabase
+        .from("Favorites")
+        .select("location_id")
+        .eq("user_id", uuid);
+      if (error) {
+        toast.error(`Error saving spot: ${error}`);
+      }
+      const savedSpotIds = savedSpots.map((spot: any) => spot.location_id);
+      const isAlreadySaved = savedSpotIds.includes(marker.id!);
 
-  const memoizedHandleSaveFavorite = useCallback(
-    () => {
-      handleSaveFavorite(marker);
-    },
-    [handleSaveFavorite, marker] // Add handleSaveFavorite and marker to the dependency array
-  );
+      // Check if the marker is already saved
+      if (!isAlreadySaved) {
+        // if not, add it to the list of saved locations
+        const values = {
+          uuid,
+          username,
+          location_id: marker.id,
+          location_address: marker.address,
+          x_coord: marker.x,
+          y_coord: marker.y,
+        };
+        const url = queryString.stringifyUrl({
+          url: "api/favorite",
+          query: {
+            id: params?.id,
+          },
+        });
+        await axios.post(url, values);
+      } else {
+        // Remove the marker from the list of saved locations
+        const { data, error } = await supabase
+          .from("Favorites")
+          .delete()
+          .eq("user_id", uuid)
+          .eq("location_id", marker.id);
+        if (error) {
+          toast.error(`Error removing spot from favortes: ${error}`);
+        }
+      }
+      setIsBookmarked(!isAlreadySaved);
+    } catch (error) {
+      toast.error(`Something went wrong: ${error}`);
+    }
+  }, [markerRef, queryIcon, isBookmarked]);
 
   return (
     <Marker
       key={marker.id}
       ref={markerRef}
       // prettier-ignore
-      icon={isFavoriteMarker(marker) ? favoriteIcon : marker.type === "rack" ? rackIcon : signIcon}
+      icon={isBookmarked ? favoriteIcon : marker.type === "rack" ? rackIcon : signIcon}
       position={[marker.y!, marker.x!]}
       eventHandlers={{
-        click: () => {
-          handleFlyTo();
-          handleColorChange();
-        },
+        click: handleFlyTo,
       }}
     >
       <Popup minWidth={170}>
@@ -100,32 +158,33 @@ const MyMarker: FC<MyMarkerProps> = ({
           </p>
           <div className="flex flex-col gap-2 mt-1 mb-3">
             <button
-              onClick={memoizedHandleSaveFavorite}
+              onClick={handleSaveLocation}
               title="Save Location"
               aria-label="Save Location"
               aria-disabled="false"
               className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-slate-300 bg-slate-200 hover:bg-slate-300"
             >
               <Bookmark
-                className={`h-7 w-7 hover:cursor-pointer ${
-                  isFavoriteMarker(marker)
-                    ? "fill-yellow-300"
-                    : "fill-transparent"
+                className={`h-7 w-7 hover:cursor-pointer fill-transparent ${
+                  isBookmarked ? "fill-yellow-300" : "fill-transparent"
                 }`}
               />
               Save
             </button>
             <button
-              onClick={() => {}}
+              onClick={() => {
+                handleGetDirections(marker);
+              }}
               title="Directions"
               aria-label="Directions"
-              aria-disabled="false"
-              className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
+              aria-disabled={isCalculatingRoute}
+              disabled={isCalculatingRoute}
+              className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600 disabled:cursor-not-allowed"
             >
               <Directions
                 className={`h-7 w-7 hover:cursor-pointer items-end`}
               />
-              Directions
+              {isCalculatingRoute ? "Calculating..." : "Directions"}
             </button>
 
             {/* Delete Button */}

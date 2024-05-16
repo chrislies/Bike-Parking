@@ -8,7 +8,6 @@ import StreetSignLayer from "./layers/StreetSignLayer";
 import Navbar from "../navbar/Navbar";
 import UserLocationMarker from "./UserLocationMarker";
 import PixiLayer from "./layers/PixiLayer";
-import RoutingMachine from "../LeafletRoutingMachine";
 
 const { BaseLayer } = LayersControl;
 
@@ -50,7 +49,6 @@ const RootMap = () => {
         {/* <BikeRackLayer /> */}
         <UserLocationMarker />
         <ControlGeocoder />
-        {/* <RoutingMachine /> */}
         <Navbar />
       </MapContainer>
     </>
