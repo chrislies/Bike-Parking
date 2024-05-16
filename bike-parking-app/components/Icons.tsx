@@ -18,6 +18,7 @@ import {
   SearchPin,
   TempMarker,
   SignMarker,
+  TransparentMarker,
 } from "./svgs";
 
 const rackIcon = L.divIcon({
@@ -65,6 +66,13 @@ const tempIcon = L.divIcon({
   popupAnchor: [0, -45],
 });
 
+const transparentIcon = L.divIcon({
+  className: "transparent-icon",
+  html: ReactDOMServer.renderToString(<TransparentMarker />),
+  iconAnchor: [22.5, 45],
+  popupAnchor: [0, -45],
+});
+
 const createClusterCustomIcon = function (cluster: MarkerCluster) {
   return L.divIcon({
     html: `<span class="cluster-icon">${cluster.getChildCount()}</span>`,
@@ -80,5 +88,6 @@ export {
   userIcon,
   queryIcon,
   tempIcon,
+  transparentIcon,
   createClusterCustomIcon,
 };
