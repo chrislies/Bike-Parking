@@ -91,7 +91,7 @@ const MarkerLayer = () => {
               profile: "bike",
             }),
             lineOptions: {
-              styles: [{ color: "#757de8", weight: 4 }],
+              styles: [{ color: "#0f53ff", weight: 4 }],
             },
             collapsible: true,
             addWaypoints: false,
