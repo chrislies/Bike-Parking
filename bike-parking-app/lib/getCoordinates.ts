@@ -1,6 +1,9 @@
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
+
 async function getCoordinates(): Promise<MarkerData[] | null> {
   try {
     console.log("Fetching data from API");
+    const supabase = createSupabaseBrowserClient();
     const startTotal = window.performance.now();
     const startRack = window.performance.now();
     let allData: any[] = [];
@@ -81,13 +84,28 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
       type: item.rack_type ? "rack" : "sign",
     }));
 
+    // fetch data from the 'BlackList' table from Supabase
+    // prettier-ignore
+    const { data: blackListData, error } = await supabase.from("BlackList").select("*");
+    if (error) {
+      throw error;
+    }
+
+    // extract ids from BlackList data for comparison
+    // prettier-ignore
+    const blackListIds = blackListData.map((blackListItem: { location_id: string }) => blackListItem.location_id);
+
+    // filter 'info' to exclude the data present in 'BlackList'
+    // prettier-ignore
+    const filteredInfo = info.filter((item) => !blackListIds.includes(item.id!));
+
     const endTotal = window.performance.now();
     console.log(`
       Total time: ${(endTotal - startTotal) / 1000}
       Rack time: ${(startSign - startRack) / 1000}
       Sign time: ${(endSign - startSign) / 1000}
     `);
-    return info.length > 0 ? info : null;
+    return filteredInfo.length > 0 ? filteredInfo : null;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to fetch data");
