@@ -16,9 +16,8 @@ export async function middleware(request: NextRequest) {
 
   const user = session?.user;
 
-  // If user is signed in and the current path is '/', 'login', or 'register' redirect the user to '/map'
+  // If user is signed in and the current path is 'login', or 'register' redirect the user to '/map'
   if (
-    (user && request.nextUrl.pathname === "/") ||
     (user && request.nextUrl.pathname === "/login") ||
     (user && request.nextUrl.pathname === "/register")
   ) {
@@ -72,6 +71,7 @@ export const config = {
     "/map",
     "/favorites",
     "/account",
+    "/login",
     "/register",
     "/reset-password",
   ],
