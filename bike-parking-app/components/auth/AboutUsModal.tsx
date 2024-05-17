@@ -9,7 +9,10 @@ const AboutUs: React.FC = () => {
       <Toaster position="top-right" />
       {/* Header section with navigation */}
       <header className="fixed inset-x-0 top-0 z-10 flex justify-between items-center p-6 bg-transparent">
-        <h2 className="text-xl font-bold text-white">BikOU</h2>
+      <div className="flex items-center space-x-2">
+    <img src="bike_parking_logo.webp" alt="BikOU Logo" className="h-8 w-auto" />
+    <h2 className="text-xl font-bold text-white">BikOU</h2>
+    </div>
         <div className="flex items-center space-x-4">
           <Link href="/about-us">
             <button className="py-2 px-4 rounded-md text-white bg-green-500 hover:bg-green-700 font-semibold">
