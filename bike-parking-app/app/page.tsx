@@ -8,13 +8,13 @@ export default async function Home() {
       <Navbar />
       <div className="relative overflow-hidden min-h-fit">
         <div className="flex flex-col items-center font-sans max-w-5xl mx-auto pt-4 sm:pt-6 lg:pt-8 max-md:h-[130vh]">
-          <h1 className="text-slate-900 font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center dark:text-white">
+          <h1 className="text-slate-900 font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center">
             {`Welcome to `}
             <span className="bg-clip-text text-transparent bg-gradient-to-b max-sm:bg-gradient-to-t from-green-400 to-green-600">
               Bike Parking
             </span>
           </h1>
-          <p className="mt-6 text-lg text-slate-600 text-center max-w-xl max-sm:mx-10 mx-auto dark:text-slate-400">
+          <p className="mt-6 text-lg text-slate-600 text-center max-w-xl max-sm:mx-10 mx-auto">
             A community-driven interactive map that locates accessible parking
             spots such as <span className="font-bold">bike racks</span> and{" "}
             <span className="font-bold">street signs</span> for bikes and

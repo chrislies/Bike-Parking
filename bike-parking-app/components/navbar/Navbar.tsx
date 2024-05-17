@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navlink from "./Navlink";
 
 export const NAV_LINKS = [
+  { href: "/", key: "home", label: "Home" },
   { href: "/about", key: "about", label: "About" },
   { href: "/login", key: "login", label: "Log in" },
   { href: "/map", key: "map", label: "Map" },
