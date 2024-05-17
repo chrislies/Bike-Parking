@@ -1,101 +1,121 @@
 "use client";
-
-import { Add, Map, NavbarBookmark, User } from "../svgs";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { memo, useEffect, useState } from "react";
-import SavedModal from "../modals/SavedModal";
-import { useRouter } from "next/navigation";
-import ProfileModal from "../modals/ProfileModal";
+import Navlink from "./Navlink";
+
+export const NAV_LINKS = [
+  { href: "/about", key: "about", label: "About" },
+  { href: "/login", key: "login", label: "Log in" },
+  { href: "/map", key: "map", label: "Map" },
+];
 
 const Navbar = () => {
-  const router = useRouter();
-  const [svgSize, setSvgSize] = useState(6);
-  const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
 
   useEffect(() => {
-    const updateSvgSize = () => {
-      setSvgSize(window.screen.width <= 640 ? 5 : 6);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isMenuOpen) {
+        closeMenu();
+      }
     };
-    updateSvgSize(); // call the function once when component mounts
-
-    // add event listener for resize
-    window.addEventListener("resize", updateSvgSize);
-
-    // cleanup
-    return () => window.removeEventListener("resize", updateSvgSize);
-  }, []);
-
-  const openSavedModal = () => {
-    setIsSavedModalOpen(true);
-  };
-  const closeSavedModal = () => {
-    setIsSavedModalOpen(false);
-  };
-  const openProfileModal = () => {
-    setIsProfileModalOpen(true);
-  };
-  const closeProfileModal = () => {
-    setIsProfileModalOpen(false);
-  };
-
-  const NAV_LINKS = [
-    {
-      key: "map",
-      label: "Map",
-      svg: <Map className={`h-${svgSize} w-${svgSize}`} />,
-    },
-    {
-      key: "saved",
-      label: "Saved",
-      svg: <NavbarBookmark className={`h-${svgSize} w-${svgSize}`} />,
-      handleClick: openSavedModal,
-    },
-    {
-      key: "contribute",
-      label: "Contribute",
-      svg: <Add className={`h-${svgSize} w-${svgSize}`} />,
-    },
-    {
-      key: "profile",
-      label: "Profile",
-      svg: <User className={`h-${svgSize} w-${svgSize}`} />,
-      handleClick: openProfileModal,
-    },
-  ];
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   return (
-    <>
-      <SavedModal
-        isOpen={isSavedModalOpen}
-        onClose={closeSavedModal}
-      ></SavedModal>
-      <ProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={closeProfileModal}
-      ></ProfileModal>
-      <div className="absolute bottom-3 z-[800] max-w-fit mx-auto flex inset-x-0 justify-center select-none rounded-2xl">
-        <div className="grid grid-flow-col grid-cols-4 gap-1 sm:w-[400px] max-sm:w-[300px] bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.2)] shadow-md p-1">
-          {NAV_LINKS.map((navItem, index) => (
-            <div
-              key={index}
-              // href={navItem.href}
-              onClick={navItem.handleClick}
-              className="cursor-pointer flex flex-col items-center justify-center py-1 hover:shadow-inner hover:bg-gray-300 hover:rounded-xl"
-            >
-              <span>{navItem.svg}</span>
-              <p
-                className="leading-5 sm:text-sm max-sm:text-xs sm:tracking-wide max-sm:tracking-tight sm:font-bold max-sm:font-semibold"
-                key={navItem.key}
-              >
-                {navItem.label}
-              </p>
-            </div>
-          ))}
+    <div className="sticky top-0 z-50">
+      <div
+        id="navHeader"
+        className={`sticky top-0 z-40 bg-white ${
+          isMenuOpen ? "shadow-md" : "shadow-3xl"
+        } transition-all duration-[900ms]`}
+      >
+        <nav className="flex justify-between items-center h-[--header-height] max-container padding-container py-1 max-w-full">
+          <Link href="/">
+            <Image
+              src="/images/bike_parking_logo.png"
+              alt="logo"
+              width={70}
+              height={70}
+            />
+          </Link>
+          <ul className="hidden gap-16 lg:flex">
+            {NAV_LINKS.map((link) => (
+              <li key={link.key}>
+                <Navlink
+                  href={link.href}
+                  className={`text-base font-semibold text-grey-50 flex justify-center cursor-pointer border-y-2 border-transparent hover:border-b-green-600/60 transition-all duration-300 ease-in-out`}
+                  activeClasses="border-b-green-600/70"
+                  label={link.label}
+                />
+              </li>
+            ))}
+          </ul>
+          <div
+            id="menu-button"
+            onClick={toggleMenu}
+            className="lg:hidden cursor-pointer"
+          >
+            <span
+              className={`bar 
+              ${isMenuOpen ? "rotate-45 translate-y-[8px]" : ""} 
+              ease-in-out duration-300 transition-all`}
+            ></span>
+            <span
+              className={`bar 
+              ${isMenuOpen ? "opacity-0 bg-white" : ""} 
+              ease-in-out duration-50 transition-all`}
+            ></span>
+            <span
+              className={`bar 
+              ${isMenuOpen ? "rotate-[-45deg] translate-y-[-8px]" : ""} 
+                ease-in-out duration-300 transition-all`}
+            ></span>
+          </div>
+        </nav>
+      </div>
+
+      <div id="navMenu" className="lg:hidden z-30">
+        <div
+          className={`fixed z-30 w-full border-t-2d flex flex-col shadow-3xl 
+          ${isMenuOpen ? "top-[--header-height]" : "-top-[100%]"} 
+          transition-all duration-[400ms] ease-linear`}
+        >
+          <ul>
+            {NAV_LINKS.map((link) => (
+              <li key={link.key}>
+                <Link
+                  href={link.href}
+                  onClick={closeMenu}
+                  className={`${link.href === "/map" ? "" : "border-b-2"} 
+                  bg-white py-4 text-xl text-grey-50 flex justify-center cursor-pointer font-[500] tracking-tight hover:text-green-700 transition-all duration-100 ease-in-out active:text-green-600/70`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-    </>
+
+      <div
+        className={`lg:hidden absolute h-screen z-10 inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity duration-[350ms] ease-in-out ${
+          isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      />
+    </div>
   );
 };
 
-export default memo(Navbar);
+export default Navbar;
