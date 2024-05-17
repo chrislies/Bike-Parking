@@ -2,8 +2,8 @@
 import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
 import MarkerLayer from "./layers/MarkerLayer";
 import "leaflet-rotate";
-import ControlGeocoder from "../LeafletControlGeocoder";
-import Navbar from "../navbar/Navbar";
+import ControlGeocoder from "./LeafletControlGeocoder";
+import ToolBar from "../toolbar/Toolbar";
 import UserLocationMarker from "./UserLocationMarker";
 import PixiLayer from "./layers/PixiLayer";
 
@@ -20,6 +20,7 @@ const RootMap = () => {
         className="absolute h-svh w-full"
         rotate={true}
         touchRotate={true}
+        attributionControl={false}
         rotateControl={{
           closeOnZeroBearing: false,
         }}
@@ -43,9 +44,9 @@ const RootMap = () => {
           <MarkerLayer />
           {/* <PixiLayer /> */}
         </LayersControl>
-        <UserLocationMarker />
+        {/* <UserLocationMarker /> */}
         <ControlGeocoder />
-        <Navbar />
+        <ToolBar />
       </MapContainer>
     </>
   );
