@@ -23,7 +23,7 @@ const BusyComponent = ({ x, y }: BusyComponentProps) => {
         }
 
         const favoriteCount = count ?? 0;
-        setIsBusy(favoriteCount >= 1);
+        setIsBusy(favoriteCount >= 10);
     };
 
     useEffect(() => {
