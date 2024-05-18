@@ -2,8 +2,7 @@
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
-import Loader from "../Loader";
+import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { formatDate } from "@/lib/formatDate";
