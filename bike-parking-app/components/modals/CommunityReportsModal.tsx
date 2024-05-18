@@ -3,12 +3,9 @@ import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useCallback, useEffect, useState } from "react";
-import Loader from "../Loader";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { formatDate } from "@/lib/formatDate";
-import LoginModal from "../auth/LoginModal";
-import RegisterModal from "../auth/RegisterModal";
 import { Spinner } from "../svgs";
 
 interface Report {
@@ -242,11 +239,6 @@ const CommunityReportsModal: React.FC<ModalProps> = ({
                         <textarea
                           onChange={(event) => {
                             setReportDescription(event.target.value);
-                            // Clear the error when the user starts typing
-                            // setErrors((prevErrors) => ({
-                            //   ...prevErrors,
-                            //   reportDescriptionError: "",
-                            // }));
                           }}
                           value={reportDescription}
                           style={{
@@ -258,18 +250,12 @@ const CommunityReportsModal: React.FC<ModalProps> = ({
                           id="reportDescription"
                           maxLength={250}
                           placeholder="Enter your report here..."
-                          className={`${
-                            // errors.reportDescriptionError
-                            //   ? "border-red-500":
-                            "border-2 border-black/40 rounded px-1"
-                          }`}
+                          className={`${"border-2 border-black/40 rounded px-1"}`}
                         ></textarea>
                         <span
                           id="reportDescriptionError"
                           className="text-red-600"
-                        >
-                          {/* {errors.reportDescriptionError} */}
-                        </span>
+                        ></span>
                       </div>
 
                       <div className="flex justify-center my-1">
@@ -288,11 +274,6 @@ const CommunityReportsModal: React.FC<ModalProps> = ({
                       <textarea
                         onChange={(event) => {
                           setDeleteDescription(event.target.value);
-                          // Clear the error when the user starts typing
-                          // setErrors((prevErrors) => ({
-                          //   ...prevErrors,
-                          //   deleteDescription: "",
-                          // }));
                         }}
                         value={deleteDescription}
                         style={{
@@ -304,15 +285,12 @@ const CommunityReportsModal: React.FC<ModalProps> = ({
                         id="deleteDescription"
                         maxLength={250}
                         placeholder="Please explain why you want this spot removed..."
-                        className={`${
-                          // errors.deleteDescription
-                          //   ? "border-red-500":
-                          "border-2 border-black/40 rounded px-1"
-                        }`}
+                        className={`${"border-2 border-black/40 rounded px-1"}`}
                       ></textarea>
-                      <span id="deleteDescription" className="text-red-600">
-                        {/* {errors.deleteDescription} */}
-                      </span>
+                      <span
+                        id="deleteDescription"
+                        className="text-red-600"
+                      ></span>
                     </div>
 
                     <div className="flex justify-center my-1">
