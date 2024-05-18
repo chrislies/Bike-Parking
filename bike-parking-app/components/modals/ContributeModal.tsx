@@ -3,9 +3,6 @@ import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-import { formatDate } from "@/lib/formatDate";
 import LoginModal from "../auth/LoginModal";
 import RegisterModal from "../auth/RegisterModal";
 import YourReportsModal from "./YourReportsModal";
@@ -22,7 +19,6 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const username = session?.user.user_metadata.username;
   const uuid = session?.user.id;
   const createdAt = session?.user.created_at;
-  const router = useRouter();
 
   const [loginView, setLoginView] = useState(true);
   const [yourReportsModalView, setYourReportsModalView] = useState(false);

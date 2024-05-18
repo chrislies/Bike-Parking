@@ -3,7 +3,6 @@ import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { formatDate } from "@/lib/formatDate";
 import { Spinner } from "../svgs";
@@ -35,7 +34,6 @@ const CommunityReportsModal: React.FC<ModalProps> = ({
   const username = session?.user.user_metadata.username;
   const uuid = session?.user.id;
   const createdAt = session?.user.created_at;
-  const router = useRouter();
 
   const [reportView, setReportView] = useState(false);
   const [deleteView, setDeleteView] = useState(false);
