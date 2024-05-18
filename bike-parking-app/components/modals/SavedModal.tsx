@@ -4,7 +4,6 @@ import useSession from "@/utils/supabase/use-session";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { BsTrash3Fill } from "react-icons/bs";
-import Link from "next/link";
 import { useMapEvents } from "react-leaflet";
 import toast from "react-hot-toast";
 import { Spinner } from "../svgs";
