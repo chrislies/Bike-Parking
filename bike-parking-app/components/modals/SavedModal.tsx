@@ -158,7 +158,7 @@ const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                     </div>
                   )}
                 </Dialog.Title>
-                <div className="mt-2">
+                <div className="mt-2 min-h-[15vh]">
                   {
                     <>
                       {!uuid ? (
