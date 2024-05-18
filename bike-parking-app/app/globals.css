@@ -33,6 +33,15 @@
   font-size: 16px;
 }
 
+.leaflet-routing-container,
+.leaflet-routing-error {
+  @apply max-md:!bg-white/60 max-md:!max-w-[85vw];
+}
+
+.leaflet-routing-alternatives-container {
+  @apply max-md:!max-h-[50vh] max-md:!overflow-auto;
+}
+
 .leaflet-routing-container-hide .leaflet-routing-collapse-btn {
   @apply hover:cursor-pointer;
   left: -14px !important;
