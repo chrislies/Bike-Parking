@@ -3,12 +3,10 @@
 import { Add, NavbarBookmark, User } from "../svgs";
 import { memo, useEffect, useState } from "react";
 import SavedModal from "../modals/SavedModal";
-import { useRouter } from "next/navigation";
 import ProfileModal from "../modals/ProfileModal";
 import ContributeModal from "../modals/ContributeModal";
 
 const ToolBar = () => {
-  const router = useRouter();
   const [svgSize, setSvgSize] = useState(6);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
   const [isContributeModalOpen, setIsContributeModalOpen] = useState(false);
