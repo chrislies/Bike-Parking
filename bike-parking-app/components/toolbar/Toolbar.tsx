@@ -1,16 +1,17 @@
 "use client";
 
-import { Add, Map, NavbarBookmark, User } from "../svgs";
-import Link from "next/link";
+import { Add, NavbarBookmark, User } from "../svgs";
 import { memo, useEffect, useState } from "react";
 import SavedModal from "../modals/SavedModal";
 import { useRouter } from "next/navigation";
 import ProfileModal from "../modals/ProfileModal";
+import ContributeModal from "../modals/ContributeModal";
 
 const ToolBar = () => {
   const router = useRouter();
   const [svgSize, setSvgSize] = useState(6);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
+  const [isContributeModalOpen, setIsContributeModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   useEffect(() => {
@@ -32,6 +33,12 @@ const ToolBar = () => {
   const closeSavedModal = () => {
     setIsSavedModalOpen(false);
   };
+  const openContributeModal = () => {
+    setIsContributeModalOpen(true);
+  };
+  const closeContributeModal = () => {
+    setIsContributeModalOpen(false);
+  };
   const openProfileModal = () => {
     setIsProfileModalOpen(true);
   };
@@ -50,6 +57,7 @@ const ToolBar = () => {
       key: "contribute",
       label: "Contribute",
       svg: <Add className={`h-${svgSize} w-${svgSize}`} />,
+      handleClick: openContributeModal,
     },
     {
       key: "profile",
@@ -65,12 +73,16 @@ const ToolBar = () => {
         isOpen={isSavedModalOpen}
         onClose={closeSavedModal}
       ></SavedModal>
+      <ContributeModal
+        isOpen={isContributeModalOpen}
+        onClose={closeContributeModal}
+      ></ContributeModal>
       <ProfileModal
         isOpen={isProfileModalOpen}
         onClose={closeProfileModal}
       ></ProfileModal>
       <div className="absolute bottom-3 z-[800] max-w-fit mx-auto flex inset-x-0 justify-center select-none rounded-2xl">
-        <div className="grid grid-flow-col grid-cols-3 gap-1 sm:w-[300px] max-sm:w-[200px] bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.2)] shadow-md p-1">
+        <div className="grid grid-flow-col grid-cols-3 gap-1 sm:w-[325px] max-sm:w-[250px] bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.2)] shadow-md p-1">
           {NAV_LINKS.map((navItem, index) => (
             <div
               key={index}
