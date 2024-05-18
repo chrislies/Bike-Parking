@@ -122,7 +122,7 @@ const RegisterModal: React.FC<{ insideModal: boolean }> = ({ insideModal }) => {
         );
 
         // Registration successful, redirect to login
-        router.push("/");
+        router.push("/login");
       }
     } catch (error) {
       console.error("Something went wrong:", error);
