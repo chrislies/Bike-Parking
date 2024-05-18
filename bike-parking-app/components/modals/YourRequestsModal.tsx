@@ -104,7 +104,7 @@ export default function YourRequestsModal() {
         </div>
       ) : pendingRequests.length === 0 ? (
         <div className="min-h-[15vh] flex justify-center items-center gap-2">
-          <h1 className="text-2xl">No pending requests!</h1>
+          <h1 className="text-base">You currently have no requests.</h1>
         </div>
       ) : (
         <div className="flex flex-col justify-center">
@@ -123,14 +123,16 @@ export default function YourRequestsModal() {
                   className="col-span-10 justify-self-start w-full cursor-pointer"
                   onClick={() => handleFlyTo(request)}
                 >
-                  <div className="relative flex justify-center w-full h-32">
-                    <Image
-                      src={request.image}
-                      alt="Your requested contribution image"
-                      fill
-                      style={{ objectFit: "contain" }}
-                    />
-                  </div>
+                  {request.image && (
+                    <div className="relative flex justify-center w-full h-32">
+                      <Image
+                        src={request.image}
+                        alt="Your requested contribution image"
+                        fill
+                        style={{ objectFit: "contain" }}
+                      />
+                    </div>
+                  )}
                   <div className="text-center">
                     <p>
                       <strong>Request Type:</strong> {request.request_type}
