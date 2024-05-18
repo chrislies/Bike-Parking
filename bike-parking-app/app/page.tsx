@@ -7,7 +7,7 @@ export default async function Home() {
     <>
       <Navbar />
       <div className="relative overflow-hidden min-h-fit">
-        <div className="flex flex-col items-center font-sans max-w-5xl mx-auto pt-4 sm:pt-6 lg:pt-8 max-md:h-[130vh]">
+        <div className="flex flex-col items-center font-sans max-w-5xl mx-auto pt-8 max-md:h-[130vh]">
           <h1 className="text-slate-900 font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center">
             {`Welcome to `}
             <span className="bg-clip-text text-transparent bg-gradient-to-b max-sm:bg-gradient-to-t from-green-400 to-green-600">
@@ -21,7 +21,7 @@ export default async function Home() {
             scooters.
           </p>
           <Link
-            href="/login"
+            href="/register"
             className="mt-8 font-mono bg-slate-900 text-white font-bold rounded-lg px-5 py-3 hover:opacity-80"
           >
             Get started
