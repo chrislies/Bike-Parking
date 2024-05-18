@@ -15,7 +15,6 @@ import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import CommunityReportsModal from "../modals/CommunityReportsModal";
 import BusyComponent from "./BusyComponent";
 import ReportComponent from "./ReportComponent";
-import MyReportComponent from "./MyReportComponent";
 
 interface MyMarkerProps {
   marker: MarkerData;
@@ -127,7 +126,7 @@ const MyMarker: FC<MyMarkerProps> = ({
                 </p>
               </div>
               {marker.id && (
-                <MyReportComponent
+                <ReportComponent
                   siteId={marker.id}
                   x={marker.x}
                   y={marker.y}
