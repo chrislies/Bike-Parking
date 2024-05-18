@@ -1,0 +1,92 @@
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .file-upload-button {
+    display: none;
+  }
+  
+  .dropzone {
+    border: 2.5px dashed #7b7a7a;
+    border-radius: 10px;
+    padding: 50px;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .dropzone:hover {
+    background-color: #e7f5ff;
+    border-color: #0056b3;
+    color: #0056b3;
+  }
+  
+  .upload-submit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    margin: 20px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .file-list {
+    list-style: none;
+    width: 80%;
+    padding: 0;
+    margin-top: 20px;
+  }
+  
+  .file-card {
+    border: 1px solid #afafaf;
+    background-color: #ffffff;
+    border-radius: 5px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  
+  .removeButton {
+    border: 1px solid #b0b0b0;
+    background-color: #ffffff;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #6e6e6e;
+  }
+  
+  .removeButton:hover {
+    background-color: #e7f5ff;
+    border-color: #0056b3;
+    color: #0056b3;
+  }
+
+  
+  .submit-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+  }
+  
+  .submit-button:hover {
+    background-color: #0056b3;
+  }

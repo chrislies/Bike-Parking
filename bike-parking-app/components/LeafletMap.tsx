@@ -57,6 +57,7 @@ import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import toast, { Toaster } from "react-hot-toast";
 import "./css/style.css";
+import "./css/temp.css";
 import ReportComponent from './ReportComponent';
 import BusyComponent from './BusyComponent';
 
@@ -599,6 +600,7 @@ const isFavoriteMarker = (marker: MarkerData): boolean => {
         const response = await axios.post("/api/request", requestData);
         if (response.status === 200) {
           console.log("Request successfully added:", response.data);
+          setTempMarkerPos(null);
         } else {
           console.log("Error adding request:", response.statusText);
         }
@@ -692,76 +694,104 @@ const isFavoriteMarker = (marker: MarkerData): boolean => {
               latitude: {tempMarkerPos.lat}
               {/* <input className="file-upload-button" type="file" accept=".jpg,.jpeg,.png" onChange={handleFileChange} /> */}
               {showFileInput && (
-                <>
-                  <input
-                    ref={fileInputRef}
-                    className="file-upload-button"
-                    type="file"
-                    accept=".jpg,.jpeg,.png"
-                    onChange={handleFileChange}
-                  />
-                  {/* {selectedImage && <img src={selectedImage} alt="Preview" />} */}
-                  {selectedImage && (
-                    <div>
-                      <img
-                        src={selectedImage}
-                        alt="Preview"
-                        style={{ width: "100%", marginTop: "10px" }}
-                      />
-                      <button onClick={handleRemoveImage}>Remove</button>
-
-
-                      {/* Option to let user to delcare the type of bike stop */}
-                      <div className="options">
-                        <label className="option">
-                          <input type="radio" name="reportOption" value="u rack" onChange={handleOptionChange} />
-                          U-Rack
-                        </label>
-                        <label className="option">
-                          <input type="radio" name="reportOption" value="large hoop" onChange={handleOptionChange} />
-                          large hoop
-                        </label>
-                        <label className="option">
-                          <input type="radio" name="reportOption" value="small hoop" onChange={handleOptionChange} />
-                          small hoop
-                        </label>
-                        <label className="option">
-                          <input type="radio" name="reportOption" value="wave" onChange={handleOptionChange} />
-                          wave
-                        </label>
-                        <label className="option">
-                          <input type="radio" name="reportOption" value="opal" onChange={handleOptionChange} />
-                          opal
-                        </label>
-                        <label className="option">
-                          <input type="radio" name="reportOption" value="staple" onChange={handleOptionChange} />
-                          staple
-                        </label>
-                      </div>
-                      {/* {showAlert && <p className="alert">Please select a type.</p>} */}
-
-
-                      <button
-                        onClick={handleSubmit}
-                        style={{
-                          position: "absolute",
-                          bottom: "10px",
-                          right: "10px",
-                          zIndex: 1000,
-                        }}
-                      >
-                        Submit
-                      </button>
+              <div className="upload-container">
+                {!selectedImage ? (
+                  <>
+                    <div className="dropzone" onClick={() => fileInputRef.current?.click()}>
+                      Drop your picture here
                     </div>
-                  )}
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Add description for the location"
-                    style={{ width: '100%' }}
-                  />
-                </>
-              )}
+                    <input
+                      ref={fileInputRef}
+                      className="file-upload-button"
+                      type="file"
+                      accept=".jpg,.jpeg,.png"
+                      onChange={handleFileChange}
+                    />
+                  </>
+                ) : (
+                  <div>
+                    <img
+                      src={selectedImage}
+                      alt="Preview"
+                      style={{ width: "100%", marginTop: "10px" }}
+                    />
+                    <button onClick={handleRemoveImage} className="removeButton">Remove</button>
+                    <textarea
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Add description for the location"
+                      style={{ width: '100%', marginTop: '10px' }}
+                    />
+                    <div className="options" style={{ marginTop: '10px' }}>
+                      <label className="option">
+                        <input
+                          type="radio"
+                          name="reportOption"
+                          value="u rack"
+                          onChange={handleOptionChange}
+                        />
+                        U-Rack
+                      </label>
+                      <label className="option">
+                        <input
+                          type="radio"
+                          name="reportOption"
+                          value="large hoop"
+                          onChange={handleOptionChange}
+                        />
+                        Large Hoop
+                      </label>
+                      <label className="option">
+                        <input
+                          type="radio"
+                          name="reportOption"
+                          value="small hoop"
+                          onChange={handleOptionChange}
+                        />
+                        Small Hoop
+                      </label>
+                      <label className="option">
+                        <input
+                          type="radio"
+                          name="reportOption"
+                          value="wave"
+                          onChange={handleOptionChange}
+                        />
+                        Wave
+                      </label>
+                      <label className="option">
+                        <input
+                          type="radio"
+                          name="reportOption"
+                          value="opal"
+                          onChange={handleOptionChange}
+                        />
+                        Opal
+                      </label>
+                      <label className="option">
+                        <input
+                          type="radio"
+                          name="reportOption"
+                          value="staple"
+                          onChange={handleOptionChange}
+                        />
+                        Staple
+                      </label>
+                    </div>
+                    <button
+                      onClick={handleSubmit}
+                      className="submit-button"
+                      style={{
+                        marginTop: '10px',
+                        zIndex: 1000,
+                      }}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
             </Popup>
           </Marker>
         )}
