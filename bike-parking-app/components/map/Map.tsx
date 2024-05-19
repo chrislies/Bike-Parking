@@ -46,7 +46,7 @@ const RootMap = () => {
           {/* <PixiLayer /> */}
         </LayersControl>
         <TempMarker />
-        <UserLocationMarker />
+        {/* <UserLocationMarker /> */}
         <ControlGeocoder />
         <ToolBar />
       </MapContainer>
