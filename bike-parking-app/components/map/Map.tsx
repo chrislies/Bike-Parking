@@ -6,6 +6,7 @@ import ControlGeocoder from "./LeafletControlGeocoder";
 import ToolBar from "../toolbar/Toolbar";
 import UserLocationMarker from "./UserLocationMarker";
 import PixiLayer from "./layers/PixiLayer";
+import TempMarker from "./TempMarker";
 
 const { BaseLayer } = LayersControl;
 
@@ -44,6 +45,7 @@ const RootMap = () => {
           <MarkerLayer />
           {/* <PixiLayer /> */}
         </LayersControl>
+        <TempMarker />
         {/* <UserLocationMarker /> */}
         <ControlGeocoder />
         <ToolBar />
