@@ -2,12 +2,13 @@
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { formatDate } from "@/lib/formatDate";
 import LoginModal from "../auth/LoginModal";
 import RegisterModal from "../auth/RegisterModal";
+import Link from "next/link";
 
 interface ModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ const ProfileModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const router = useRouter();
 
   const [loginView, setLoginView] = useState(true);
-
+  const [isAdmin, setIsAdmin] = useState(false);
   const signOutUser = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -37,6 +38,30 @@ const ProfileModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     router.push("/login");
     router.refresh();
   };
+
+  const fetchAdmins = async () => {
+    try {
+      if (!uuid) {
+        return;
+      }
+      const { data, error } = await supabase
+        .from("admins")
+        .select()
+        .eq("id", uuid);
+      if (error) {
+        throw new Error(`Error fetching saved spots: ${error.message}`);
+      }
+      setIsAdmin(data.length === 1);
+    } catch (error) {
+      toast.error(`Something went wrong: ${error}`);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchAdmins();
+    }
+  }, [isOpen]);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -118,8 +143,13 @@ const ProfileModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                             {createdAt && (
                               <p>Joined on: {formatDate(createdAt)}</p>
                             )}
+                            {isAdmin && (
+                              <button className="bg-gray-800 text-white p-4 rounded-xl hover:opacity-80">
+                                <Link href="/admin">Admin Dashboard</Link>
+                              </button>
+                            )}
                             <button
-                              className="bg-red-500 text-white p-4 rounded-xl"
+                              className="bg-red-500 text-white p-4 rounded-xl hover:opacity-80"
                               onClick={signOutUser}
                             >
                               Log Out
