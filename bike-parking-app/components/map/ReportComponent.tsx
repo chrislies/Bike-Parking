@@ -2,13 +2,9 @@
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import useSession from "@/utils/supabase/use-session";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { formatDate } from "@/lib/formatDate";
-import LoginModal from "../auth/LoginModal";
-import RegisterModal from "../auth/RegisterModal";
 import { Spinner } from "../svgs";
-import { debounce } from "@/hooks/useDebounce";
 import axios from "axios";
 
 interface Report {
@@ -47,8 +43,6 @@ const ReportComponent: React.FC<ModalProps> = ({
   const username = session?.user.user_metadata.username;
   const uuid = session?.user.id;
   const email = session?.user.email;
-  const createdAt = session?.user.created_at;
-  const router = useRouter();
 
   const [isCommunityReportsModalOpen, setIsCommunityReportsModalOpen] =
     useState(false);
@@ -250,7 +244,8 @@ const ReportComponent: React.FC<ModalProps> = ({
             site_id: siteId,
             request_type: "Delete",
             email: email,
-            description: deleteDescription,
+            username: username,
+            description: deleteDescription.trim(),
             image: selectedImage,
           };
 
@@ -625,7 +620,7 @@ const ReportComponent: React.FC<ModalProps> = ({
                           </span>
                         )}
                         {deleteFormSuccess && (
-                          <span className="flex justify-center max-w-xs text-center bg-green-500 mb-2">
+                          <span className="flex justify-center max-w-xs mx-auto text-center bg-green-500 mb-2">
                             <p className="py-2 text-white">
                               {deleteFormSuccess}
                             </p>
