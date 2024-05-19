@@ -6,6 +6,15 @@
 
 Bike Parking's mission is to make the bike/scooter commuting experience more convenient by reducing the hassle of trying to find a good spot to lock your vehicle.
 
+## Features
+
+- Save a spot
+- Report a spot
+- View reports for a spot
+- Navigational and routing to a spot
+- Request to add a new spot
+- Request to delete a spot
+
 ## Featured Technologies
 
 - Interactive map using [Leaflet](https://leafletjs.com/), [React-Leaflet](https://react-leaflet.js.org/)
