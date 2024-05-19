@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { Marker, Popup, useMapEvents } from "react-leaflet";
 import { tempIcon } from "../Icons";
 import "../css/tempMarker.css";
+import { Spinner } from "../svgs";
 
 // Convert a Base64 encoded string to a Blob object
 function base64ToBlob(base64: string): Blob {
@@ -29,6 +30,7 @@ const TempMarker = () => {
   const [tempMarkerPos, setTempMarkerPos] = useState<L.LatLng | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showFileInput, setShowFileInput] = useState(false);
+  const [addRequestLoading, setAddRequestLoading] = useState(false);
   const supabase = createSupabaseBrowserClient();
   const session = useSession();
   const username = session?.user.user_metadata.username;
@@ -73,6 +75,7 @@ const TempMarker = () => {
   }, [showFileInput]);
 
   const addRequest = async () => {
+    setAddRequestLoading(true);
     try {
       const requestData = {
         image: selectedImage,
@@ -80,22 +83,25 @@ const TempMarker = () => {
         y_coord: tempMarkerPos?.lat,
         request_type: request_type,
         email: email,
-        description: description,
+        username: username,
+        description: description.trim(),
         selectedOption: selectedOption,
       };
 
       const response = await axios.post("/api/request", requestData);
       if (response.status === 200) {
-        // console.log("Request successfully added:", response.data);
-        toast.success("Request successfully added", {
+        toast.success("Request submitted", {
           id: "requestAddSuccess",
         });
         setTempMarkerPos(null);
+        setAddRequestLoading(false);
       } else {
         alert(`Error adding request:, ${response.statusText}`);
+        setAddRequestLoading(false);
       }
     } catch (error) {
       console.error("Server error:", error);
+      setAddRequestLoading(false);
     }
   };
 
@@ -221,7 +227,7 @@ const TempMarker = () => {
                         minWidth: "100%",
                         resize: "vertical",
                       }}
-                      className="border rounded-md border-black/40 px-1"
+                      className="border rounded-md border-black/40 px-1 text-base"
                       maxLength={250}
                     />
                     <div className="options" style={{ marginTop: "10px" }}>
@@ -232,7 +238,7 @@ const TempMarker = () => {
                         <input
                           type="radio"
                           name="reportOption"
-                          value="u rack"
+                          value="U Rack"
                           onChange={handleOptionChange}
                         />
                         U-Rack
@@ -241,7 +247,7 @@ const TempMarker = () => {
                         <input
                           type="radio"
                           name="reportOption"
-                          value="large hoop"
+                          value="Large Hoop"
                           onChange={handleOptionChange}
                         />
                         Large Hoop
@@ -250,7 +256,7 @@ const TempMarker = () => {
                         <input
                           type="radio"
                           name="reportOption"
-                          value="small hoop"
+                          value="Small Hoop"
                           onChange={handleOptionChange}
                         />
                         Small Hoop
@@ -259,7 +265,7 @@ const TempMarker = () => {
                         <input
                           type="radio"
                           name="reportOption"
-                          value="wave"
+                          value="Wave Rack"
                           onChange={handleOptionChange}
                         />
                         Wave Rack
@@ -268,7 +274,7 @@ const TempMarker = () => {
                         <input
                           type="radio"
                           name="reportOption"
-                          value="opal"
+                          value="Opal Rack"
                           onChange={handleOptionChange}
                         />
                         Opal Rack
@@ -277,7 +283,7 @@ const TempMarker = () => {
                         <input
                           type="radio"
                           name="reportOption"
-                          value="staple"
+                          value="Staple Rack"
                           onChange={handleOptionChange}
                         />
                         Staple Rack
@@ -286,7 +292,7 @@ const TempMarker = () => {
                         <input
                           type="radio"
                           name="reportOption"
-                          value="sign"
+                          value="Street Sign"
                           onChange={handleOptionChange}
                         />
                         Street Sign
@@ -294,13 +300,14 @@ const TempMarker = () => {
                     </div>
                     <button
                       onClick={handleSubmit}
-                      className="submit-button flex justify-center w-full"
+                      disabled={addRequestLoading}
+                      className={`submit-button flex justify-center w-full disabled:cursor-not-allowed`}
                       style={{
                         marginTop: "10px",
                         zIndex: 1000,
                       }}
                     >
-                      Submit
+                      {addRequestLoading ? "Submitting..." : "Submit"}
                     </button>
                   </div>
                 )}
