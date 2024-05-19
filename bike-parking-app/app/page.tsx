@@ -21,7 +21,7 @@ export default async function Home() {
             scooters.
           </p>
           <Link
-            href="/register"
+            href="/login"
             className="mt-8 font-mono bg-slate-900 text-white font-bold rounded-lg px-5 py-3 hover:opacity-80"
           >
             Get started
