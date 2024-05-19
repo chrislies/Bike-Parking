@@ -1,4 +1,5 @@
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
+import { formatDate } from "./formatDate";
 
 async function getCoordinates(): Promise<MarkerData[] | null> {
   try {
@@ -71,7 +72,7 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     const endSign = window.performance.now();
 
     // prettier-ignore
-    const info: MarkerData[] = allData.map((item) => ({
+    allData = allData.map((item) => ({
       x: item.x || item.X,
       y: item.y || item.Y,
       id: item.site_id ? `R${item.site_id.slice(1)}` : `S.${item.index}`,
@@ -86,18 +87,40 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
 
     // fetch data from the 'BlackList' table from Supabase
     // prettier-ignore
-    const { data: blackListData, error } = await supabase.from("BlackList").select("*");
-    if (error) {
-      throw error;
+    const { data: blackListData, error: blackListError } = await supabase.from("BlackList").select("*");
+    if (blackListError) {
+      throw blackListError;
     }
 
     // extract ids from BlackList data for comparison
     // prettier-ignore
     const blackListIds = blackListData.map((blackListItem: { location_id: string }) => blackListItem.location_id);
 
-    // filter 'info' to exclude the data present in 'BlackList'
+    // Filter 'allData' to exclude the data present in 'BlackList'
+    allData = allData.filter((item) => !blackListIds.includes(item.id));
+
+    // fetch data from the 'UserAdded' table from Supabase
     // prettier-ignore
-    const filteredInfo = info.filter((item) => !blackListIds.includes(item.id!));
+    const { data: userAddedData, error: userAddedError } = await supabase.from("UserAdded").select("*");
+    if (userAddedError) {
+      throw userAddedError;
+    }
+
+    // map 'UserAdded' data to the correct format and add it to 'allData'
+    const userAddedSpots: MarkerData[] = userAddedData.map(
+      (item: UserAddedMarkerData) => ({
+        id: item.site_id,
+        date_added: formatDate(item.created_at),
+        rack_type: item.selectedOption,
+        x: item.x_coord,
+        y: item.y_coord,
+        favorite: false,
+        type: "userAdded",
+        author: item.username || item.email,
+      })
+    );
+
+    allData = [...allData, ...userAddedSpots];
 
     const endTotal = window.performance.now();
     console.log(`
@@ -105,7 +128,8 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
       Rack time: ${(startSign - startRack) / 1000}
       Sign time: ${(endSign - startSign) / 1000}
     `);
-    return filteredInfo.length > 0 ? filteredInfo : null;
+    // console.log(allData);
+    return allData.length > 0 ? allData : null;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to fetch data");
