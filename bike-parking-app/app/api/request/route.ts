@@ -13,6 +13,7 @@ export async function POST(req: Request) {
       image,
       email,
       description,
+      selectedOption,
     } = await req.json();
 
     const { data, error } = await supabase.from("Pending").insert(
@@ -23,16 +24,17 @@ export async function POST(req: Request) {
         x_coord: x_coord,
         y_coord: y_coord,
         description: description,
+        selectedOption: selectedOption,
       },
       { returning: "minimal" } as any
     );
 
     if (error) {
-      console.log("Error favoriting spot:", error);
-      return new NextResponse("Error adding pending spot", { status: 500 });
+      console.log("Error in spot request:", error);
+      return new NextResponse("Error in spot request", { status: 500 });
     }
 
-    console.log("Spot successfully favorited:", data);
+    console.log("Request successful:", data);
     return NextResponse.json(data);
   } catch (error) {
     console.log("Server error:", error);
