@@ -14,6 +14,19 @@ declare global {
     sign_code?: string;
     favorite: boolean;
     type: string;
+    author?: string;
+    date_added?: string;
+  }
+
+  interface UserAddedMarkerData {
+    id: number;
+    site_id: string;
+    created_at: string;
+    email: string;
+    username: string;
+    x_coord: number;
+    y_coord: number;
+    selectedOption: string;
   }
 
   interface UserCoordinatesItem {
