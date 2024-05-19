@@ -5,7 +5,6 @@ import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import { formatDate } from "@/lib/formatDate";
 import Link from "next/link";
 import { Spinner } from "./svgs";
-import { NextResponse } from "next/server";
 import toast, { Toaster } from "react-hot-toast";
 
 interface PendingRequest {
