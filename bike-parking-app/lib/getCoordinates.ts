@@ -11,8 +11,8 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     let offset = 0;
     let rackTypes = new Map<string, number>();
     const bikeRacksResponse = await fetch(
-      `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
-      // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=1000&$offset=${offset}`
+      // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
+      `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=1000&$offset=${offset}`
     );
     const bikeRacksData: MarkerData[] = await bikeRacksResponse.json();
 
@@ -64,8 +64,8 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
 
     const streetSignsData: { street_signs: MarkerData[] } =
       await streetSignsResponse.json();
-    const limitData = streetSignsData.street_signs.slice(0, 20000);
-    // const limitData = streetSignsData.street_signs.slice(0, 1000);
+    // const limitData = streetSignsData.street_signs.slice(0, 20000);
+    const limitData = streetSignsData.street_signs.slice(0, 1000);
 
     // allData = [...allData, ...streetSignsData.street_signs];
     allData = [...allData, ...limitData];
