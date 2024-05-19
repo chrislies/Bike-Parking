@@ -262,7 +262,7 @@ const TempMarker = () => {
                           value="wave"
                           onChange={handleOptionChange}
                         />
-                        Wave
+                        Wave Rack
                       </label>
                       <label className="option">
                         <input
@@ -271,7 +271,7 @@ const TempMarker = () => {
                           value="opal"
                           onChange={handleOptionChange}
                         />
-                        Opal
+                        Opal Rack
                       </label>
                       <label className="option">
                         <input
@@ -280,7 +280,7 @@ const TempMarker = () => {
                           value="staple"
                           onChange={handleOptionChange}
                         />
-                        Staple
+                        Staple Rack
                       </label>
                       <label className="option">
                         <input
