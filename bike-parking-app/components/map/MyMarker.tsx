@@ -1,7 +1,6 @@
 import { getImageSource } from "@/lib/getImageSource";
 import Image from "next/image";
-import L from "leaflet";
-import React, { FC, useCallback, useEffect, useRef, useState } from "react";
+import React, { FC, useCallback, useRef, useState } from "react";
 import { Marker, Popup, useMapEvents } from "react-leaflet";
 import { Bookmark, Directions, NoImage } from "../svgs";
 import { formatDate } from "@/lib/formatDate";
@@ -12,7 +11,6 @@ import queryString from "query-string";
 import axios from "axios";
 import "leaflet-routing-machine";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
-import CommunityReportsModal from "../modals/CommunityReportsModal";
 import BusyComponent from "./BusyComponent";
 import ReportComponent from "./ReportComponent";
 
@@ -134,7 +132,6 @@ const MyMarker: FC<MyMarkerProps> = ({
                   address={marker.address}
                 />
               )}
-              {/* <DeleteComponent x={marker.x} y={marker.y} site_id={marker.site_id} /> */}
               <BusyComponent x={marker.x!} y={marker.y!} />
             </div>
             <div className="my-1 flex justify-center items-center select-none pointer-events-none">
@@ -195,19 +192,6 @@ const MyMarker: FC<MyMarkerProps> = ({
                 />
                 {isCalculatingRoute ? "Calculating..." : "Directions"}
               </button>
-              {/* Delete Button */}
-              {/* <button
-                onClick={() => handleDeleteRequest(marker)}
-                title="Delete"
-                aria-label="Delete"
-                aria-disabled="false"
-                className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
-              >
-                <Directions
-                  className={`h-7 w-7 hover:cursor-pointer items-end`}
-                />
-                DeleteRequest
-              </button> */}
             </div>
             {marker.type === "rack" ? (
               <div className="flex justify-between items-end">
@@ -217,6 +201,12 @@ const MyMarker: FC<MyMarkerProps> = ({
                   new Date(marker.date_inst).getFullYear() === 1900
                     ? "N/A"
                     : formatDate(marker.date_inst!)}
+                </p>
+              </div>
+            ) : marker.type === "userAdded" ? (
+              <div className="flex justify-between items-end">
+                <p className="date_installed text-xs !m-0 !p-0">
+                  {`Added by: ${marker.author}, ${marker.date_added}`}
                 </p>
               </div>
             ) : null}
