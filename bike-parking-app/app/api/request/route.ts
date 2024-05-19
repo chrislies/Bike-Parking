@@ -5,26 +5,29 @@ const supabase = createSupabaseBrowserClient();
 export async function POST(req: Request) {
   try {
     const {
-      id,
-      x_coord,
-      y_coord,
+      site_id,
       request_type,
-      created_at,
-      image,
-      email,
-      description,
       selectedOption,
+      description,
+      y_coord,
+      x_coord,
+      created_at,
+      username,
+      email,
+      image,
     } = await req.json();
 
     const { data, error } = await supabase.from("Pending").insert(
       {
-        image: image,
+        site_id: site_id,
         request_type: request_type,
-        email: email,
-        x_coord: x_coord,
-        y_coord: y_coord,
-        description: description,
         selectedOption: selectedOption,
+        description: description,
+        y_coord: y_coord,
+        x_coord: x_coord,
+        username: username,
+        email: email,
+        image: image,
       },
       { returning: "minimal" } as any
     );
