@@ -11,7 +11,7 @@ Bike Parking's mission is to make the bike/scooter commuting experience more con
 - Save a spot
 - Report a spot
 - View reports for a spot
-- Navigational and routing to a spot
+- Navigation and routing to a spot
 - Request to add a new spot
 - Request to delete a spot
 
