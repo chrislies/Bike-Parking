@@ -7,8 +7,8 @@ import Navlink from "./Navlink";
 export const NAV_LINKS = [
   { href: "/", key: "home", label: "Home" },
   { href: "/about", key: "about", label: "About" },
-  { href: "/login", key: "login", label: "Log in" },
   { href: "/map", key: "map", label: "Map" },
+  { href: "/login", key: "login", label: "Log in" },
 ];
 
 const Navbar = () => {
@@ -51,13 +51,26 @@ const Navbar = () => {
               height={70}
             />
           </Link>
-          <ul className="hidden gap-16 lg:flex">
+          <ul className="hidden gap-16 lg:flex items-center">
             {NAV_LINKS.map((link) => (
-              <li key={link.key}>
+              <li
+                key={link.key}
+                className={`${
+                  link.key === "login"
+                    ? "bg-green-600/80  py-1 px-3 rounded-md text-white hover:bg-green-600/70 transition-all duration-100 ease-in-out"
+                    : ""
+                }`}
+              >
                 <Navlink
                   href={link.href}
-                  className={`text-base font-semibold text-grey-50 flex justify-center cursor-pointer border-y-2 border-transparent hover:border-b-green-600/60 transition-all duration-300 ease-in-out`}
-                  activeClasses="border-b-green-600/70"
+                  className={`text-base font-semibold text-grey-50 flex justify-center cursor-pointer border-y-2 border-transparent ${
+                    link.key === "login"
+                      ? ""
+                      : "hover:border-b-green-600/60 transition-all duration-300 ease-in-out"
+                  }`}
+                  activeClasses={`${
+                    link.key === "login" ? "" : "border-b-green-600/70"
+                  }`}
                   label={link.label}
                 />
               </li>
@@ -94,12 +107,14 @@ const Navbar = () => {
           transition-all duration-[400ms] ease-linear`}
         >
           <ul>
-            {NAV_LINKS.map((link) => (
+            {NAV_LINKS.map((link, index) => (
               <li key={link.key}>
                 <Link
                   href={link.href}
                   onClick={closeMenu}
-                  className={`${link.href === "/map" ? "" : "border-b-2"} 
+                  className={`${
+                    index === NAV_LINKS.length - 1 ? "" : "border-b-2"
+                  }
                   bg-white py-4 text-xl text-grey-50 flex justify-center cursor-pointer font-[500] tracking-tight hover:text-green-700 transition-all duration-100 ease-in-out active:text-green-600/70`}
                 >
                   {link.label}
