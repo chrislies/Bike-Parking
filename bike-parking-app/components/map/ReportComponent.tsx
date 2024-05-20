@@ -243,6 +243,7 @@ const ReportComponent: React.FC<ModalProps> = ({
             y_coord: y,
             site_id: siteId,
             request_type: "Delete",
+            selectedOption: rack_type,
             email: email,
             username: username,
             description: deleteDescription.trim(),

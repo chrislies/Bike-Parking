@@ -114,24 +114,7 @@ export default function PendingRequestsDashboard() {
       );
     } else if (reqType === "delete") {
       // approve delete spot request (add spot to 'BlackList' table)
-      const { data, error } = await supabase.from("BlackList").insert(
-        {
-          location_id: req.site_id,
-          description: req.description,
-          y_coord: req.y_coord,
-          x_coord: req.x_coord,
-          username: req.username,
-          email: req.email,
-        },
-        { returning: "minimal" } as any
-      );
-
-      if (error) {
-        toast.error(`Error in approving delete request`, { duration: 5000 });
-      }
-      toast.success(`Spot added to 'BlackList' table`, { duration: 5000 });
-
-      // if the delete request if for is a user added spot, remove the spot from 'UserAdded' table
+      // if the delete request is for is a user added spot, JUST remove the spot from 'UserAdded' table, no need to blacklist
       if (req.site_id.includes("UA")) {
         const { data, error } = await supabase
           .from("UserAdded")
@@ -144,6 +127,23 @@ export default function PendingRequestsDashboard() {
             { duration: 5000 }
           );
         }
+      } else {
+        const { data, error } = await supabase.from("BlackList").insert(
+          {
+            location_id: req.site_id,
+            description: req.description,
+            y_coord: req.y_coord,
+            x_coord: req.x_coord,
+            username: req.username,
+            email: req.email,
+          },
+          { returning: "minimal" } as any
+        );
+
+        if (error) {
+          toast.error(`Error in approving delete request`, { duration: 5000 });
+        }
+        toast.success(`Spot added to 'BlackList' table`, { duration: 5000 });
       }
 
       // update 'pendingRequests'
