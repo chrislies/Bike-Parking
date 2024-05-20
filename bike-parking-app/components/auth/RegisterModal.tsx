@@ -144,11 +144,12 @@ const RegisterModal: React.FC<{ insideModal: boolean }> = ({ insideModal }) => {
       {registerView ? (
         <>
           {!insideModal && <Toaster position="top-right" />}
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md relative">
+          <div className="fixed inset-0 z-0" style={{ backgroundImage: `url(/image.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
             <form
               className={`bg-white ${
                 insideModal ? "px-4" : "px-8 py-6 shadow-md rounded"
-              }`}
+              } relative z-10`}
             >
               {!insideModal && (
                 <h1 className="text-center text-2xl pb-3 font-bold">Sign Up</h1>
@@ -251,9 +252,6 @@ const RegisterModal: React.FC<{ insideModal: boolean }> = ({ insideModal }) => {
                   )}
                 </div>
               </div>
-              {/* <p className="mb-1 select-none opacity-0 text-red-500 text-xs italic">
-            Please choose a password.
-          </p> */}
               <button
                 onClick={handleSubmit(onSubmit)}
                 className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
@@ -276,7 +274,6 @@ const RegisterModal: React.FC<{ insideModal: boolean }> = ({ insideModal }) => {
               >
                 <FcGoogle className="h-6 w-6 mr-3" /> Sign up with Google
               </button>
-              {/* prettier-ignore */}
               <p className={`text-center text-sm font-semibold text-gray-400 ${insideModal ? null : "mb-3"}`}>
                 {`Already have an account? `}
                 {insideModal ? (
