@@ -5,8 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Marker, Popup, useMapEvents } from "react-leaflet";
 import { tempIcon } from "../Icons";
-import "../css/tempMarker.css";
-import { Spinner } from "../svgs";
+import "../../app/css/tempMarker.css";
 
 // Convert a Base64 encoded string to a Blob object
 function base64ToBlob(base64: string): Blob {

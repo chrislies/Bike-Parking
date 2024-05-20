@@ -5,9 +5,9 @@ import Link from "next/link";
 import Navlink from "./Navlink";
 
 export const NAV_LINKS = [
-  { href: "/", key: "home", label: "Home" },
-  { href: "/about", key: "about", label: "About" },
+  { href: "/#about", key: "about", label: "About" },
   { href: "/map", key: "map", label: "Map" },
+  { href: "/contact", key: "contact", label: "Contact" },
   { href: "/login", key: "login", label: "Log in" },
 ];
 
@@ -42,7 +42,7 @@ const Navbar = () => {
           isMenuOpen ? "shadow-md" : "shadow-3xl"
         } transition-all duration-[900ms]`}
       >
-        <nav className="flex justify-between items-center h-[--header-height] max-container padding-container py-1 max-w-full">
+        <nav className="flex justify-between items-center h-[--header-height] mx-auto max-container padding-container py-1 max-w-full">
           <Link href="/">
             <Image
               src="/images/bike_parking_logo.png"
@@ -57,8 +57,8 @@ const Navbar = () => {
                 key={link.key}
                 className={`${
                   link.key === "login"
-                    ? "bg-green-600/80  py-1 px-3 rounded-md text-white hover:bg-green-600/70 transition-all duration-100 ease-in-out"
-                    : ""
+                    ? "bg-green-600/80 py-1 px-3 rounded-md text-white hover:bg-green-600/70 transition-all duration-100 ease-in-out"
+                    : null
                 }`}
               >
                 <Navlink
@@ -69,7 +69,7 @@ const Navbar = () => {
                       : "hover:border-b-green-600/60 transition-all duration-300 ease-in-out"
                   }`}
                   activeClasses={`${
-                    link.key === "login" ? "" : "border-b-green-600/70"
+                    link.key === "login" ? null : "border-b-green-600/70"
                   }`}
                   label={link.label}
                 />

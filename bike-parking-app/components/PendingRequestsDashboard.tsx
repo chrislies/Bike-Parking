@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import "./css/pendingRequestsDashboard.css";
+import "../app/css/pendingRequestsDashboard.css";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import { formatDate } from "@/lib/formatDate";
 import Link from "next/link";
