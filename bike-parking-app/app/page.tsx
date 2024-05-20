@@ -67,7 +67,7 @@ export default async function Home() {
                 }}
               />
             </div>
-            <div className="hero-image h-[500px] w-[500px] max-lg:h-[400px] max-lg:w-[400px] max-md:h-[300px] max-md:w-[300px] max-md:top-[-60px] max-md:left-[10px] max-md:z-[13] z-[12]">
+            <div className="hero-image h-[500px] w-[500px] max-lg:h-[400px] max-lg:w-[400px] max-md:h-[300px] max-md:w-[300px] max-md:top-[-60px] max-md:left-[10px] max-md:z-[15] z-[12]">
               <Image
                 src={"/images/map_directions.png"}
                 alt={"map directions"}
