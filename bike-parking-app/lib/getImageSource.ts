@@ -17,6 +17,8 @@ export const getImageSource = (rackType: string) => {
     return "/images/rack_opal-rack.jpg";
   } else if (lowercaseType.includes("staple")) {
     return "/images/rack_staple.jpg";
+  } else if (lowercaseType === "street sign") {
+    return "/images/streetsign.jpg";
   } else {
     return "";
   }
