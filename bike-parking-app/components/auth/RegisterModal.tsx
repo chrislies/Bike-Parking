@@ -145,11 +145,10 @@ const RegisterModal: React.FC<{ insideModal: boolean }> = ({ insideModal }) => {
         <>
           {!insideModal && <Toaster position="top-right" />}
           <div className="w-full max-w-md relative">
-          <div className="fixed inset-0 z-0" style={{ backgroundImage: `url(/image.jpg)`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
             <form
               className={`bg-white ${
                 insideModal ? "px-4" : "px-8 py-6 shadow-md rounded"
-              } relative z-10`}
+              }`}
             >
               {!insideModal && (
                 <h1 className="text-center text-2xl pb-3 font-bold">Sign Up</h1>
