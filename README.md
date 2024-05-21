@@ -34,7 +34,11 @@ git clone https://github.com/chrislies/Bike-Parking.git && cd Bike-Parking/bike-
 
 3. Create a [Supabase](https://supabase.com/) project and obtain API keys
 4. Create a `.env` file in the `bike-parking-app` directory and paste your `‘NEXT_PUBLIC_SUPABASE_URL’` and `‘NEXT_PUBLIC_SUPABASE_ANON_KEY’` keys
-5. Start local development server
+5. Install the necessary package
+```
+npm i
+```   
+6. Start local development server
 
 ```
 npm run dev
