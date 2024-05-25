@@ -12,6 +12,7 @@ import useSession from "@/utils/supabase/use-session";
 import MyMarker from "../MyMarker";
 import L from "leaflet";
 import "leaflet-routing-machine";
+import LeafletCanvasMarker from "../LeafletCanvasMarker";
 
 const MarkerLayer = () => {
   const [markers, setMarkers] = useState<MarkerData[] | null>([]);
@@ -135,6 +136,7 @@ const MarkerLayer = () => {
         <>
           <LayersControl.Overlay name="Markers" checked>
             <LayerGroup>
+              {/* <LeafletCanvasMarker /> */}
               <MarkerClusterGroup
                 chunkedLoading={true}
                 maxClusterRadius={160}
