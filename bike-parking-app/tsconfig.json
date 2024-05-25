@@ -34,7 +34,11 @@
     "components/map/layers/MarkerLayer.tsx",
     "components/map/layers/PixiLayer.jsx",
     "components/map/layers/RouteLayer.tsx",
-    "components/navbar/Navlink.jsx"
+    "components/navbar/Navlink.jsx",
+    "components/map/CanvasMarkersLayers.tsx",
+    "components/map/testMap.js",
+    "components/map/LeafletCanvasMarker.js",
+    "components/map/layers/PruneMarkerClusterLayer.js"
   ],
   "exclude": ["node_modules"]
 }

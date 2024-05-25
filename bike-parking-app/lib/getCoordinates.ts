@@ -4,15 +4,19 @@ import { formatDate } from "./formatDate";
 async function getCoordinates(): Promise<MarkerData[] | null> {
   try {
     console.log("Fetching data from API");
-    const supabase = createSupabaseBrowserClient();
+    const debug = true;
+    let supabase;
+    if (!debug) {
+      supabase = createSupabaseBrowserClient();
+    }
     const startTotal = window.performance.now();
     const startRack = window.performance.now();
     let allData: any[] = [];
     let offset = 0;
     let rackTypes = new Map<string, number>();
     const bikeRacksResponse = await fetch(
-      // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
-      `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=1000&$offset=${offset}`
+      `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
+      // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=1000&$offset=${offset}`
     );
     const bikeRacksData: MarkerData[] = await bikeRacksResponse.json();
 
@@ -65,10 +69,10 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     const streetSignsData: { street_signs: MarkerData[] } =
       await streetSignsResponse.json();
     // const limitData = streetSignsData.street_signs.slice(0, 20000);
-    const limitData = streetSignsData.street_signs.slice(0, 1000);
+    // const limitData = streetSignsData.street_signs.slice(0, 1000);
 
-    // allData = [...allData, ...streetSignsData.street_signs];
-    allData = [...allData, ...limitData];
+    allData = [...allData, ...streetSignsData.street_signs];
+    // allData = [...allData, ...limitData];
     const endSign = window.performance.now();
 
     // prettier-ignore
@@ -87,40 +91,42 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
 
     // fetch data from the 'BlackList' table from Supabase
     // prettier-ignore
-    const { data: blackListData, error: blackListError } = await supabase.from("BlackList").select("*");
-    if (blackListError) {
-      throw blackListError;
+    if (!debug && supabase) {
+      const { data: blackListData, error: blackListError } = await supabase.from("BlackList").select("*");
+      if (blackListError) {
+        throw blackListError;
+      }
+  
+      // extract ids from BlackList data for comparison
+      // prettier-ignore
+      const blackListIds = blackListData.map((blackListItem: { location_id: string }) => blackListItem.location_id);
+  
+      // Filter 'allData' to exclude the data present in 'BlackList'
+      allData = allData.filter((item) => !blackListIds.includes(item.id));
+  
+      // fetch data from the 'UserAdded' table from Supabase
+      // prettier-ignore
+      const { data: userAddedData, error: userAddedError } = await supabase.from("UserAdded").select("*");
+      if (userAddedError) {
+        throw userAddedError;
+      }
+  
+      // map 'UserAdded' data to the correct format and add it to 'allData'
+      const userAddedSpots: MarkerData[] = userAddedData.map(
+        (item: UserAddedMarkerData) => ({
+          id: item.site_id,
+          date_added: formatDate(item.created_at),
+          rack_type: item.selectedOption,
+          x: item.x_coord,
+          y: item.y_coord,
+          favorite: false,
+          type: "userAdded",
+          author: item.username || item.email,
+        })
+      );
+  
+      allData = [...allData, ...userAddedSpots];
     }
-
-    // extract ids from BlackList data for comparison
-    // prettier-ignore
-    const blackListIds = blackListData.map((blackListItem: { location_id: string }) => blackListItem.location_id);
-
-    // Filter 'allData' to exclude the data present in 'BlackList'
-    allData = allData.filter((item) => !blackListIds.includes(item.id));
-
-    // fetch data from the 'UserAdded' table from Supabase
-    // prettier-ignore
-    const { data: userAddedData, error: userAddedError } = await supabase.from("UserAdded").select("*");
-    if (userAddedError) {
-      throw userAddedError;
-    }
-
-    // map 'UserAdded' data to the correct format and add it to 'allData'
-    const userAddedSpots: MarkerData[] = userAddedData.map(
-      (item: UserAddedMarkerData) => ({
-        id: item.site_id,
-        date_added: formatDate(item.created_at),
-        rack_type: item.selectedOption,
-        x: item.x_coord,
-        y: item.y_coord,
-        favorite: false,
-        type: "userAdded",
-        author: item.username || item.email,
-      })
-    );
-
-    allData = [...allData, ...userAddedSpots];
 
     const endTotal = window.performance.now();
     console.log(`
