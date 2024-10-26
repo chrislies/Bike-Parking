@@ -4,7 +4,8 @@ async function getBikeRackCoords(): Promise<MarkerData[] | null> {
     let offset = 0;
     const bikeRacksResponse = await fetch(
       // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
-      `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=1000&$offset=${offset}`
+      // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=1000&$offset=${offset}`
+      `https://data.cityofnewyork.us/resource/592z-n7dk.json?$limit=1000&$offset=${offset}`
     );
     const bikeRacksData: MarkerData[] = await bikeRacksResponse.json();
     allData = [...allData, ...bikeRacksData];

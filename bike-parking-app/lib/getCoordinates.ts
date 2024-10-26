@@ -8,7 +8,7 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     let rackTypes = new Map<string, number>();
     const bikeRacksResponse = await fetch(
       // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
-      `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=1000&$offset=${offset}`
+      `https://data.cityofnewyork.us/resource/592z-n7dk.json?$limit=1000&$offset=${offset}`
     );
     const bikeRacksData: MarkerData[] = await bikeRacksResponse.json();
 
@@ -69,8 +69,8 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
 
     // prettier-ignore
     const info: MarkerData[] = allData.map((item) => ({
-      x: item.x || item.X,
-      y: item.y || item.Y,
+      x: item.x || item.X || item.latitude,
+      y: item.y || item.Y || item.longitude,
       id: item.site_id ? `R${item.site_id.slice(1)}` : `S.${item.index}`,
       address: item.ifoaddress || `${item.on_street} ${item.from_street} ${item.to_street}`,
       rack_type: item.rack_type,
