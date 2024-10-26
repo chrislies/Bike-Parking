@@ -73,8 +73,8 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
 
     // prettier-ignore
     allData = allData.map((item) => ({
-      x: item.x || item.X,
-      y: item.y || item.Y,
+      x: item.x || item.X || item.latitude,
+      y: item.y || item.Y || item.longitude,
       id: item.site_id ? `R${item.site_id.slice(1)}` : `S.${item.index}`,
       address: item.ifoaddress || `${item.on_street} ${item.from_street} ${item.to_street}`,
       rack_type: item.rack_type,
