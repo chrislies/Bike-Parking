@@ -4,7 +4,7 @@ import { formatDate } from "./formatDate";
 async function getCoordinates(): Promise<MarkerData[] | null> {
   try {
     console.log("Fetching data from API");
-    const debug = true;
+    const debug = false;
     let supabase;
     if (!debug) {
       supabase = createSupabaseBrowserClient();
@@ -15,8 +15,8 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     let offset = 0;
     let rackTypes = new Map<string, number>();
     const bikeRacksResponse = await fetch(
-      `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=50000&$offset=${offset}`
-      // `https://data.cityofnewyork.us/resource/au7q-njtk.json?$limit=1000&$offset=${offset}`
+      `https://data.cityofnewyork.us/resource/592z-n7dk.json?$limit=50000&$offset=${offset}`
+      // `https://data.cityofnewyork.us/resource/592z-n7dk.json?$limit=1000&$offset=${offset}`
     );
     const bikeRacksData: MarkerData[] = await bikeRacksResponse.json();
 
@@ -59,7 +59,7 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     //   }
     // });
 
-    allData = [...allData, ...bikeRacksData];
+    // allData = [...allData, ...bikeRacksData];
 
     const startSign = window.performance.now();
     const streetSignsResponse = await fetch(
@@ -71,22 +71,22 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     // const limitData = streetSignsData.street_signs.slice(0, 20000);
     // const limitData = streetSignsData.street_signs.slice(0, 1000);
 
-    allData = [...allData, ...streetSignsData.street_signs];
+    // allData = [...allData, ...streetSignsData.street_signs];
     // allData = [...allData, ...limitData];
     const endSign = window.performance.now();
 
     // prettier-ignore
     allData = allData.map((item) => ({
-      x: item.x || item.X,
-      y: item.y || item.Y,
+      x: item.x || item.X || item.longitude,
+      y: item.y || item.Y || item.latitude,
       id: item.site_id ? `R${item.site_id.slice(1)}` : `S.${item.index}`,
       address: item.ifoaddress || `${item.on_street} ${item.from_street} ${item.to_street}`,
-      rack_type: item.rack_type,
+      rack_type: item.racktype,
       date_inst: item.date_inst,
       sign_description: item.sign_description,
       sign_code: item.sign_code,
       favorite: false,
-      type: item.rack_type ? "rack" : "sign",
+      type: item.racktype ? "rack" : "sign",
     }));
 
     // fetch data from the 'BlackList' table from Supabase
