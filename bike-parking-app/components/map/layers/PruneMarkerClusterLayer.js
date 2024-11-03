@@ -236,7 +236,7 @@ const PruneMarkerClusterLayer = () => {
                       )}</i></div>`
                     : coordinate.type === "userAdded"
                     ? `<div class="flex justify-between items-end"><p class="date_installed popup dateInst">Added by: <span class="font-bold">${coordinate.author}</span>, ${coordinate.date_added}</p></div>`
-                    : null
+                    : ""
                 }
               </div>
             `;
