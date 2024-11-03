@@ -171,6 +171,7 @@ const PruneMarkerClusterLayer = () => {
       try {
         setLoading(true);
         const coordinates = await getCoordinates();
+        console.log(coordinates);
         setCoordinatesData(coordinates); // Store the fetched coordinates data
 
         if (coordinates) {
@@ -208,7 +209,9 @@ const PruneMarkerClusterLayer = () => {
                 } hover:underline !p-0 !m-0"><a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${
               coordinate.y
             },${coordinate.x}" target="_blank" class="!text-black">${
-              coordinate.address
+              coordinate.type === "userAdded"
+                ? "Open in Google Maps"
+                : coordinate.address
             }</a></p>
                 <div class="flex flex-col gap-2 mt-1 mb-3">
                   <button id="save-location-${
@@ -227,11 +230,13 @@ const PruneMarkerClusterLayer = () => {
                   </button>
                 </div>
                 ${
-                  coordinate.rack_type
+                  coordinate.type === "rack"
                     ? `<div class="popup dateInst"><i>Date Installed: ${formatDate(
                         coordinate.date_inst
                       )}</i></div>`
-                    : ""
+                    : coordinate.type === "userAdded"
+                    ? `<div class="flex justify-between items-end"><p class="date_installed popup dateInst">Added by: <span class="font-bold">${coordinate.author}</span>, ${coordinate.date_added}</p></div>`
+                    : null
                 }
               </div>
             `;
@@ -361,7 +366,9 @@ const PruneMarkerClusterLayer = () => {
               } hover:underline !p-0 !m-0"><a href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${
             coordinate.y
           },${coordinate.x}" target="_blank" class="!text-black">${
-            coordinate.address
+            coordinate.type === "userAdded"
+              ? "Open in Google Maps"
+              : coordinate.address
           }</a></p>
               <div class="flex flex-col gap-2 mt-1 mb-3">
                 <button id="save-location-${
@@ -379,13 +386,15 @@ const PruneMarkerClusterLayer = () => {
                   ${DirectionsSVG} Directions
                 </button>
               </div>
-              ${
-                coordinate.rack_type
-                  ? `<div class="popup dateInst"><i>Date Installed: ${formatDate(
-                      coordinate.date_inst
-                    )}</i></div>`
-                  : ""
-              }
+                ${
+                  coordinate.type === "rack"
+                    ? `<div class="popup dateInst"><i>Date Installed: ${formatDate(
+                        coordinate.date_inst
+                      )}</i></div>`
+                    : coordinate.type === "userAdded"
+                    ? `<div class="flex justify-between items-end"><p class="date_installed popup dateInst">Added by: <span class="font-bold">${coordinate.author}</span>, ${coordinate.date_added}</p></div>`
+                    : null
+                }
             </div>
           `;
 
