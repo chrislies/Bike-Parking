@@ -137,3 +137,20 @@
 .dateInst {
   @apply text-xs !m-0 !p-0;
 }
+
+.layer-control-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+.layer-control-buttons button {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  margin: 2px;
+  cursor: pointer;
+}
+.layer-control-buttons button:hover {
+  background-color: #f0f0f0;
+}
