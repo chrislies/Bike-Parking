@@ -2,7 +2,9 @@ import nodemailer from "nodemailer";
 
 const email = process.env.EMAIL;
 const pass = process.env.EMAIL_PASS;
-const recipients = process.env.EMAIL_RECIPIENTS.split(",");
+let recipients = process.env.EMAIL_RECIPIENTS.includes(",")
+  ? process.env.EMAIL_RECIPIENTS.split(",")
+  : [process.env.EMAIL_RECIPIENTS];
 
 export const transporter = nodemailer.createTransport({
   service: "gmail",
