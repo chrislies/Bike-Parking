@@ -1,0 +1,20 @@
+form > div {
+  @apply flex flex-col gap-0 2xl:w-[70%] max-2xl:w-[80%] max-lg:w-[90%] max-md:w-full;
+}
+
+form > div > span {
+  @apply h-[13px] text-sm text-red-500;
+}
+
+input,
+textarea {
+  /* @apply shadow-md px-6 py-2 border border-slate-300; */
+  @apply shadow-md px-5 py-3 border text-lg border-slate-300;
+}
+
+.name,
+.email,
+.phone,
+.message {
+  @apply text-lg;
+}
