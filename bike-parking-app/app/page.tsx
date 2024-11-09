@@ -130,7 +130,7 @@ export default async function Home() {
                     <div className={styles.feature_image}>
                       <Image
                         src={item.imgSrc}
-                        alt={"Registered members can save up to 5 spots"}
+                        alt={item.desc}
                         fill
                         style={{
                           objectFit: "contain",
