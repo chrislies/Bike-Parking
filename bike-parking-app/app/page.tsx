@@ -1,7 +1,7 @@
 import Navbar from "@/components/navbar/Navbar";
 import Image from "next/image";
 import Link from "next/link";
-import "../app/css/homePage.css";
+import styles from "../app/css/homePage.module.css";
 
 const FEATURES = [
   {
@@ -57,7 +57,9 @@ export default async function Home() {
           </Link>
           {/* HERO IMAGES */}
           <div className="flex mt-10 max-md:flex-col">
-            <div className="hero-image h-[450px] w-[450px] max-lg:h-[350px] max-lg:w-[350px] max-md:h-[250px] max-md:w-[250px] top-5 left-12 max-md:top-0 max-md:left-[-10px] z-[14]">
+            <div
+              className={`${styles.hero_image} h-[450px] w-[450px] max-lg:h-[350px] max-lg:w-[350px] max-md:h-[250px] max-md:w-[250px] top-5 left-12 max-md:top-0 max-md:left-[-10px] z-[14]`}
+            >
               <Image
                 src={"/images/map_ui.png"}
                 alt={"map ui"}
@@ -67,7 +69,9 @@ export default async function Home() {
                 }}
               />
             </div>
-            <div className="hero-image h-[500px] w-[500px] max-lg:h-[400px] max-lg:w-[400px] max-md:h-[300px] max-md:w-[300px] max-md:top-[-60px] max-md:left-[10px] max-md:z-[15] z-[12]">
+            <div
+              className={`${styles.hero_image} h-[500px] w-[500px] max-lg:h-[400px] max-lg:w-[400px] max-md:h-[300px] max-md:w-[300px] max-md:top-[-60px] max-md:left-[10px] max-md:z-[15] z-[12]`}
+            >
               <Image
                 src={"/images/map_directions.png"}
                 alt={"map directions"}
@@ -77,7 +81,7 @@ export default async function Home() {
                 }}
               />
             </div>
-            {/* <div className="hero-image h-[425px] w-[425px] max-lg:h-[320px] max-lg:w-[320px] max-md:h-[220px] max-md:w-[220px] max-md:top-[-200px] max-md:left-[10px] max-md:z-[14] z-[13]">
+            {/* <div className="hero_image h-[425px] w-[425px] max-lg:h-[320px] max-lg:w-[320px] max-md:h-[220px] max-md:w-[220px] max-md:top-[-200px] max-md:left-[10px] max-md:z-[14] z-[13]">
               <Image
                 src={"/images/map_reports.png"}
                 alt={"map directions"}
@@ -145,7 +149,7 @@ export default async function Home() {
                       <h2 className="">{item.feature}</h2>
                       <p className="">{item.desc}</p>
                     </div>
-                    <div className="feature-image">
+                    <div className={styles.feature_image}>
                       <Image
                         src={item.imgSrc}
                         alt={"Registered members can save up to 5 spots"}
