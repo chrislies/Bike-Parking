@@ -1,4 +1,32 @@
-export const teamMembers = [
+export const FEATURES = [
+  {
+    feature: "Save a spot",
+    desc: "Registered members can save up to 5 spots for quick access.",
+    imgSrc: "/images/feature_favorites.png",
+  },
+  {
+    feature: "Report a spot",
+    desc: "Registered members can report an existing spot for problems.",
+    imgSrc: "/images/feature_report.png",
+  },
+  {
+    feature: "Add a new spot",
+    desc: "Registered members can request to add a new spot to the map.",
+    imgSrc: "/images/feature_add-spot.png",
+  },
+  {
+    feature: "Request to delete a spot",
+    desc: "Registered members can request to delete an existing spot on the map.",
+    imgSrc: "/images/feature_delete-spot.png",
+  },
+  {
+    feature: "Manage contributions",
+    desc: "Registered members can view and delete their previous map contributions including reports and user-added spots.",
+    imgSrc: "/images/feature_contributions.png",
+  },
+];
+
+export const TEAM_MEMBERS = [
   {
     name: "Christopher Lai",
     title: "Full Stack Developer",

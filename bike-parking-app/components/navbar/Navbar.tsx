@@ -13,6 +13,7 @@ export const NAV_LINKS = [
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -34,15 +35,36 @@ const Navbar = () => {
     };
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      // Check if the user scrolled down
+      if (window.scrollY > 0) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    // Add the event listener
+    window.addEventListener("scroll", handleScroll);
+
+    // Clean up the event listener on component unmount
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="sticky top-0 z-50">
+    <div
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        isScrolled ? "shadow-3xl" : "shadow-none"
+      }`}
+    >
       <div
         id="navHeader"
         className={`sticky top-0 z-40 bg-white ${
-          isMenuOpen ? "shadow-md" : "shadow-3xl"
+          isMenuOpen ? "shadow-md" : "shadow-none"
         } transition-all duration-[900ms]`}
       >
-        <nav className="flex justify-between items-center h-[--header-height] max-lg:padding-container mx-auto max-w-screen-lg py-1">
+        <nav className="flex justify-between items-center px-4 h-[--header-height] max-lg:padding-container mx-auto max-w-screen-lg py-1">
           <Link href="/">
             <Image
               src="/images/bike_parking_logo.png"
@@ -102,7 +124,7 @@ const Navbar = () => {
 
       <div id="navMenu" className="lg:hidden z-30">
         <div
-          className={`fixed z-30 w-full border-t-2d flex flex-col shadow-3xl 
+          className={`fixed z-30 w-full flex flex-col shadow-3xl 
           ${isMenuOpen ? "top-[--header-height]" : "-top-[100%]"} 
           transition-all duration-[400ms] ease-linear`}
         >

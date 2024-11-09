@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { GitHub, Linkedin, Mail, Spinner } from "@/components/svgs";
 import styles from "../css/contactPage.module.css";
 import Link from "next/link";
-import { teamMembers } from "@/constants/Constants";
+import { TEAM_MEMBERS } from "@/constants";
 
 const ContactPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -116,12 +116,12 @@ const ContactPage: React.FC = () => {
 
   return (
     <div className="bg-gradient-to-b from-blue-100 to-[#f3f4f6] min-h-screen flex flex-col">
-      <section className="flex flex-col w-full max-w-screen-lg mx-auto my-6">
+      <section className="flex flex-col w-full max-w-screen-lg mx-auto my-6 px-4">
         <div className="flex max-lg:justify-center pb-6">
           <h1>Our Team</h1>
         </div>
         <div className="grid gap-10 max-lg:justify-center max-md:flex-col max-lg:padding-container sm:grid-cols-2 lg:grid-cols-4">
-          {teamMembers.map((member, index) => (
+          {TEAM_MEMBERS.map((member, index) => (
             <div
               className="grid place-items-start items-center p-4 bg-white shadow-md rounded-lg"
               key={index}
@@ -165,7 +165,7 @@ const ContactPage: React.FC = () => {
         </div>
       </section>
       <section className="flex justify-center w-full h-[360px] bg-gradient-to-b from-[#1e226c] to-[#0f103e]">
-        <div className="w-full max-w-screen-lg mt-6 flex max-lg:justify-center">
+        <div className="w-full max-w-screen-lg px-4 mt-6 flex max-lg:justify-center">
           <h1 className="text-[#f3f4f6]">Contact Us</h1>
         </div>
       </section>
