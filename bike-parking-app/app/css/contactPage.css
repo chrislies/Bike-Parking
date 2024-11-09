@@ -9,7 +9,7 @@ form > div > span {
 input,
 textarea {
   /* @apply shadow-md px-6 py-2 border border-slate-300; */
-  @apply shadow-md px-5 py-3 border text-lg border-slate-300;
+  @apply shadow-md px-5 py-3 border text-lg border-slate-300 bg-gray-50;
 }
 
 .name,
