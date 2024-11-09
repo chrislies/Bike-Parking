@@ -153,9 +153,9 @@ const ContactPage: React.FC = () => {
         <div className="w-[40%] max-md:w-[60%] max-sm:w-full -mt-64 rounded-xl bg-white shadow-xl">
           <div className="bg-gray-200 rounded-t-xl p-6 max-sm:px-0 flex items-center justify-center gap-4">
             <p className="text-black text-xl max-w-lg">
-              <span className="font-bold">Have questions or feedback?</span>{" "}
-              We'd love to hear from you! Send us a message, and our team will
-              be in touch shortly.
+              <span className="font-bold">Have questions or feedback?</span>
+              {` We'd love to hear from you! Send us a message, and our team will
+              be in touch shortly.`}
             </p>
           </div>
           <form
