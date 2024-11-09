@@ -1,4 +1,7 @@
 export { default as Spinner } from "./Spinner.svg";
+export { default as Mail } from "./Mail.svg";
+export { default as GitHub } from "./GitHub.svg";
+export { default as Linkedin } from "./LinkedIn.svg";
 export { default as Layers } from "./Layers.svg";
 export { default as Locate } from "./Locate.svg";
 export { default as Bookmark } from "./Bookmark.svg";
