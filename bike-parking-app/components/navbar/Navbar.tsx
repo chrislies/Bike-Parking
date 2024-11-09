@@ -42,7 +42,7 @@ const Navbar = () => {
           isMenuOpen ? "shadow-md" : "shadow-3xl"
         } transition-all duration-[900ms]`}
       >
-        <nav className="flex justify-between items-center h-[--header-height] mx-auto max-container padding-container py-1 max-w-full">
+        <nav className="flex justify-between items-center h-[--header-height] max-lg:padding-container mx-auto max-w-screen-lg py-1">
           <Link href="/">
             <Image
               src="/images/bike_parking_logo.png"
