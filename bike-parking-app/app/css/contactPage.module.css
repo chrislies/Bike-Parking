@@ -20,3 +20,7 @@
 .message {
   @apply text-lg;
 }
+
+.contactSVG {
+  @apply h-7 w-7 text-slate-950 hover:text-slate-500 transition-colors duration-300;
+}
