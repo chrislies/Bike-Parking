@@ -199,10 +199,10 @@ const ContactPage: React.FC = () => {
         </section> 
       </main>
         */}
-      <section className="w-screen">
+      <section className="w-[40%] max-md:w-[60%] max-sm:w-full rounded-xl bg-white mt-12">
         <form
           onSubmit={handleSubmit}
-          className="pt-8 pb-10 flex flex-col items-center gap-5 2xl:px-[200px] max-2xl:px-[200px] max-xl:px-[100px] max-lg:px-8"
+          className="pt-10 pb-10 flex flex-col items-center gap-5 2xl:px-[200pxd] max-2xl:px-[200pxd] max-xl:px-[100pxd] max-lg:px-8"
         >
           <div className="name">
             <label htmlFor="name">
@@ -276,20 +276,22 @@ const ContactPage: React.FC = () => {
               {errors.messageError}
             </span>
           </div>
-          <button
-            className="bg-green-600 hover:bg-green-500 rounded p-3 w-[150px] text-white font-bold"
-            type="submit"
-            disabled={loading}
-          >
-            {loading ? (
-              <div className="flex flex-row">
-                <Spinner className="animate-spin h-6 mr-3"></Spinner>
-                Sending...
-              </div>
-            ) : (
-              "Send"
-            )}
-          </button>
+          <div>
+            <button
+              className="bg-gradient-to-b from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 rounded p-3 w-[150pxd] text-white font-bold"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex flex-row justify-center">
+                  <Spinner className="animate-spin h-6 mr-3"></Spinner>
+                  Sending...
+                </div>
+              ) : (
+                "Send"
+              )}
+            </button>
+          </div>
           <div className="2xl:h-5 max-2xl:h-5 max-sm:h-[30px]">
             {success && (
               <div
