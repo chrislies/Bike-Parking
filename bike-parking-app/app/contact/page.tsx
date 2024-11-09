@@ -2,49 +2,10 @@
 import React, { useState } from "react";
 import { GitHub, Linkedin, Mail, Spinner } from "@/components/svgs";
 import styles from "../css/contactPage.module.css";
-import { map } from "leaflet";
-import LinkedIn from "next-auth/providers/linkedin";
 import Link from "next/link";
+import { teamMembers } from "@/constants/Constants";
 
 const ContactPage: React.FC = () => {
-  const teamMembers = [
-    {
-      name: "Christopher Lai",
-      title: "Full Stack Developer",
-      description: "Focuses on user experience and design.",
-      email: "clai20707@gmail.com",
-      github: "chrislies",
-      linkedin: "christwofour",
-      bio: "Christopher is our lead UI/UX designer. With a keen eye for design and user experience, he ensures all interfaces are intuitive and engaging.",
-    },
-    {
-      name: "Jiaxin Lin",
-      title: "Backend Developer",
-      description: "Expert in Node.js and databases.",
-      email: "jiaxinlin200204@gmail.com",
-      github: "Shion1314",
-      linkedin: "jiaxinl1314",
-      bio: "Jiaxin is a backend specialist with extensive experience in server-side languages and database management. He ensures our data systems are efficient and secure.",
-    },
-    {
-      name: "Xuanrong Hong",
-      title: "Backend Developer",
-      description: "Guarantees product quality and reliability.",
-      email: "hxr3136754148@gmail.com",
-      github: "Xhong0921-rong",
-      linkedin: "xuanrong-hong-157b82240",
-      bio: "Xuanrong oversees our quality assurance processes, implementing rigorous testing methods to ensure our application meets high standards.",
-    },
-    {
-      name: "Eric Ma",
-      title: "Frontend Developer",
-      description: "Specializes in React and CSS.",
-      email: "ericma25.em@gmail.com",
-      github: "em-cp",
-      linkedin: "",
-      bio: "Eric has over 10 years of experience in front-end technologies including React, Angular, and Vue.js. He is passionate about building accessible, user-friendly web applications.",
-    },
-  ];
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -162,7 +123,7 @@ const ContactPage: React.FC = () => {
         <div className="grid gap-10 max-lg:justify-center max-md:flex-col max-lg:padding-container sm:grid-cols-2 lg:grid-cols-4">
           {teamMembers.map((member, index) => (
             <div
-              className="grid items-start justify-center p-4 bg-white shadow-md rounded-lg"
+              className="grid place-items-start items-center p-4 bg-white shadow-md rounded-lg"
               key={index}
             >
               <h2 className="text-xl font-bold max-sm:px-10">{member.name}</h2>
