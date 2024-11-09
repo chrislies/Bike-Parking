@@ -67,3 +67,7 @@
 .bar {
   @apply block w-[30px] h-[3px] my-[5px] mx-[auto] bg-black;
 }
+
+.mainBg {
+  @apply h-screen bg-gradient-to-b from-gray-300 to-blue-300;
+}
