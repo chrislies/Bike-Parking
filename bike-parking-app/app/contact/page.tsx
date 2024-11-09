@@ -116,7 +116,7 @@ const ContactPage: React.FC = () => {
 
   return (
     <div className="bg-gradient-to-b from-blue-100 to-[#f3f4f6] min-h-screen flex flex-col">
-      <section className="flex flex-col w-full max-w-screen-lg mx-auto my-6 px-4">
+      <section className="flex flex-col w-full max-w-screen-lg mx-auto mt-6 mb-8 px-4">
         <div className="flex max-lg:justify-center pb-6">
           <h1>Our Team</h1>
         </div>
@@ -169,7 +169,7 @@ const ContactPage: React.FC = () => {
           <h1 className="text-[#f3f4f6]">Contact Us</h1>
         </div>
       </section>
-      <section className="flex justify-center">
+      <section className="flex justify-center mb-16">
         <div className="w-[40%] max-lg:w-[70%] max-md:w-[60%] max-sm:w-full -mt-64 rounded-xl bg-white shadow-xl">
           <div className="bg-gray-200 rounded-t-xl p-6 max-sm:px-0 flex items-center justify-center gap-4">
             <p className="text-black text-xl max-w-lg">

@@ -13,14 +13,13 @@ export default async function Home() {
           <h1 className="text-slate-900 font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center">
             {`Welcome to `}
             <span className="bg-clip-text text-transparent bg-gradient-to-b max-sm:bg-gradient-to-t from-green-400 to-green-600">
-              BikOU
+              LockySpots
             </span>
           </h1>
           <p className="mt-6 text-lg text-slate-600 text-center max-w-xl max-sm:mx-10 mx-auto">
-            A community-driven interactive map that locates accessible parking
-            spots such as <span className="font-bold">bike racks</span> and{" "}
-            <span className="font-bold">street signs</span> for bikes and
-            scooters.
+            A community-driven interactive map that helps you find accessible
+            bike and scooter parking spots, from <strong>bike racks</strong> to{" "}
+            <strong>street signs</strong>.
           </p>
           <Link
             href="/login"
