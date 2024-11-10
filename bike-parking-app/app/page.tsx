@@ -75,7 +75,7 @@ export default async function Home() {
               <div className="flex flex-col">
                 <div className="flex flex-col gap-8">
                   <p className="text-black">
-                    BikOU (Bike Parking) is designed to both
+                    LockySpot is designed to both
                     <strong> reduce </strong>
                     the overall bike and scooter commute time and
                     <strong> alleviate </strong> the stress and inconvenience of
