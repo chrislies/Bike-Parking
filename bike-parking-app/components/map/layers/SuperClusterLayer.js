@@ -6,7 +6,7 @@ import _ from "lodash";
 
 const icons = {};
 const fetchIcon = (count, size) => {
-  const adjustedSize = Math.min(50, Math.max(10, size)); // Adjust the size, for example, between 10px and 50px
+  const adjustedSize = Math.min(50, Math.max(10, size)); // Adjust the size (between 10px and 50px)
   const padding = adjustedSize / 4; // Adjust the padding based on size
 
   if (!icons[count]) {

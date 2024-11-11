@@ -1,53 +1,25 @@
 import Navbar from "@/components/navbar/Navbar";
 import Image from "next/image";
 import Link from "next/link";
-import "../app/css/homePage.css";
-
-const FEATURES = [
-  {
-    feature: "Save a spot",
-    desc: "Registered members can save up to 5 spots for quick access.",
-    imgSrc: "/images/feature_favorites.png",
-  },
-  {
-    feature: "Report a spot",
-    desc: "Registered members can report an existing spot for problems.",
-    imgSrc: "/images/feature_report.png",
-  },
-  {
-    feature: "Add a new spot",
-    desc: "Registered members can request to add a new spot to the map.",
-    imgSrc: "/images/feature_add-spot.png",
-  },
-  {
-    feature: "Request to delete a spot",
-    desc: "Registered members can request to delete an existing spot on the map.",
-    imgSrc: "/images/feature_delete-spot.png",
-  },
-  {
-    feature: "Manage contributions",
-    desc: "Registered members can view and delete their previous map contributions including reports and user-added spots.",
-    imgSrc: "/images/feature_contributions.png",
-  },
-];
+import styles from "../app/css/homePage.module.css";
+import { FEATURES } from "@/constants";
 
 export default async function Home() {
   return (
     <>
       <Navbar />
       <div className="relative">
-        <div className="flex flex-col items-center font-sans max-w-5xl mx-auto pt-8 max-md:h-[130vh]">
+        <div className="flex flex-col items-center font-sans mx-auto pt-8">
           <h1 className="text-slate-900 font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center">
             {`Welcome to `}
             <span className="bg-clip-text text-transparent bg-gradient-to-b max-sm:bg-gradient-to-t from-green-400 to-green-600">
-              BikOU
+              LockySpots
             </span>
           </h1>
           <p className="mt-6 text-lg text-slate-600 text-center max-w-xl max-sm:mx-10 mx-auto">
-            A community-driven interactive map that locates accessible parking
-            spots such as <span className="font-bold">bike racks</span> and{" "}
-            <span className="font-bold">street signs</span> for bikes and
-            scooters.
+            A community-driven interactive map that helps you find accessible
+            bike and scooter parking spots, from <strong>bike racks</strong> to{" "}
+            <strong>street signs</strong>.
           </p>
           <Link
             href="/login"
@@ -57,7 +29,9 @@ export default async function Home() {
           </Link>
           {/* HERO IMAGES */}
           <div className="flex mt-10 max-md:flex-col">
-            <div className="hero-image h-[450px] w-[450px] max-lg:h-[350px] max-lg:w-[350px] max-md:h-[250px] max-md:w-[250px] top-5 left-12 max-md:top-0 max-md:left-[-10px] z-[14]">
+            <div
+              className={`${styles.hero_image} h-[450px] w-[450px] max-lg:h-[350px] max-lg:w-[350px] max-md:h-[250px] max-md:w-[250px] top-5 left-12 max-md:top-0 max-md:left-[-10px] z-[14]`}
+            >
               <Image
                 src={"/images/map_ui.png"}
                 alt={"map ui"}
@@ -67,7 +41,9 @@ export default async function Home() {
                 }}
               />
             </div>
-            <div className="hero-image h-[500px] w-[500px] max-lg:h-[400px] max-lg:w-[400px] max-md:h-[300px] max-md:w-[300px] max-md:top-[-60px] max-md:left-[10px] max-md:z-[15] z-[12]">
+            <div
+              className={`${styles.hero_image} h-[500px] w-[500px] max-lg:h-[400px] max-lg:w-[400px] max-md:h-[300px] max-md:w-[300px] max-md:top-[-60px] max-md:left-[10px] max-md:z-[15] z-[12]`}
+            >
               <Image
                 src={"/images/map_directions.png"}
                 alt={"map directions"}
@@ -77,7 +53,7 @@ export default async function Home() {
                 }}
               />
             </div>
-            {/* <div className="hero-image h-[425px] w-[425px] max-lg:h-[320px] max-lg:w-[320px] max-md:h-[220px] max-md:w-[220px] max-md:top-[-200px] max-md:left-[10px] max-md:z-[14] z-[13]">
+            {/* <div className="hero_image h-[425px] w-[425px] max-lg:h-[320px] max-lg:w-[320px] max-md:h-[220px] max-md:w-[220px] max-md:top-[-200px] max-md:left-[10px] max-md:z-[14] z-[13]">
               <Image
                 src={"/images/map_reports.png"}
                 alt={"map directions"}
@@ -89,17 +65,17 @@ export default async function Home() {
             </div> */}
           </div>
           {/* ABOUT */}
-          <div
+          <section
             id="about"
             className="relative w-screen bg-[#f1f1f1] top-[-70px] max-md:top-[-100px]"
           >
-            <div className="my-[100px] max-w-[1280px] px-10 max-lg:px-20 max-md:px-5 mx-auto">
-              <h1 className="">About</h1>
+            <div className="my-[100px] max-w-screen-lg px-10 max-lg:px-20 max-md:px-5 mx-auto">
+              <h1>About</h1>
               <h2 className="mb-12 italic">Designed with ease in mind.</h2>
               <div className="flex flex-col">
                 <div className="flex flex-col gap-8">
                   <p className="text-black">
-                    BikOU (Bike Parking) is designed to both
+                    LockySpot is designed to both
                     <strong> reduce </strong>
                     the overall bike and scooter commute time and
                     <strong> alleviate </strong> the stress and inconvenience of
@@ -127,28 +103,33 @@ export default async function Home() {
                 </Link>
               </div>
             </div>
-          </div>
+          </section>
           {/* FEATURES */}
-          <div className="max-w-[1280px] relative w-screen min-h-[50vh] top-[-50px] max-md:top-[-100px]">
-            <div className="px-10 max-lg:px-20 max-md:px-5">
-              <h1 className="mt-[100px]">Features</h1>
-              <h2 className="mb-20 italic">Simple. Quick. Efficient.</h2>
-              <div className="flex flex-col gap-32">
+          <section className="w-screen mb-16">
+            <div className="max-w-screen-lg px-10 max-lg:px-20 max-md:px-5 mx-auto">
+              <h1>Features</h1>
+              <h2 className="mb-12 italic">Simple. Quick. Efficient.</h2>
+              <div className="flex flex-col gap-32 max-sm:gap-24">
                 {FEATURES.map((item, index) => (
                   <div
                     key={index}
-                    className={`flex justify-center ${
+                    className={`flex justify-center items-center gap-24 max-sm:flex-col max-sm:gap-2 ${
                       index % 2 === 0 ? "" : "flex-row-reverse"
-                    } items-center gap-24`}
+                    }`}
                   >
-                    <div className="flex flex-col gap-3 max-w-[250px]">
-                      <h2 className="">{item.feature}</h2>
-                      <p className="">{item.desc}</p>
+                    <div className="max-w-[250px] relative">
+                      <span
+                        className={`h-3 w-16 absolute z-[-1] top-5 -left-2 ${
+                          index % 2 === 0 ? "bg-green-300" : "bg-red-300"
+                        }`}
+                      ></span>
+                      <h2 className="text-2xl">{item.feature}</h2>
+                      <p className="text-lg max-sm:mx-0">{item.desc}</p>
                     </div>
-                    <div className="feature-image">
+                    <div className={styles.feature_image}>
                       <Image
                         src={item.imgSrc}
-                        alt={"Registered members can save up to 5 spots"}
+                        alt={item.desc}
                         fill
                         style={{
                           objectFit: "contain",
@@ -159,7 +140,7 @@ export default async function Home() {
                 ))}
               </div>
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </>

@@ -68,6 +68,22 @@
   @apply block w-[30px] h-[3px] my-[5px] mx-[auto] bg-black;
 }
 
+.mainBg {
+  @apply h-screen bg-gradient-to-b from-gray-300 to-blue-300;
+}
+
+h1 {
+  @apply text-slate-900 font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight;
+}
+
+h2 {
+  @apply font-semibold text-xl;
+}
+
+p {
+  @apply text-base text-slate-600 max-w-xl max-sm:mx-10;
+}
+
 .prunecluster {
   font-size: 12px;
   border-radius: 20px;
