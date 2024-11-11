@@ -38,7 +38,8 @@
     "components/map/CanvasMarkersLayers.tsx",
     "components/map/testMap.js",
     "components/map/LeafletCanvasMarker.js",
-    "components/map/layers/PruneMarkerClusterLayer.js"
+    "components/map/layers/PruneMarkerClusterLayer.js",
+    "components/map/SuperClusterMap.tsx"
   ],
   "exclude": ["node_modules"]
 }
