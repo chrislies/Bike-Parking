@@ -4,7 +4,7 @@ import { formatDate } from "./formatDate";
 async function getCoordinates(): Promise<MarkerData[] | null> {
   try {
     console.log("Fetching data from API");
-    const debug = false;
+    const debug = true;
     let supabase;
     if (!debug) {
       supabase = createSupabaseBrowserClient();
@@ -59,7 +59,7 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     //   }
     // });
 
-    // allData = [...allData, ...bikeRacksData];
+    allData = [...allData, ...bikeRacksData];
 
     const startSign = window.performance.now();
     const streetSignsResponse = await fetch(
@@ -71,7 +71,7 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     // const limitData = streetSignsData.street_signs.slice(0, 20000);
     // const limitData = streetSignsData.street_signs.slice(0, 1000);
 
-    // allData = [...allData, ...streetSignsData.street_signs];
+    allData = [...allData, ...streetSignsData.street_signs];
     // allData = [...allData, ...limitData];
     const endSign = window.performance.now();
 
