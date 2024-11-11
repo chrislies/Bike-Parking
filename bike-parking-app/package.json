@@ -28,7 +28,6 @@
     "leaflet.featuregroup.subgroup": "^1.0.2",
     "leaflet.markercluster": "^1.5.3",
     "lodash": "^4.17.21",
-    "next": "latest",
     "mongoose": "^8.8.1",
     "next": "^13.5.7",
     "next-auth": "^4.24.7",
