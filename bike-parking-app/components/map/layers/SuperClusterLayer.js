@@ -6,11 +6,18 @@ import _ from "lodash";
 
 const icons = {};
 const fetchIcon = (count, size) => {
+  const adjustedSize = Math.min(50, Math.max(10, size)); // Adjust the size, for example, between 10px and 50px
+  const padding = adjustedSize / 4; // Adjust the padding based on size
+
   if (!icons[count]) {
     icons[count] = L.divIcon({
-      html: `<div class="cluster-marker" style="width: ${size}px; height: ${size}px;">${count}</div>`,
+      html: `<div class="cluster-marker" style="width: ${adjustedSize}px; height: ${adjustedSize}px; padding: ${padding}px;">
+        ${count}
+      </div>`,
+      className: "leaflet-div-icon",
     });
   }
+
   return icons[count];
 };
 
@@ -28,7 +35,6 @@ export default function ShowSpots({ data }) {
   // get map bounds
   function updateMap() {
     const b = map.getBounds();
-    console.log("Bounds: ", b);
     setBounds([
       b.getSouthWest().lng,
       b.getSouthWest().lat,
@@ -38,26 +44,20 @@ export default function ShowSpots({ data }) {
     setZoom(map.getZoom());
   }
 
-  const debouncedUpdateMap = useMemo(
-    () => _.debounce(updateMap, 100),
-    [updateMap]
-  );
+  // Debounce the updateMap function
+  const debouncedUpdateMap = useCallback(_.debounce(updateMap, 100), [map]);
 
+  // Update the map bounds once when the component is mounted
   useEffect(() => {
-    debouncedUpdateMap();
-    return () => {
-      debouncedUpdateMap.cancel();
-    };
-  }, [debouncedUpdateMap]);
-
-  useEffect(() => {
+    updateMap(); // Trigger initial update on mount
     map.on("move", debouncedUpdateMap);
     return () => {
+      debouncedUpdateMap.cancel();
       map.off("move", debouncedUpdateMap);
     };
-  }, [map, debouncedUpdateMap]);
+  }, [debouncedUpdateMap, map]);
 
-  // Optimize the points processing (convert once instead of on every render)
+  // Memoize points to avoid unnecessary recalculations
   const points = useMemo(
     () =>
       data.map((spot) => ({
@@ -71,34 +71,33 @@ export default function ShowSpots({ data }) {
     [data]
   );
 
+  // Use supercluster hook to get clusters
   const { clusters, supercluster } = useSupercluster({
-    points: points,
-    bounds: bounds,
-    zoom: zoom,
+    points,
+    bounds,
+    zoom,
     options: { radius: 100, maxZoom: 17 },
   });
-
-  console.log(clusters.length, zoom);
 
   return (
     <>
       {clusters.map((cluster) => {
-        // every cluster point has coordinates
         const [longitude, latitude] = cluster.geometry.coordinates;
-        // the point may be either a cluster or a spot point
         const { cluster: isCluster, point_count: pointCount } =
           cluster.properties;
 
-        // we have a cluster to render
+        // Render cluster markers
         if (isCluster) {
+          const size = Math.min(
+            50,
+            Math.max(10, 10 + Math.sqrt(pointCount) * 10)
+          ); // Calculate size based on point count
+
           return (
             <Marker
               key={`cluster-${cluster.id}`}
               position={[latitude, longitude]}
-              icon={fetchIcon(
-                pointCount,
-                10 + (pointCount / points.length) * 40
-              )}
+              icon={fetchIcon(pointCount, size)}
               eventHandlers={{
                 click: () => {
                   const expansionZoom = Math.min(
@@ -114,7 +113,7 @@ export default function ShowSpots({ data }) {
           );
         }
 
-        // we have a single point (spot) to render
+        // Render individual spot markers
         return (
           <Marker
             key={`spot-${cluster.properties.spotId}`}
