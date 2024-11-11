@@ -4,6 +4,7 @@ import { useQuery } from "react-query";
 import { MapContainer, TileLayer } from "react-leaflet";
 import getCoordinates from "@/lib/getCoordinates";
 import ShowSpots from "./layers/SuperClusterLayer";
+import Loader from "../Loader";
 
 export default function SuperClusterMap() {
   const { isLoading, error, data } = useQuery("repoData", getCoordinates, {
@@ -12,7 +13,7 @@ export default function SuperClusterMap() {
     refetchOnWindowFocus: false, // Prevent refetch on window/tab focus
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loader />;
 
   if (error) return <div>An error has occurred: {error.message}</div>;
 
