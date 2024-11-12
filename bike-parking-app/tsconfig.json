@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -22,9 +18,7 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     },
     "target": "ES2017"
   },
@@ -46,9 +40,8 @@
     "components/map/testMap.js",
     "components/map/LeafletCanvasMarker.js",
     "components/map/layers/PruneMarkerClusterLayer.js",
-    "components/map/SuperClusterMap.tsx"
+    "components/map/SuperClusterMap.tsx",
+    "components/map/layers/SpotMaker.jsx"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }
