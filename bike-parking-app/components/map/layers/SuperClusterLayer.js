@@ -3,6 +3,7 @@ import L from "leaflet";
 import useSupercluster from "use-supercluster";
 import { Marker, useMap } from "react-leaflet";
 import _ from "lodash";
+import SpotMarker from "./SpotMarker";
 
 const icons = {};
 const fetchIcon = (count) => {
@@ -42,19 +43,14 @@ const fetchIcon = (count) => {
   return icons[iconKey];
 };
 
-// const markerIcon = new L.Icon({
-//   iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-//   iconSize: [25, 35],
-// });
-
 const markerIcon = new L.Icon({
-  iconUrl: "/svgs/FavoriteMarker.svg",
-  // iconSize: [25, 35],
+  iconUrl: "/svgs/Marker.svg",
+  iconSize: [45, 50],
   iconAnchor: [20, 30],
   popupAnchor: [3, -16],
 });
 
-export default function ShowSpots({ data }) {
+export default function SuperClusterLayer({ data }) {
   const maxZoom = 22;
   const [bounds, setBounds] = useState(null);
   const [zoom, setZoom] = useState(12);
@@ -90,7 +86,19 @@ export default function ShowSpots({ data }) {
     () =>
       data.map((spot) => ({
         type: "Feature",
-        properties: { cluster: false, spotId: spot.id },
+        properties: {
+          cluster: false,
+          spotId: spot.id,
+          x: spot.x,
+          y: spot.y,
+          spotAddress: spot.address,
+          spotType: spot.type, // 'rack' or 'sign'
+          rackType: spot.rack_type,
+          signDescription: spot.sign_description,
+          date_inst: spot.date_inst,
+          author: spot.author,
+          date_added: spot.date_added,
+        },
         geometry: {
           type: "Point",
           coordinates: [parseFloat(spot.x), parseFloat(spot.y)],
@@ -141,12 +149,11 @@ export default function ShowSpots({ data }) {
           );
         }
 
-        // Render individual spot markers
         return (
-          <Marker
+          <SpotMarker
             key={`spot-${cluster.properties.spotId}`}
-            position={[latitude, longitude]}
-            icon={markerIcon}
+            cluster={cluster}
+            map={map}
           />
         );
       })}
