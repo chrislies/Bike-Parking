@@ -20,7 +20,7 @@
   background-color: #333;
   height: 2em;
   width: 2em;
-  color: #fff;
+  color: black;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,11 +176,78 @@ p {
   background: none !important;
   border: none !important;
 }
-.cluster-marker {
-  color: #fff;
-  background: #1978c8;
+
+.cluster-marker-background-small,
+.cluster-marker-background-medium,
+.cluster-marker-background-large,
+.cluster-marker-background-extralarge {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  border-radius: 50%;
+  z-index: 0;
+}
+
+/* Cluster marker styling */
+.cluster-marker-small,
+.cluster-marker-medium,
+.cluster-marker-large,
+.cluster-marker-extralarge {
+  color: black;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }
+
+.cluster-marker-small {
+  background: #6ecc39cc;
+  width: 30px;
+  height: 30px;
+}
+
+.cluster-marker-medium {
+  background: #f0c20ccc;
+  width: 35px;
+  height: 35px;
+}
+
+.cluster-marker-large {
+  background: #f18017cc;
+  width: 45px;
+  height: 45px;
+}
+
+.cluster-marker-extralarge {
+  background: #f11758cc;
+  width: 50px;
+  height: 50px;
+}
+
+/* Background color variations for the outer layer */
+.cluster-marker-background-small {
+  background: #b6e28d99;
+  width: 40px;
+  height: 40px;
+}
+
+.cluster-marker-background-medium {
+  background: #f1d35799;
+  width: 45px;
+  height: 45px;
+}
+
+.cluster-marker-background-large {
+  background: #fd9c7299;
+  width: 55px;
+  height: 55px;
+}
+
+.cluster-marker-background-extralarge {
+  background: #fd72a099;
+  width: 60px;
+  height: 60px;
+}
+/* SuperCluster end */
