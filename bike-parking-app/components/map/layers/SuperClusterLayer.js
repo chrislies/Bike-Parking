@@ -5,20 +5,41 @@ import { Marker, useMap } from "react-leaflet";
 import _ from "lodash";
 
 const icons = {};
-const fetchIcon = (count, size) => {
-  const adjustedSize = Math.min(50, Math.max(10, size)); // Adjust the size (between 10px and 50px)
-  const padding = adjustedSize / 4; // Adjust the padding based on size
+const fetchIcon = (count) => {
+  let className, backgroundClass, adjustedSize;
 
-  if (!icons[count]) {
-    icons[count] = L.divIcon({
-      html: `<div class="cluster-marker" style="width: ${adjustedSize}px; height: ${adjustedSize}px; padding: ${padding}px;">
-        ${count}
-      </div>`,
+  if (count < 10) {
+    className = "cluster-marker-small";
+    backgroundClass = "cluster-marker-background-small";
+    adjustedSize = 30;
+  } else if (count < 50) {
+    className = "cluster-marker-medium";
+    backgroundClass = "cluster-marker-background-medium";
+    adjustedSize = 35;
+  } else if (count < 300) {
+    className = "cluster-marker-large";
+    backgroundClass = "cluster-marker-background-large";
+    adjustedSize = 45;
+  } else {
+    className = "cluster-marker-extralarge";
+    backgroundClass = "cluster-marker-background-extralarge";
+    adjustedSize = 50;
+  }
+
+  const iconKey = `${className}-${count}`;
+  if (!icons[iconKey]) {
+    icons[iconKey] = L.divIcon({
+      html: `
+        <div class="${backgroundClass}"></div> <!-- Background layer -->
+        <div class="${className}" style="width: ${adjustedSize}px; height: ${adjustedSize}px;">
+          ${count}
+        </div>
+      `,
       className: "leaflet-div-icon",
     });
   }
 
-  return icons[count];
+  return icons[iconKey];
 };
 
 const markerIcon = new L.Icon({
@@ -76,7 +97,7 @@ export default function ShowSpots({ data }) {
     points,
     bounds,
     zoom,
-    options: { radius: 100, maxZoom: 17 },
+    options: { radius: 150, maxZoom: 17 },
   });
 
   return (
@@ -97,7 +118,7 @@ export default function ShowSpots({ data }) {
             <Marker
               key={`cluster-${cluster.id}`}
               position={[latitude, longitude]}
-              icon={fetchIcon(pointCount, size)}
+              icon={fetchIcon(pointCount)}
               eventHandlers={{
                 click: () => {
                   const expansionZoom = Math.min(
