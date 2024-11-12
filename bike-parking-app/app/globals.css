@@ -251,3 +251,14 @@ p {
   height: 60px;
 }
 /* SuperCluster end */
+
+.desktop-tooltip {
+  @apply block;
+}
+
+/* Hide Tooltip on mobile devices */
+@media (max-width: 1024px) {
+  .desktop-tooltip {
+    @apply hidden;
+  }
+}
