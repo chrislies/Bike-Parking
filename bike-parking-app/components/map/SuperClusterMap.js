@@ -2,7 +2,7 @@
 import { useQuery } from "react-query";
 import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
 import getCoordinates from "@/lib/getCoordinates";
-import ShowSpots from "./layers/SuperClusterLayer";
+import SuperClusterLayer from "./layers/SuperClusterLayer";
 import Loader from "../Loader";
 import "leaflet-rotate";
 import ControlGeocoder from "./LeafletControlGeocoder";
@@ -12,13 +12,11 @@ import UserLocationMarker from "./UserLocationMarker";
 const { BaseLayer } = LayersControl;
 
 export default function SuperClusterMap() {
-  const { isLoading, error, data } = useQuery("repoData", getCoordinates, {
+  const { isLoading, error, data } = useQuery("coordinates", getCoordinates, {
     staleTime: 5 * 60 * 1000, // Keep the data fresh for 5 minutes
     cacheTime: 10 * 60 * 1000, // Cache the data for 10 minutes
     refetchOnWindowFocus: false, // Prevent refetch on window/tab focus
   });
-
-  if (isLoading) return <Loader />;
 
   if (error) return <div>An error has occurred: {error.message}</div>;
 
@@ -52,8 +50,9 @@ export default function SuperClusterMap() {
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           />
         </BaseLayer>
-        <ShowSpots data={data} />
+        {!isLoading && <SuperClusterLayer data={data} />}
       </LayersControl>
+      {isLoading && <Loader />}
       <UserLocationMarker />
       <ControlGeocoder />
       <Toolbar />
