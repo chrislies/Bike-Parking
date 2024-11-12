@@ -141,9 +141,9 @@ const Navbar = () => {
           ${
             isMenuOpen
               ? "top-[--header-height]"
-              : "-top-[calc(2*var(--header-height))]"
+              : "-top-[calc(3*var(--header-height))]"
           } 
-          transition-all duration-[300ms] ease-linear`}
+          transition-all duration-[275ms] ease-linear`}
         >
           <ul>
             {NAV_LINKS.map((link, index) => (
