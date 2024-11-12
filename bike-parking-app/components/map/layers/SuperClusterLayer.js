@@ -97,7 +97,7 @@ export default function ShowSpots({ data }) {
     points,
     bounds,
     zoom,
-    options: { radius: 150, maxZoom: 17 },
+    options: { radius: 150, maxZoom: 18 },
   });
 
   return (
