@@ -42,9 +42,16 @@ const fetchIcon = (count) => {
   return icons[iconKey];
 };
 
+// const markerIcon = new L.Icon({
+//   iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+//   iconSize: [25, 35],
+// });
+
 const markerIcon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-  iconSize: [25, 25],
+  iconUrl: "/svgs/FavoriteMarker.svg",
+  // iconSize: [25, 35],
+  iconAnchor: [20, 30],
+  popupAnchor: [3, -16],
 });
 
 export default function ShowSpots({ data }) {
