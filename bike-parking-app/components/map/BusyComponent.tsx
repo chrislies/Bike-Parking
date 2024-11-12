@@ -33,7 +33,7 @@ const BusyComponent = ({ x, y }: BusyComponentProps) => {
   return (
     <>
       {isBusy ? (
-        <div className="absolute top-[40px] right-[8px] h-12 w-12 flex justify-center items-center bg-orange-500 shadow-mdd rounded-full">
+        <div className="z-10 absolute top-[40px] right-[8px] h-12 w-12 flex justify-center items-center bg-orange-500 shadow-mdd rounded-full">
           <p className="p-2 text-lg text-white select-none rotate-12">busy</p>
         </div>
       ) : null}
