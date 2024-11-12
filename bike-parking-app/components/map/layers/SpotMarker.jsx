@@ -45,7 +45,7 @@ export default function SpotMarker({ cluster, map }) {
       icon={markerIcon}
       eventHandlers={{ click: handleMarkerClick }}
     >
-      <Tooltip>
+      <Tooltip className="desktop-tooltip">
         {spotType === "userAdded" ? "User Added" : rackType || "Street Sign"}
       </Tooltip>
       <Popup minWidth={170} autoPan={false}>
