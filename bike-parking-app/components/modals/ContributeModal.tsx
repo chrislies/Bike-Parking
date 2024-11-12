@@ -62,7 +62,7 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                   className="text-lg font-medium leading-6 text-gray-900"
                 >
                   {!uuid ? (
-                    <h1 className="text-base text-center mb-6">
+                    <div className="text-base text-center mb-6">
                       <span
                         className="font-bold hover:underline cursor-pointer"
                         onClick={() => setLoginView(true)}
@@ -78,7 +78,7 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                       </span>
                       {` to `}
                       <span className="italic">view contributions</span>
-                    </h1>
+                    </div>
                   ) : (
                     <div className="flex justify-center">
                       {yourReportsModalView && (
@@ -105,13 +105,13 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                           </span>
                         </button>
                       )}
-                      <h1 className="bg-gray-300 rounded-xl py-1 px-4 shadow-inner text-xl font-bold tracking-wider uppercase max-w-fit">
+                      <div className="bg-gray-300 rounded-xl py-1 px-4 shadow-inner text-xl font-bold tracking-wider uppercase max-w-fit">
                         {yourReportsModalView
                           ? "Your Reports"
                           : yourRequestsModalView
                           ? "Your Requests"
                           : "Contributions"}
-                      </h1>
+                      </div>
                     </div>
                   )}
                 </Dialog.Title>
