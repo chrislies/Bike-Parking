@@ -81,7 +81,7 @@ h2 {
 }
 
 p {
-  @apply text-base text-slate-600 max-w-xl max-sm:mx-10;
+  @apply text-base text-slate-600 max-w-xl;
 }
 
 .prunecluster {

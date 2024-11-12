@@ -127,8 +127,8 @@ const ContactPage: React.FC = () => {
               key={index}
             >
               <h2 className="text-xl font-bold max-sm:px-10">{member.name}</h2>
-              <p className="text-gray-600">{member.title}</p>
-              <p className="text-sm text-gray-500 tracking-tight">
+              <p className="text-gray-600 max-sm:mx-10">{member.title}</p>
+              <p className="text-sm text-gray-500 tracking-tight max-sm:mx-10">
                 {member.description}
               </p>
               <div className="pt-2 flex gap-5 max-sm:px-10">
@@ -172,7 +172,7 @@ const ContactPage: React.FC = () => {
       <section className="flex justify-center mb-16">
         <div className="w-[40%] max-lg:w-[70%] max-md:w-[60%] max-sm:w-full -mt-64 rounded-xl bg-white shadow-xl">
           <div className="bg-gray-200 rounded-t-xl p-6 max-sm:px-0 flex items-center justify-center gap-4">
-            <p className="text-black text-xl max-w-lg">
+            <p className="text-black text-xl max-w-lg max-sm:mx-10">
               <span className="font-bold">Have questions or feedback?</span>
               {` We'd love to hear from you! Send us a message, and our team will
               be in touch shortly.`}
