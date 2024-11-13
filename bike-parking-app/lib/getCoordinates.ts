@@ -14,11 +14,25 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     let allData: any[] = [];
     let offset = 0;
     let rackTypes = new Map<string, number>();
-    const bikeRacksResponse = await fetch(
-      `https://data.cityofnewyork.us/resource/592z-n7dk.json?$limit=50000&$offset=${offset}`
-      // `https://data.cityofnewyork.us/resource/592z-n7dk.json?$limit=1000&$offset=${offset}`
-    );
-    const bikeRacksData: MarkerData[] = await bikeRacksResponse.json();
+    let bikeRacksData: MarkerData[] = [];
+
+    try {
+      const bikeRacksResponse = await fetch(
+        `https://data.cityofnewyork.us/resource/592z-n7dk.json?$limit=50000&$offset=${offset}`
+        // `https://data.cityofnewyork.us/resource/592z-n7dk.json?$limit=10000&$offset=${offset}`
+      );
+
+      if (bikeRacksResponse.ok) {
+        bikeRacksData = await bikeRacksResponse.json();
+      } else {
+        console.error(
+          "Failed to fetch bike racks data:",
+          bikeRacksResponse.status
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching bike racks data:", error);
+    }
 
     // Count the different types of racks
     // bikeRacksData.forEach((item: any) => {
