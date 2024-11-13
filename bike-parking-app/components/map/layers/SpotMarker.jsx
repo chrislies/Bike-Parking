@@ -9,8 +9,14 @@ import { getImageSource } from "@/lib/getImageSource";
 import Link from "next/link";
 import { formatDate } from "@/lib/formatDate";
 
-const markerIcon = new L.Icon({
-  iconUrl: "/svgs/Marker.svg",
+const rackIcon = new L.Icon({
+  iconUrl: "/svgs/RackMarker.svg",
+  iconSize: [45, 50],
+  iconAnchor: [20, 30],
+  popupAnchor: [3, -16],
+});
+const signIcon = new L.Icon({
+  iconUrl: "/svgs/SignMarker.svg",
   iconSize: [45, 50],
   iconAnchor: [20, 30],
   popupAnchor: [3, -16],
@@ -42,7 +48,7 @@ export default function SpotMarker({ cluster, map }) {
     <Marker
       key={`spot-${spotId}`}
       position={[latitude, longitude]}
-      icon={markerIcon}
+      icon={spotType === "rack" ? rackIcon : signIcon}
       eventHandlers={{ click: handleMarkerClick }}
     >
       <Tooltip className="desktop-tooltip">
