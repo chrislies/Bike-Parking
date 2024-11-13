@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import { Marker, Popup, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import ReportComponent from "../ReportComponent";
@@ -8,6 +9,8 @@ import { Bookmark, Directions, NoImage } from "@/components/svgs";
 import { getImageSource } from "@/lib/getImageSource";
 import Link from "next/link";
 import { formatDate } from "@/lib/formatDate";
+import "leaflet-routing-machine";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 
 const rackIcon = new L.Icon({
   iconUrl: "/svgs/RackMarker.svg",
@@ -22,7 +25,12 @@ const signIcon = new L.Icon({
   popupAnchor: [3, -16],
 });
 
-export default function SpotMarker({ cluster, map }) {
+export default function SpotMarker({
+  cluster,
+  map,
+  handleGetDirections,
+  isCalculatingRoute,
+}) {
   const {
     spotId,
     spotType,
@@ -129,13 +137,15 @@ export default function SpotMarker({ cluster, map }) {
               Save
             </button>
             <button
-              onClick={() => {}}
+              onClick={() => handleGetDirections({ x, y })}
               title="Directions"
               aria-label="Directions"
+              aria-disabled={isCalculatingRoute}
+              disabled={isCalculatingRoute}
               className="flex text-sm font-bold justify-center items-center w-full border-[1px] rounded-3xl border-blue-600 hover:shadow-lg gap-1 text-white bg-blue-600"
             >
               <Directions className="h-7 w-7 hover:cursor-pointer items-end" />
-              Directions
+              {isCalculatingRoute ? "Calculating..." : "Directions"}
             </button>
           </div>
           {spotType === "rack" ? (
