@@ -110,7 +110,7 @@ export default function SpotMarker({ cluster, map }) {
             title="View in Google Maps"
             aria-label="View in Google Maps"
           >
-            {spotAddress}
+            {spotType === "userAdded" ? "View in Google Maps" : spotAddress}
           </Link>
           <div className="flex flex-col gap-2 mt-1 mb-3">
             <button
@@ -134,7 +134,7 @@ export default function SpotMarker({ cluster, map }) {
           </div>
           {spotType === "rack" ? (
             <div className="flex justify-between items-end">
-              <p className="italic text-xs !m-0 !p-0">
+              <p className="text-xs !m-0 !p-0">
                 {`Date Installed: `}
                 {date_inst && new Date(date_inst).getFullYear() === 1900
                   ? "N/A"
@@ -144,7 +144,7 @@ export default function SpotMarker({ cluster, map }) {
           ) : spotType === "userAdded" ? (
             <div className="flex justify-between items-end">
               <p className="text-xs !m-0 !p-0">
-                {`Added by: ${author}, ${date_added}`}
+                Added by: <strong>{author}</strong>, {date_added}
               </p>
             </div>
           ) : null}
