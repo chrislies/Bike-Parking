@@ -43,12 +43,14 @@ const RoutineMachineComponent = ({ end }) => {
         },
         (error) => {
           console.error("Error getting user location:", error);
-          toast.error("Error getting user location.");
+          toast.error("Error getting user location.", { id: "locationError" });
           setIsCalculatingRoute(false);
         }
       );
     } else {
-      toast.error("Geolocation is not supported by this browser.");
+      toast.error("Geolocation is not supported by this browser.", {
+        id: "geolocationNotSupported",
+      });
       setIsCalculatingRoute(false);
     }
   };
