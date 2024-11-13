@@ -1,9 +1,13 @@
+"use client";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import L from "leaflet";
 import useSupercluster from "use-supercluster";
 import { Marker, useMap } from "react-leaflet";
 import _ from "lodash";
 import SpotMarker from "./SpotMarker";
+import "leaflet-routing-machine";
+import { transparentIcon } from "@/components/Icons";
+import toast from "react-hot-toast";
 
 const icons = {};
 const fetchIcon = (count) => {
@@ -17,7 +21,7 @@ const fetchIcon = (count) => {
     className = "cluster-marker-medium";
     backgroundClass = "cluster-marker-background-medium";
     adjustedSize = 35;
-  } else if (count < 300) {
+  } else if (count < 200) {
     className = "cluster-marker-large";
     backgroundClass = "cluster-marker-background-large";
     adjustedSize = 45;
@@ -43,8 +47,8 @@ const fetchIcon = (count) => {
   return icons[iconKey];
 };
 
-const markerIcon = new L.Icon({
-  iconUrl: "/svgs/Marker.svg",
+const queryIcon = new L.Icon({
+  iconUrl: "/svgs/SearchPin.svg",
   iconSize: [45, 50],
   iconAnchor: [20, 30],
   popupAnchor: [3, -16],
@@ -54,7 +58,75 @@ export default function SuperClusterLayer({ data }) {
   const maxZoom = 22;
   const [bounds, setBounds] = useState(null);
   const [zoom, setZoom] = useState(12);
+  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
+  const [routingControl, setRoutingControl] = useState(null);
   const map = useMap();
+
+  const handleGetDirections = (marker) => {
+    if (navigator.geolocation) {
+      setIsCalculatingRoute(true); // Disable the 'Directions' button
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+
+          // Remove existing routing control if present
+          if (routingControl) {
+            routingControl.getPlan().setWaypoints([]);
+            map.removeControl(routingControl);
+          }
+
+          // Create a new routing control with waypoints
+          const newRoutingControl = L.Routing.control({
+            waypoints: [
+              L.latLng(latitude, longitude),
+              L.latLng(marker.y, marker.x),
+            ],
+            router: L.Routing.osrmv1({
+              serviceUrl:
+                "https://routing.openstreetmap.de/routed-bike/route/v1",
+              profile: "bike",
+            }),
+            lineOptions: {
+              styles: [{ color: "#0f53ff", weight: 4 }],
+            },
+            collapsible: true,
+            addWaypoints: false,
+            routeWhileDragging: true,
+            draggableWaypoints: true,
+            createMarker: function (i, waypoint, n) {
+              let icon = i === 0 ? transparentIcon : queryIcon;
+              return L.marker(waypoint.latLng, {
+                draggable: i === 1,
+                icon: icon,
+              });
+            },
+          }).addTo(map);
+
+          newRoutingControl.on("routesfound", (e) => {
+            setIsCalculatingRoute(false);
+          });
+
+          newRoutingControl.on("routingerror", (e) => {
+            setIsCalculatingRoute(false);
+            toast.error("Error calculating route.", { id: "calculationError" });
+          });
+
+          setRoutingControl(newRoutingControl);
+        },
+        (error) => {
+          toast.error(`Error getting current location: ${error.message}`, {
+            id: "locationError",
+          });
+          setIsCalculatingRoute(false);
+        }
+      );
+    } else {
+      toast.error("Geolocation is not supported by this browser.", {
+        id: "geolocationNotSupported",
+      });
+      setIsCalculatingRoute(false);
+    }
+  };
 
   // get map bounds
   function updateMap() {
@@ -112,7 +184,7 @@ export default function SuperClusterLayer({ data }) {
     points,
     bounds,
     zoom,
-    options: { radius: 150, maxZoom: 18 },
+    options: { radius: 150, maxZoom: 17 },
   });
 
   return (
@@ -154,6 +226,8 @@ export default function SuperClusterLayer({ data }) {
             key={`spot-${cluster.properties.spotId}`}
             cluster={cluster}
             map={map}
+            handleGetDirections={handleGetDirections}
+            isCalculatingRoute={isCalculatingRoute}
           />
         );
       })}
