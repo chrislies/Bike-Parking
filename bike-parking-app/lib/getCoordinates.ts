@@ -4,7 +4,7 @@ import { formatDate } from "./formatDate";
 async function getCoordinates(): Promise<MarkerData[] | null> {
   try {
     console.log("Fetching data from API");
-    const debug = true;
+    const debug = false;
     let supabase;
     if (!debug) {
       supabase = createSupabaseBrowserClient();
@@ -76,18 +76,24 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     const endSign = window.performance.now();
 
     // prettier-ignore
-    allData = allData.map((item) => ({
-      x: item.x || item.X || item.longitude,
-      y: item.y || item.Y || item.latitude,
-      id: item.site_id ? `R${item.site_id.slice(1)}` : `S.${item.index}`,
-      address: item.ifoaddress || `${item.on_street} ${item.from_street} ${item.to_street}`,
-      rack_type: item.racktype,
-      date_inst: item.date_inst,
-      sign_description: item.sign_description,
-      sign_code: item.sign_code,
-      favorite: false,
-      type: item.racktype ? "rack" : "sign",
-    }));
+    allData = allData.map((item) => {
+      const primaryAddress = item.ifoaddress;
+      const secondaryAddress = [item.onstreet, item.fromstreet, item.tostreet].filter(Boolean).join(" ");
+      const tertiaryAddress = [item.on_street, item.from_street, item.to_street].filter(Boolean).join(" ");
+    
+      return {
+        x: item.x || item.X || item.longitude,
+        y: item.y || item.Y || item.latitude,
+        id: item.site_id ? `R${item.site_id.slice(1)}` : `S.${item.index}`,
+        address: primaryAddress || secondaryAddress || tertiaryAddress,
+        rack_type: item.racktype,
+        date_inst: item.date_inst,
+        sign_description: item.sign_description,
+        sign_code: item.sign_code,
+        favorite: false,
+        type: item.racktype ? "rack" : "sign",
+      };
+    });
 
     // fetch data from the 'BlackList' table from Supabase
     // prettier-ignore
