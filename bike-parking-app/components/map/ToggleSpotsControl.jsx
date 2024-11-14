@@ -48,7 +48,7 @@ export default function ToggleSpotsControl({
       },
     });
 
-    const controlInstance = new toggleControl({ position: "topright" });
+    const controlInstance = new toggleControl({ position: "bottomleft" });
     map.addControl(controlInstance);
 
     return () => {
