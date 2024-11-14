@@ -58,7 +58,6 @@ export default function SuperClusterMap() {
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           />
         </BaseLayer>
-        <LayersControl.Overlay>test</LayersControl.Overlay>
         {!isLoading && data && (
           <SuperClusterLayer
             data={data}
