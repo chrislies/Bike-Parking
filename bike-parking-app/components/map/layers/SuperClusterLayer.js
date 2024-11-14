@@ -54,7 +54,7 @@ const queryIcon = new L.Icon({
   popupAnchor: [3, -16],
 });
 
-export default function SuperClusterLayer({ data }) {
+export default function SuperClusterLayer({ data, showRacks, showSigns }) {
   const maxZoom = 22;
   const [bounds, setBounds] = useState(null);
   const [zoom, setZoom] = useState(12);
@@ -156,27 +156,33 @@ export default function SuperClusterLayer({ data }) {
   // Memoize points to avoid unnecessary recalculations
   const points = useMemo(
     () =>
-      data.map((spot) => ({
-        type: "Feature",
-        properties: {
-          cluster: false,
-          spotId: spot.id,
-          x: spot.x,
-          y: spot.y,
-          spotAddress: spot.address,
-          spotType: spot.type, // 'rack' or 'sign'
-          rackType: spot.rack_type,
-          signDescription: spot.sign_description,
-          date_inst: spot.date_inst,
-          author: spot.author,
-          date_added: spot.date_added,
-        },
-        geometry: {
-          type: "Point",
-          coordinates: [parseFloat(spot.x), parseFloat(spot.y)],
-        },
-      })),
-    [data]
+      data
+        .filter(
+          (spot) =>
+            (spot.type === "rack" && showRacks) ||
+            (spot.type === "sign" && showSigns)
+        )
+        .map((spot) => ({
+          type: "Feature",
+          properties: {
+            cluster: false,
+            spotId: spot.id,
+            x: spot.x,
+            y: spot.y,
+            spotAddress: spot.address,
+            spotType: spot.type,
+            rackType: spot.rack_type,
+            signDescription: spot.sign_description,
+            date_inst: spot.date_inst,
+            author: spot.author,
+            date_added: spot.date_added,
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [parseFloat(spot.x), parseFloat(spot.y)],
+          },
+        })),
+    [data, showRacks, showSigns]
   );
 
   // Use supercluster hook to get clusters
