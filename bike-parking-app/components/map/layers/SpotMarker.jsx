@@ -59,9 +59,7 @@ export default function SpotMarker({
       icon={spotType === "rack" ? rackIcon : signIcon}
       eventHandlers={{ click: handleMarkerClick }}
     >
-      <Tooltip className="desktop-tooltip">
-        {spotType === "userAdded" ? "User Added" : rackType || "Street Sign"}
-      </Tooltip>
+      <Tooltip className="desktop-tooltip">{rackType || "Street Sign"}</Tooltip>
       <Popup minWidth={170} autoPan={false}>
         <div className="flex flex-col">
           <div className="flex flex-col font-bold">
@@ -124,7 +122,7 @@ export default function SpotMarker({
             title="View in Google Maps"
             aria-label="View in Google Maps"
           >
-            {spotType === "userAdded" ? "View in Google Maps" : spotAddress}
+            {author ? "View in Google Maps" : spotAddress}
           </Link>
           <div className="flex flex-col gap-2 mt-1 mb-3">
             <button
@@ -148,19 +146,19 @@ export default function SpotMarker({
               {isCalculatingRoute ? "Calculating..." : "Directions"}
             </button>
           </div>
-          {spotType === "rack" ? (
+          {author ? (
+            <div className="flex justify-between items-end">
+              <p className="text-xs !m-0 !p-0">
+                Added by: <strong>{author}</strong>, {date_added}
+              </p>
+            </div>
+          ) : spotType === "rack" ? (
             <div className="flex justify-between items-end">
               <p className="text-xs !m-0 !p-0">
                 {`Date Installed: `}
                 {date_inst && new Date(date_inst).getFullYear() === 1900
                   ? "N/A"
                   : formatDate(date_inst)}
-              </p>
-            </div>
-          ) : spotType === "userAdded" ? (
-            <div className="flex justify-between items-end">
-              <p className="text-xs !m-0 !p-0">
-                Added by: <strong>{author}</strong>, {date_added}
               </p>
             </div>
           ) : null}
