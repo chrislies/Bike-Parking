@@ -41,7 +41,8 @@
     "components/map/LeafletCanvasMarker.js",
     "components/map/layers/PruneMarkerClusterLayer.js",
     "components/map/SuperClusterMap.tsx",
-    "components/map/layers/SpotMaker.jsx"
+    "components/map/layers/SpotMaker.jsx",
+    "components/map/ToggleSpotsControl.jsx"
   ],
   "exclude": ["node_modules"]
 }
