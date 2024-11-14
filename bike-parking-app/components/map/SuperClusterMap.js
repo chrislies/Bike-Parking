@@ -8,10 +8,15 @@ import "leaflet-rotate";
 import ControlGeocoder from "./LeafletControlGeocoder";
 import Toolbar from "../toolbar/Toolbar";
 import UserLocationMarker from "./UserLocationMarker";
+import { useState } from "react";
+import ToggleSpotsControl from "./ToggleSpotsControl";
 
 const { BaseLayer } = LayersControl;
 
 export default function SuperClusterMap() {
+  const [showRacks, setShowRacks] = useState(true);
+  const [showSigns, setShowSigns] = useState(true);
+
   const { isLoading, error, data } = useQuery("coordinates", getCoordinates, {
     staleTime: 5 * 60 * 1000, // Keep the data fresh for 5 minutes
     cacheTime: 10 * 60 * 1000, // Cache the data for 10 minutes
@@ -19,6 +24,9 @@ export default function SuperClusterMap() {
   });
 
   if (error) return <div>An error has occurred: {error.message}</div>;
+
+  const handleToggleRacks = () => setShowRacks((prev) => !prev);
+  const handleToggleSigns = () => setShowSigns((prev) => !prev);
 
   return (
     <MapContainer
@@ -50,12 +58,25 @@ export default function SuperClusterMap() {
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           />
         </BaseLayer>
-        {!isLoading && <SuperClusterLayer data={data} />}
+        <LayersControl.Overlay>test</LayersControl.Overlay>
+        {!isLoading && data && (
+          <SuperClusterLayer
+            data={data}
+            showRacks={showRacks}
+            showSigns={showSigns}
+          />
+        )}
       </LayersControl>
       {isLoading && <Loader />}
       <UserLocationMarker />
       <ControlGeocoder />
       <Toolbar />
+      <ToggleSpotsControl
+        showRacks={showRacks}
+        showSigns={showSigns}
+        handleToggleRacks={handleToggleRacks}
+        handleToggleSigns={handleToggleSigns}
+      />
     </MapContainer>
   );
 }
