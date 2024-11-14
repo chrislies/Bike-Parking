@@ -1,29 +1,60 @@
+import { useEffect } from "react";
+import L from "leaflet";
+import { useMap } from "react-leaflet";
+
 export default function ToggleSpotsControl({
   showRacks,
   showSigns,
   handleToggleRacks,
   handleToggleSigns,
 }) {
-  return (
-    <div className="flex flex-col gap-2 absolute z-[800] top-[75px] right-3 bg-white p-2 rounded border-2 border-[rgba(0,0,0,0.2)] bg-clip-padding">
-      <label>
-        <input
-          type="checkbox"
-          checked={showRacks}
-          onChange={handleToggleRacks}
-          className="mr-1"
-        />
-        Bike Racks
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          checked={showSigns}
-          onChange={handleToggleSigns}
-          className="mr-1"
-        />
-        Street Signs
-      </label>
-    </div>
-  );
+  const map = useMap();
+
+  useEffect(() => {
+    const toggleControl = L.Control.extend({
+      onAdd: () => {
+        const container = L.DomUtil.create(
+          "div",
+          "leaflet-control-layers leaflet-control-layers-expanded"
+        );
+        container.innerHTML = `
+          <div>
+            <label>
+              <input type="checkbox" id="toggleRacks" ${
+                showRacks ? "checked" : ""
+              } />
+              Bike Racks
+            </label>
+            <label>
+              <input type="checkbox" id="toggleSigns" ${
+                showSigns ? "checked" : ""
+              } />
+              Street Signs
+            </label>
+          </div>
+        `;
+
+        L.DomEvent.disableClickPropagation(container);
+        L.DomEvent.disableScrollPropagation(container);
+
+        container
+          .querySelector("#toggleRacks")
+          .addEventListener("change", handleToggleRacks);
+        container
+          .querySelector("#toggleSigns")
+          .addEventListener("change", handleToggleSigns);
+
+        return container;
+      },
+    });
+
+    const controlInstance = new toggleControl({ position: "topright" });
+    map.addControl(controlInstance);
+
+    return () => {
+      map.removeControl(controlInstance);
+    };
+  }, [map, showRacks, showSigns, handleToggleRacks, handleToggleSigns]);
+
+  return null;
 }
