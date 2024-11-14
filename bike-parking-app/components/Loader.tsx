@@ -1,7 +1,7 @@
 // Loader component for showing loading animation
 export default function Loader() {
   return (
-    <div className="absolute select-none flex flex-col justify-center items-center gap-5 z-[10000] h-full w-full bg-black bg-opacity-50">
+    <div className="absolute top-0 select-none flex flex-col justify-center items-center gap-5 z-[10000] h-full w-full bg-black bg-opacity-50">
       <svg
         aria-hidden="true"
         className="w-24 h-24 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
