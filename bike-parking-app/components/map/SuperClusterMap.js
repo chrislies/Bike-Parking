@@ -42,7 +42,7 @@ export default function SuperClusterMap() {
         closeOnZeroBearing: false,
       }}
     >
-      <LayersControl position="topright">
+      <LayersControl position="bottomleft">
         <BaseLayer checked name="Street Layer">
           <TileLayer
             maxZoom={24}
