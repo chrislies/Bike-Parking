@@ -13,7 +13,6 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     const startRack = window.performance.now();
     let allData: any[] = [];
     let offset = 0;
-    let rackTypes = new Map<string, number>();
     let bikeRacksData: MarkerData[] = [];
 
     try {
@@ -35,6 +34,7 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     }
 
     // Count the different types of racks
+    // let rackTypes = new Map<string, number>();
     // bikeRacksData.forEach((item: any) => {
     //   if (!rackTypes.has(item.rack_type)) {
     //     rackTypes.set(item.rack_type, 1);
@@ -140,7 +140,7 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
           x: item.x_coord,
           y: item.y_coord,
           favorite: false,
-          type: "userAdded",
+          type: item.selectedOption.toLowerCase().includes("sign") ? "sign" : "rack",
           author: item.username || item.email,
         })
       );
