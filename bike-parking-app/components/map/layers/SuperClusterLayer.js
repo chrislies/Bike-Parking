@@ -8,6 +8,8 @@ import SpotMarker from "./SpotMarker";
 import "leaflet-routing-machine";
 import { transparentIcon } from "@/components/Icons";
 import toast from "react-hot-toast";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
+import useSession from "@/utils/supabase/use-session";
 
 const icons = {};
 const fetchIcon = (count) => {
@@ -60,7 +62,38 @@ export default function SuperClusterLayer({ data, showRacks, showSigns }) {
   const [zoom, setZoom] = useState(12);
   const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
   const [routingControl, setRoutingControl] = useState(null);
+  const [favoriteMarkers, setFavoriteMarkers] = useState([]);
+
   const map = useMap();
+
+  const supabase = createSupabaseBrowserClient();
+  const session = useSession();
+  const username = session?.user.user_metadata.username;
+  const uuid = session?.user.id;
+
+  const fetchFavoriteLocations = async () => {
+    try {
+      const response = await supabase
+        .from("Favorites")
+        .select("location_id")
+        .eq("user_id", uuid);
+      if (response.data) {
+        const favoriteLocations = response.data.map(
+          (favorite) => favorite.location_id
+        );
+        setFavoriteMarkers(favoriteLocations);
+      }
+    } catch (error) {
+      console.error("Error fetching favorite locations:", error);
+    }
+  };
+
+  // Call fetchFavoriteLocations when user is authenticated
+  useEffect(() => {
+    if (uuid) {
+      fetchFavoriteLocations();
+    }
+  }, [uuid]);
 
   const handleGetDirections = (marker) => {
     if (navigator.geolocation) {
@@ -232,6 +265,11 @@ export default function SuperClusterLayer({ data, showRacks, showSigns }) {
             key={`spot-${cluster.properties.spotId}`}
             cluster={cluster}
             map={map}
+            favoriteLocations={favoriteMarkers}
+            supabase={supabase}
+            session={session}
+            username={username}
+            uuid={uuid}
             handleGetDirections={handleGetDirections}
             isCalculatingRoute={isCalculatingRoute}
           />
