@@ -1,7 +1,9 @@
 "use client";
-import React, { useCallback, useRef, useState } from "react";
+import { useMarkerStore } from "@/app/stores/markerStore";
+import { useSavedLocationsStore } from "@/app/stores/savedLocationsStore";
+import { useUserStore } from "@/app/stores/userStore";
+import React, { useEffect } from "react";
 import { Marker, Popup, Tooltip } from "react-leaflet";
-import L from "leaflet";
 import ReportComponent from "../ReportComponent";
 import BusyComponent from "../BusyComponent";
 import Image from "next/image";
@@ -11,41 +13,22 @@ import Link from "next/link";
 import { formatDate } from "@/lib/formatDate";
 import "leaflet-routing-machine";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
-import { useParams } from "next/navigation";
-import queryString from "query-string";
-import axios from "axios";
+import { MAP_ICONS } from "@/constants/mapIcons";
 import toast from "react-hot-toast";
 
-const rackIcon = new L.Icon({
-  iconUrl: "/svgs/RackMarker.svg",
-  iconSize: [45, 50],
-  iconAnchor: [20, 30],
-  popupAnchor: [3, -16],
-});
-const signIcon = new L.Icon({
-  iconUrl: "/svgs/SignMarker.svg",
-  iconSize: [45, 50],
-  iconAnchor: [20, 30],
-  popupAnchor: [3, -16],
-});
-const favoriteIcon = new L.Icon({
-  iconUrl: "/svgs/FavoriteMarker.svg",
-  iconSize: [45, 50],
-  iconAnchor: [20, 30],
-  popupAnchor: [3, -16],
-});
+export default function SpotMarker({ cluster, map }) {
+  const { locations, isLoading } = useSavedLocationsStore();
+  const { uuid, username, isInitialized } = useUserStore();
+  const { toggleSavedLocation, calculateRoute, isCalculatingRoute } =
+    useMarkerStore();
 
-export default function SpotMarker({
-  cluster,
-  map,
-  favoriteLocations,
-  supabase,
-  session,
-  username,
-  uuid,
-  handleGetDirections,
-  isCalculatingRoute,
-}) {
+  // Only initialize once if not already done
+  useEffect(() => {
+    if (!isInitialized) {
+      useUserStore.getState().initialize();
+    }
+  }, [isInitialized]);
+
   const {
     spotId,
     spotType,
@@ -59,11 +42,29 @@ export default function SpotMarker({
     date_added,
   } = cluster.properties;
   const [longitude, latitude] = cluster.geometry.coordinates;
-  const [isBookmarked, setIsBookmarked] = useState(
-    favoriteLocations.includes(spotId)
-  );
-  const markerRef = useRef(null);
-  const params = useParams();
+
+  const isSaved =
+    !isLoading && locations.some((loc) => loc.location_id === spotId);
+
+  const handleSaveLocation = async () => {
+    if (!uuid) {
+      toast.error("Please sign in to save locations");
+      return;
+    }
+
+    await toggleSavedLocation({
+      user_id: uuid,
+      username: username,
+      location_id: spotId,
+      x_coord: x,
+      y_coord: y,
+      location_address: spotAddress,
+    });
+  };
+
+  const handleGetDirections = () => {
+    calculateRoute({ x, y }, map);
+  };
 
   const handleMarkerClick = () => {
     const currentZoom = map.getZoom() > 19 ? map.getZoom() : 20;
@@ -72,67 +73,16 @@ export default function SpotMarker({
     });
   };
 
-  const handleSaveLocation = useCallback(async () => {
-    if (!uuid) {
-      toast.error("Sign in to save locations!", {
-        id: "signInToSaveLocationsError",
-      });
-      return;
-    }
-    // fetch list of user favorites from supabase
-    try {
-      const { data: savedSpots, error } = await supabase
-        .from("Favorites")
-        .select("location_id")
-        .eq("user_id", uuid);
-      if (error) {
-        toast.error(`Error saving spot: ${error}`);
-      }
-      const savedSpotIds = savedSpots.map((spot) => spot.location_id);
-      const isAlreadySaved = savedSpotIds.includes(spotId);
-
-      // Check if the marker is already saved
-      if (!isAlreadySaved) {
-        // if not, add it to the list of saved locations
-        const values = {
-          uuid,
-          username,
-          location_id: spotId,
-          location_address: spotAddress,
-          x_coord: x,
-          y_coord: y,
-        };
-        const url = queryString.stringifyUrl({
-          url: "api/favorite",
-          query: {
-            id: params?.id,
-          },
-        });
-        await axios.post(url, values);
-      } else {
-        // Remove the marker from the list of saved locations
-        const { data, error } = await supabase
-          .from("Favorites")
-          .delete()
-          .eq("user_id", uuid)
-          .eq("location_id", spotId);
-        if (error) {
-          toast.error(`Error removing spot from favortes: ${error}`);
-        }
-      }
-      setIsBookmarked(!isAlreadySaved);
-    } catch (error) {
-      toast.error(`Something went wrong: ${error}`);
-    }
-  }, [markerRef, isBookmarked]);
-
   return (
     <Marker
       key={`spot-${spotId}`}
-      ref={markerRef}
       position={[latitude, longitude]}
       icon={
-        isBookmarked ? favoriteIcon : spotType === "rack" ? rackIcon : signIcon
+        isSaved
+          ? MAP_ICONS.favoriteIcon
+          : spotType === "rack"
+          ? MAP_ICONS.rackIcon
+          : MAP_ICONS.signIcon
       }
       eventHandlers={{ click: handleMarkerClick }}
     >
@@ -210,7 +160,7 @@ export default function SpotMarker({
             >
               <Bookmark
                 className={`h-7 w-7 hover:cursor-pointer fill-transparent ${
-                  isBookmarked ? "fill-yellow-300" : "fill-transparent"
+                  isSaved ? "fill-yellow-300" : "fill-transparent"
                 }`}
               />
               Save
