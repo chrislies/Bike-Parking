@@ -35,6 +35,19 @@ const Navbar = () => {
     };
   }, [isMenuOpen]);
 
+  // add event listener for the 'Escape' key to close the menu
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isMenuOpen) {
+        closeMenu();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMenuOpen]);
+
   useEffect(() => {
     const handleScroll = () => {
       // Check if the user scrolled down
@@ -125,8 +138,12 @@ const Navbar = () => {
       <div id="navMenu" className="lg:hidden z-30">
         <div
           className={`fixed z-30 w-full flex flex-col shadow-3xl 
-          ${isMenuOpen ? "top-[--header-height]" : "-top-[100%]"} 
-          transition-all duration-[400ms] ease-linear`}
+          ${
+            isMenuOpen
+              ? "top-[--header-height]"
+              : "-top-[calc(3*var(--header-height))]"
+          } 
+          transition-all duration-[275ms] ease-linear`}
         >
           <ul>
             {NAV_LINKS.map((link, index) => (

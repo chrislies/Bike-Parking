@@ -132,7 +132,7 @@ const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                   className="text-lg font-medium leading-6 text-gray-900"
                 >
                   {!uuid ? (
-                    <h1 className="text-base text-center mb-6">
+                    <div className="text-base text-center mb-6">
                       <span
                         className="font-bold hover:underline cursor-pointer"
                         onClick={() => setLoginView(true)}
@@ -148,12 +148,12 @@ const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                       </span>
                       {` to `}
                       <span className="italic">view saved spots</span>
-                    </h1>
+                    </div>
                   ) : (
                     <div className="flex justify-center">
-                      <h1 className="bg-gray-300 rounded-xl py-1 px-4 shadow-inner text-xl font-bold tracking-wider uppercase max-w-fit">
+                      <div className="bg-gray-300 rounded-xl py-1 px-4 shadow-inner text-xl font-bold tracking-wider uppercase max-w-fit">
                         Saved Spots
-                      </h1>
+                      </div>
                     </div>
                   )}
                 </Dialog.Title>
@@ -169,12 +169,12 @@ const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                           )}
                         </div>
                       ) : isLoading ? (
-                        <h1 className="absolute inset-0 flex justify-center items-center text-2xl">
+                        <div className="absolute inset-0 flex justify-center items-center text-2xl">
                           <div className="flex justify-center items-center gap-2">
                             <Spinner className="animate-spin h-6 fill-blue-700"></Spinner>
                             <p className="text-base">Loading... </p>
                           </div>
-                        </h1>
+                        </div>
                       ) : listOfFavorites === null ? (
                         <div className="flex justify-center items-center gap-2">
                           <Spinner className="animate-spin h-6 fill-blue-700"></Spinner>
@@ -182,7 +182,7 @@ const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                         </div>
                       ) : listOfFavorites.length === 0 ? (
                         <div className="text-center">
-                          <h1 className="text-base">No spots saved yet!</h1>
+                          <div className="text-base">No spots saved yet!</div>
                         </div>
                       ) : (
                         <div className="flex flex-col justify-center">

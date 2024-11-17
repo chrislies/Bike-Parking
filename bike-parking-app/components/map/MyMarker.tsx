@@ -1,7 +1,7 @@
 import { getImageSource } from "@/lib/getImageSource";
 import Image from "next/image";
 import React, { FC, useCallback, useRef, useState } from "react";
-import { Marker, Popup, useMapEvents } from "react-leaflet";
+import { Marker, Popup, Tooltip, useMapEvents } from "react-leaflet";
 import { Bookmark, Directions, NoImage } from "../svgs";
 import { formatDate } from "@/lib/formatDate";
 import { favoriteIcon, queryIcon, rackIcon, signIcon } from "../Icons";
@@ -115,6 +115,10 @@ const MyMarker: FC<MyMarkerProps> = ({
           click: handleFlyTo,
         }}
       >
+        {/* prettier-ignore */}
+        <Tooltip>
+          {marker.type === "userAdded" ? "User Added" : marker.rack_type ? marker.rack_type : "Street Sign"}
+        </Tooltip>
         <Popup minWidth={170}>
           <div className="popup-rack flex flex-col">
             <div className="flex flex-col font-bold">

@@ -80,7 +80,7 @@ const ToolBar = () => {
         onClose={closeProfileModal}
       ></ProfileModal>
       <div className="absolute bottom-3 z-[800] max-w-fit mx-auto flex inset-x-0 justify-center select-none rounded-2xl">
-        <div className="grid grid-flow-col grid-cols-3 gap-1 sm:w-[325px] max-sm:w-[250px] bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.2)] shadow-md p-1">
+        <div className="grid grid-flow-col grid-cols-3 gap-1 sm:w-[325px] max-sm:w-[250px] bg-white rounded-2xl border-2 border-[rgba(0,0,0,0.2)] bg-clip-padding shadow-md p-1">
           {NAV_LINKS.map((navItem, index) => (
             <div
               key={index}

@@ -73,7 +73,7 @@ export default async function Home() {
               <h1>About</h1>
               <h2 className="mb-12 italic">Designed with ease in mind.</h2>
               <div className="flex flex-col">
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-8 max-sm:mx-10">
                   <p className="text-black">
                     LockySpot is designed to both
                     <strong> reduce </strong>

@@ -1,16 +1,25 @@
-import Loader from "@/components/Loader";
-import dynamic from "next/dynamic";
+"use client";
 import { Toaster } from "react-hot-toast";
-const ClientMap = dynamic(() => import("../../components/map/Map"), {
-  loading: () => <Loader />,
-  ssr: false,
-});
+import { QueryClient, QueryClientProvider } from "react-query";
+import dynamic from "next/dynamic";
+
+// Dynamically import SuperClusterMap and disable SSR (Server-Side Rendering)
+const SuperClusterMap = dynamic(
+  () => import("@/components/map/SuperClusterMap"),
+  {
+    ssr: false, // disable SSR for this component
+  }
+);
+
+const queryClient = new QueryClient();
 
 export default function MapPage() {
   return (
     <div className="container">
       <Toaster />
-      <ClientMap />
+      <QueryClientProvider client={queryClient}>
+        <SuperClusterMap />
+      </QueryClientProvider>
     </div>
   );
 }

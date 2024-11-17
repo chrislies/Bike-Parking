@@ -7,6 +7,8 @@ import ToolBar from "../toolbar/Toolbar";
 import UserLocationMarker from "./UserLocationMarker";
 import PixiLayer from "./layers/PixiLayer";
 import TempMarker from "./TempMarker";
+import LeafletCanvasMarker from "./LeafletCanvasMarker";
+import PruneMarkerClusterLayer from "./layers/PruneMarkerClusterLayer";
 
 const { BaseLayer } = LayersControl;
 
@@ -42,11 +44,10 @@ const RootMap = () => {
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             />
           </BaseLayer>
-          <MarkerLayer />
-          {/* <PixiLayer /> */}
         </LayersControl>
+        <PruneMarkerClusterLayer />
         <TempMarker />
-        {<UserLocationMarker />}
+        <UserLocationMarker />
         <ControlGeocoder />
         <ToolBar />
       </MapContainer>

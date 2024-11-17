@@ -20,7 +20,7 @@
   background-color: #333;
   height: 2em;
   width: 2em;
-  color: #fff;
+  color: black;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,5 +81,184 @@ h2 {
 }
 
 p {
-  @apply text-base text-slate-600 max-w-xl max-sm:mx-10;
+  @apply text-base text-slate-600 max-w-xl;
+}
+
+.prunecluster {
+  font-size: 12px;
+  border-radius: 20px;
+  transition: all 0.3s linear;
+}
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-markercluster-icon {
+  transition: all 0.3s linear;
+}
+.prunecluster div {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  margin-left: 5px;
+  margin-top: 5px;
+  border-radius: 50%;
+}
+.prunecluster div span {
+  line-height: 30px;
+}
+.prunecluster-small {
+  background-color: rgba(181, 226, 140, 0.6);
+}
+.prunecluster-small div {
+  width: 28px;
+  height: 28px;
+  background-color: rgba(110, 204, 57, 0.6);
+}
+.prunecluster-small div span {
+  line-height: 28px;
+}
+.prunecluster-medium {
+  background-color: rgba(241, 211, 87, 0.6);
+}
+.prunecluster-medium div {
+  background-color: rgba(240, 194, 12, 0.6);
+}
+.prunecluster-large {
+  background-color: rgba(253, 156, 115, 0.6);
+}
+.prunecluster-large div {
+  width: 34px;
+  height: 34px;
+  background-color: rgba(241, 128, 23, 0.6);
+}
+.prunecluster-large div span {
+  line-height: 34px;
+}
+
+.popup {
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.rackType {
+  font-weight: 800;
+  font-size: 1rem /* 16px */;
+  line-height: 1.5rem /* 24px */;
+}
+
+.address,
+.signDesc {
+  @apply text-center !p-0 !m-0 max-w-[170px] text-sm tracking-tight;
+}
+
+.dateInst {
+  @apply text-xs !m-0 !p-0;
+}
+
+.layer-control-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+.layer-control-buttons button {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  margin: 2px;
+  cursor: pointer;
+}
+.layer-control-buttons button:hover {
+  background-color: #f0f0f0;
+}
+
+/* SuperCluster */
+.leaflet-div-icon {
+  background: none !important;
+  border: none !important;
+}
+
+.cluster-marker-background-small,
+.cluster-marker-background-medium,
+.cluster-marker-background-large,
+.cluster-marker-background-extralarge {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  border-radius: 50%;
+  z-index: 0;
+}
+
+/* Cluster marker styling */
+.cluster-marker-small,
+.cluster-marker-medium,
+.cluster-marker-large,
+.cluster-marker-extralarge {
+  color: black;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.cluster-marker-small {
+  background: #6ecc39cc;
+  width: 30px;
+  height: 30px;
+}
+
+.cluster-marker-medium {
+  background: #f0c20ccc;
+  width: 35px;
+  height: 35px;
+}
+
+.cluster-marker-large {
+  background: #f18017cc;
+  width: 45px;
+  height: 45px;
+}
+
+.cluster-marker-extralarge {
+  background: #f11758cc;
+  width: 50px;
+  height: 50px;
+}
+
+/* Background color variations for the outer layer */
+.cluster-marker-background-small {
+  background: #b6e28d99;
+  width: 40px;
+  height: 40px;
+}
+
+.cluster-marker-background-medium {
+  background: #f1d35799;
+  width: 45px;
+  height: 45px;
+}
+
+.cluster-marker-background-large {
+  background: #fd9c7299;
+  width: 55px;
+  height: 55px;
+}
+
+.cluster-marker-background-extralarge {
+  background: #fd72a099;
+  width: 60px;
+  height: 60px;
+}
+/* SuperCluster end */
+
+.desktop-tooltip {
+  @apply block;
+}
+
+/* Hide Tooltip on mobile devices */
+@media (max-width: 1024px) {
+  .desktop-tooltip {
+    @apply hidden;
+  }
 }

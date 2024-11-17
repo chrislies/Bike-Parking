@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -22,9 +18,7 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     },
     "target": "ES2017"
   },
@@ -41,9 +35,14 @@
     "components/map/layers/MarkerLayer.tsx",
     "components/map/layers/PixiLayer.jsx",
     "components/map/layers/RouteLayer.tsx",
-    "components/navbar/Navlink.jsx"
+    "components/navbar/Navlink.jsx",
+    "components/map/CanvasMarkersLayers.tsx",
+    "components/map/testMap.js",
+    "components/map/LeafletCanvasMarker.js",
+    "components/map/layers/PruneMarkerClusterLayer.js",
+    "components/map/SuperClusterMap.tsx",
+    "components/map/layers/SpotMaker.jsx",
+    "components/map/ToggleSpotsControl.jsx"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

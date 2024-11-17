@@ -5,7 +5,12 @@ import "leaflet-control-geocoder/dist/Control.Geocoder.css";
 import "leaflet-control-geocoder/dist/Control.Geocoder.js";
 import L from "leaflet";
 
-import { queryIcon } from "../Icons";
+const queryIcon = new L.Icon({
+  iconUrl: "/svgs/SearchPin.svg",
+  iconSize: [45, 50],
+  iconAnchor: [20, 30],
+  popupAnchor: [3, -16],
+});
 
 export default function ControlGeocoder() {
   const map = useMap();

@@ -12,14 +12,14 @@ async function getStreetSignCoords(): Promise<MarkerData[] | null> {
     const streetSignsData: { street_signs: MarkerData[] } =
       await streetSignsResponse.json();
     // const limitData = streetSignsData.street_signs.slice(0, 20000);
-    const limitData = streetSignsData.street_signs.slice(0, 1000);
+    // const limitData = streetSignsData.street_signs.slice(0, 1000);
 
-    // allData = [...allData, ...streetSignsData.street_signs];
-    allData = [...allData, ...limitData];
+    allData = [...allData, ...streetSignsData.street_signs];
+    // allData = [...allData, ...limitData];
     const endSign = window.performance.now();
 
     // prettier-ignore
-    const info: MarkerData[] = allData.map((item) => ({
+    allData = allData.map((item) => ({
       x: item.x || item.X,
       y: item.y || item.Y,
       id: item.site_id ? `R${item.site_id.slice(1)}` : `S.${item.index}`,
@@ -32,7 +32,7 @@ async function getStreetSignCoords(): Promise<MarkerData[] | null> {
       type: item.rack_type ? "rack" : "sign",
     }));
 
-    return info.length > 0 ? info : null;
+    return allData.length > 0 ? allData : null;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to fetch data");
