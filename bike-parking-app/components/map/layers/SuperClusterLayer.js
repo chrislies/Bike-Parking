@@ -5,11 +5,7 @@ import useSupercluster from "use-supercluster";
 import { Marker, useMap } from "react-leaflet";
 import _ from "lodash";
 import SpotMarker from "./SpotMarker";
-import "leaflet-routing-machine";
-import { transparentIcon } from "@/components/Icons";
-import toast from "react-hot-toast";
-import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
-import useSession from "@/utils/supabase/use-session";
+import { useMarkerStore } from "@/app/stores/markerStore";
 
 const icons = {};
 const fetchIcon = (count) => {
@@ -48,149 +44,18 @@ const fetchIcon = (count) => {
 
   return icons[iconKey];
 };
-
-const queryIcon = new L.Icon({
-  iconUrl: "/svgs/SearchPin.svg",
-  iconSize: [45, 50],
-  iconAnchor: [20, 30],
-  popupAnchor: [3, -16],
-});
-
 export default function SuperClusterLayer({ data, showRacks, showSigns }) {
   const maxZoom = 22;
-  const [bounds, setBounds] = useState(null);
-  const [zoom, setZoom] = useState(12);
-  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
-  const [routingControl, setRoutingControl] = useState(null);
-  const [favoriteMarkers, setFavoriteMarkers] = useState([]);
-
   const map = useMap();
+  const [bounds, setBounds] = useState(null);
+  const [zoom, setZoom] = useState(map.getZoom());
+  const { isCalculatingRoute } = useMarkerStore();
 
-  const supabase = createSupabaseBrowserClient();
-  const session = useSession();
-  const username = session?.user.user_metadata.username;
-  const uuid = session?.user.id;
-
-  const fetchFavoriteLocations = async () => {
-    try {
-      const response = await supabase
-        .from("Favorites")
-        .select("location_id")
-        .eq("user_id", uuid);
-      if (response.data) {
-        const favoriteLocations = response.data.map(
-          (favorite) => favorite.location_id
-        );
-        setFavoriteMarkers(favoriteLocations);
-      }
-    } catch (error) {
-      console.error("Error fetching favorite locations:", error);
-    }
-  };
-
-  // Call fetchFavoriteLocations when user is authenticated
-  useEffect(() => {
-    if (uuid) {
-      fetchFavoriteLocations();
-    }
-  }, [uuid]);
-
-  const handleGetDirections = (marker) => {
-    if (navigator.geolocation) {
-      setIsCalculatingRoute(true); // Disable the 'Directions' button
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-
-          // Remove existing routing control if present
-          if (routingControl) {
-            routingControl.getPlan().setWaypoints([]);
-            map.removeControl(routingControl);
-          }
-
-          // Create a new routing control with waypoints
-          const newRoutingControl = L.Routing.control({
-            waypoints: [
-              L.latLng(latitude, longitude),
-              L.latLng(marker.y, marker.x),
-            ],
-            router: L.Routing.osrmv1({
-              serviceUrl:
-                "https://routing.openstreetmap.de/routed-bike/route/v1",
-              profile: "bike",
-            }),
-            lineOptions: {
-              styles: [{ color: "#0f53ff", weight: 4 }],
-            },
-            collapsible: true,
-            addWaypoints: false,
-            routeWhileDragging: true,
-            draggableWaypoints: true,
-            createMarker: function (i, waypoint, n) {
-              let icon = i === 0 ? transparentIcon : queryIcon;
-              return L.marker(waypoint.latLng, {
-                draggable: i === 1,
-                icon: icon,
-              });
-            },
-          }).addTo(map);
-
-          newRoutingControl.on("routesfound", (e) => {
-            setIsCalculatingRoute(false);
-          });
-
-          newRoutingControl.on("routingerror", (e) => {
-            setIsCalculatingRoute(false);
-            toast.error("Error calculating route.", { id: "calculationError" });
-          });
-
-          setRoutingControl(newRoutingControl);
-        },
-        (error) => {
-          toast.error(`Error getting current location: ${error.message}`, {
-            id: "locationError",
-          });
-          setIsCalculatingRoute(false);
-        }
-      );
-    } else {
-      toast.error("Geolocation is not supported by this browser.", {
-        id: "geolocationNotSupported",
-      });
-      setIsCalculatingRoute(false);
-    }
-  };
-
-  // get map bounds
-  function updateMap() {
-    const b = map.getBounds();
-    setBounds([
-      b.getSouthWest().lng,
-      b.getSouthWest().lat,
-      b.getNorthEast().lng,
-      b.getNorthEast().lat,
-    ]);
-    setZoom(map.getZoom());
-  }
-
-  // Debounce the updateMap function
-  const debouncedUpdateMap = useCallback(_.debounce(updateMap, 100), [map]);
-
-  // Update the map bounds once when the component is mounted
-  useEffect(() => {
-    updateMap(); // Trigger initial update on mount
-    map.on("move", debouncedUpdateMap);
-    return () => {
-      debouncedUpdateMap.cancel();
-      map.off("move", debouncedUpdateMap);
-    };
-  }, [debouncedUpdateMap, map]);
-
-  // Memoize points to avoid unnecessary recalculations
+  // Memoize points
   const points = useMemo(
     () =>
       data
-        .filter(
+        ?.filter(
           (spot) =>
             (spot.type === "rack" && showRacks) ||
             (spot.type === "sign" && showSigns)
@@ -214,11 +79,37 @@ export default function SuperClusterLayer({ data, showRacks, showSigns }) {
             type: "Point",
             coordinates: [parseFloat(spot.x), parseFloat(spot.y)],
           },
-        })),
+        })) || [],
     [data, showRacks, showSigns]
   );
 
-  // Use supercluster hook to get clusters
+  // Update bounds and zoom on map movement
+  useEffect(() => {
+    const updateBoundsZoom = () => {
+      const b = map.getBounds();
+      setBounds([
+        b.getSouthWest().lng,
+        b.getSouthWest().lat,
+        b.getNorthEast().lng,
+        b.getNorthEast().lat,
+      ]);
+      setZoom(map.getZoom());
+    };
+
+    const debouncedUpdate = _.debounce(updateBoundsZoom, 100);
+    updateBoundsZoom(); // Initial update
+
+    map.on("moveend", debouncedUpdate);
+    map.on("zoomend", debouncedUpdate);
+
+    return () => {
+      map.off("moveend", debouncedUpdate);
+      map.off("zoomend", debouncedUpdate);
+      debouncedUpdate.cancel();
+    };
+  }, [map]);
+
+  // Get clusters
   const { clusters, supercluster } = useSupercluster({
     points,
     bounds,
@@ -233,13 +124,7 @@ export default function SuperClusterLayer({ data, showRacks, showSigns }) {
         const { cluster: isCluster, point_count: pointCount } =
           cluster.properties;
 
-        // Render cluster markers
         if (isCluster) {
-          const size = Math.min(
-            50,
-            Math.max(10, 10 + Math.sqrt(pointCount) * 10)
-          ); // Calculate size based on point count
-
           return (
             <Marker
               key={`cluster-${cluster.id}`}
@@ -265,12 +150,6 @@ export default function SuperClusterLayer({ data, showRacks, showSigns }) {
             key={`spot-${cluster.properties.spotId}`}
             cluster={cluster}
             map={map}
-            favoriteLocations={favoriteMarkers}
-            supabase={supabase}
-            session={session}
-            username={username}
-            uuid={uuid}
-            handleGetDirections={handleGetDirections}
             isCalculatingRoute={isCalculatingRoute}
           />
         );
