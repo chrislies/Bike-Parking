@@ -1,18 +1,7 @@
-import L, {
-  LatLng,
-  map,
-  divIcon,
-  Icon,
-  point,
-  MarkerCluster,
-  Point,
-} from "leaflet";
+import L, { point } from "leaflet";
 import ReactDOMServer from "react-dom/server";
 import {
-  Bookmark,
   FavoriteMarker,
-  Layers,
-  Locate,
   RackMarker,
   UserMarker,
   SearchPin,
@@ -73,14 +62,6 @@ const transparentIcon = L.divIcon({
   popupAnchor: [0, -45],
 });
 
-const createClusterCustomIcon = function (cluster: MarkerCluster) {
-  return L.divIcon({
-    html: `<span class="cluster-icon">${cluster.getChildCount()}</span>`,
-    className: "custom-marker-cluster",
-    iconSize: point(33, 33, true),
-  });
-};
-
 export {
   rackIcon,
   signIcon,
@@ -89,5 +70,4 @@ export {
   queryIcon,
   tempIcon,
   transparentIcon,
-  createClusterCustomIcon,
 };
