@@ -48,7 +48,9 @@ export default function SpotMarker({ cluster, map }) {
 
   const handleSaveLocation = async () => {
     if (!uuid) {
-      toast.error("Please sign in to save locations");
+      toast.error("Please sign in to save locations", {
+        id: "signInToSaveError",
+      });
       return;
     }
 
