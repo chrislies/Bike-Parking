@@ -84,17 +84,25 @@ export default function SpotMarker({ cluster, map }) {
           ? MAP_ICONS.favoriteIcon
           : spotType === "rack"
           ? MAP_ICONS.rackIcon
+          : spotType === "shelter"
+          ? MAP_ICONS.shelterIcon
           : MAP_ICONS.signIcon
       }
       eventHandlers={{ click: handleMarkerClick }}
     >
-      <Tooltip className="desktop-tooltip">{rackType || "Street Sign"}</Tooltip>
-      <Popup minWidth={170} autoPan={false}>
+      <Tooltip className="desktop-tooltip">
+        {rackType || (spotType === "shelter" ? "Bike Shelter" : "Street Sign")}
+      </Tooltip>
+      <Popup
+        minWidth={170}
+        autoPan={false}
+      >
         <div className="flex flex-col">
           <div className="flex flex-col font-bold">
             <div className="flex items-center">
               <p className="!m-0 !p-0 text-base font-extrabold font-sans">
-                {rackType || "Street Sign"}
+                {rackType ||
+                  (spotType === "shelter" ? "Bike Shelter" : "Street Sign")}
               </p>
             </div>
             {spotId && (
@@ -106,7 +114,10 @@ export default function SpotMarker({ cluster, map }) {
                 address={spotAddress}
               />
             )}
-            <BusyComponent x={x} y={y} />
+            <BusyComponent
+              x={x}
+              y={y}
+            />
           </div>
           <div className="relative my-1 flex justify-center items-center select-none pointer-events-none">
             {rackType && getImageSource(rackType) ? (
