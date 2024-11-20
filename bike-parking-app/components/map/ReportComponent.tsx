@@ -27,6 +27,7 @@ interface ModalProps {
   siteId?: string;
   x?: number;
   y?: number;
+  spot_type?: string;
   rack_type?: string;
   address?: string;
 }
@@ -35,6 +36,7 @@ const ReportComponent: React.FC<ModalProps> = ({
   siteId,
   x,
   y,
+  spot_type,
   rack_type,
   address,
 }) => {
@@ -325,8 +327,16 @@ const ReportComponent: React.FC<ModalProps> = ({
       >
         {reportButtonText}
       </button>
-      <Transition appear show={isCommunityReportsModalOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-[9999]" onClose={handleClose}>
+      <Transition
+        appear
+        show={isCommunityReportsModalOpen}
+        as={Fragment}
+      >
+        <Dialog
+          as="div"
+          className="relative z-[9999]"
+          onClose={handleClose}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -394,7 +404,10 @@ const ReportComponent: React.FC<ModalProps> = ({
                     {reportView || deleteView ? (
                       <div className="font-sans text-center mt-1 mb-4">
                         <p className="font-extrabold">{`${
-                          rack_type ? rack_type : "Street Sign"
+                          rack_type ||
+                          (spot_type === "sign"
+                            ? "Street Sign"
+                            : "Bike Shelter")
                         } ${siteId}`}</p>
                         <p
                           className={`${
@@ -589,7 +602,10 @@ const ReportComponent: React.FC<ModalProps> = ({
                             }`}
                           ></textarea>
                           <div className="flex flex-col mt-2">
-                            <label htmlFor="fileUpload" className="font-bold">
+                            <label
+                              htmlFor="fileUpload"
+                              className="font-bold"
+                            >
                               Upload picture:
                             </label>
                             <input
@@ -683,7 +699,10 @@ const ReportComponent: React.FC<ModalProps> = ({
                       <p className="font-sans">
                         {`There are currently no reports for `}
                         <span className="font-bold">
-                          {rack_type ? rack_type.toLowerCase() : "street sign"}{" "}
+                          {rack_type?.toLowerCase() ||
+                            (spot_type === "sign"
+                              ? "street sign"
+                              : "bike shelter")}{" "}
                           {siteId}
                         </span>
                       </p>

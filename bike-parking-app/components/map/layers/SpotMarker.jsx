@@ -110,6 +110,7 @@ export default function SpotMarker({ cluster, map }) {
                 siteId={spotId}
                 x={x}
                 y={y}
+                spot_type={spotType}
                 rack_type={rackType}
                 address={spotAddress}
               />
