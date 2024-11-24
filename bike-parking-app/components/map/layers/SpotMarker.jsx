@@ -3,7 +3,7 @@ import { useMarkerStore } from "@/app/stores/markerStore";
 import { useSavedLocationsStore } from "@/app/stores/savedLocationsStore";
 import { useUserStore } from "@/app/stores/userStore";
 import React, { useEffect } from "react";
-import { Marker, Popup, Tooltip } from "react-leaflet";
+import { Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import ReportComponent from "../ReportComponent";
 import BusyComponent from "../BusyComponent";
 import Image from "next/image";
@@ -75,6 +75,14 @@ export default function SpotMarker({ cluster, map }) {
     });
   };
 
+  useEffect(() => {
+    map.on('popupopen', function(e) {
+      var px = map.project(e.target._popup._latlng); // find the pixel location on the map where the popup anchor is
+      px.y -= e.target._popup._container.clientHeight / 2; // find the height of the popup container, divide by 2, subtract from the Y axis of marker location
+      map.panTo(map.unproject(px), { animate: true }); // pan to new center
+    });
+  }, [map]);
+
   return (
     <Marker
       key={`spot-${spotId}`}
@@ -95,7 +103,8 @@ export default function SpotMarker({ cluster, map }) {
       </Tooltip>
       <Popup
         minWidth={170}
-        autoPan={false}
+        // autoPan={false}
+        closeOnEscapeKey={true}
       >
         <div className="flex flex-col">
           <div className="flex flex-col font-bold">
