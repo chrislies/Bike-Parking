@@ -69,19 +69,29 @@ export default function SpotMarker({ cluster, map }) {
   };
 
   const handleMarkerClick = () => {
-    const currentZoom = map.getZoom() > 19 ? map.getZoom() : 20;
-    map.setView([latitude, longitude], currentZoom, {
-      animate: true,
-    });
-  };
+    const targetZoom = map.getZoom() > 19 ? map.getZoom() : 20;
 
-  useEffect(() => {
-    map.on('popupopen', function(e) {
-      var px = map.project(e.target._popup._latlng); // find the pixel location on the map where the popup anchor is
-      px.y -= e.target._popup._container.clientHeight / 2; // find the height of the popup container, divide by 2, subtract from the Y axis of marker location
-      map.panTo(map.unproject(px), { animate: true }); // pan to new center
-    });
-  }, [map]);
+    // Wait for the popup to mount before adjusting
+    setTimeout(() => {
+      const popup = map._popup;
+      if (popup) {
+        // Get the popup dimensions and adjust the target position
+        const popupHeight = popup._container.clientHeight;
+        const targetPoint = map.project([latitude, longitude], targetZoom);
+
+        targetPoint.y -= popupHeight / 2;
+
+        // Unproject the new adjusted point
+        const adjustedLatLng = map.unproject(targetPoint, targetZoom);
+
+        // Set the view to the adjusted position and zoom level
+        map.setView(adjustedLatLng, targetZoom, { animate: true });
+      } else {
+        // Fallback if no popup (just zoom and center marker)
+        map.setView([latitude, longitude], targetZoom, { animate: true });
+      }
+    }, 50);
+  };
 
   return (
     <Marker
@@ -103,7 +113,7 @@ export default function SpotMarker({ cluster, map }) {
       </Tooltip>
       <Popup
         minWidth={170}
-        // autoPan={false}
+        autoPan={false}
         closeOnEscapeKey={true}
       >
         <div className="flex flex-col">
