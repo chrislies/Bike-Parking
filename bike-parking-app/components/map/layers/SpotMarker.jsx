@@ -19,8 +19,7 @@ import toast from "react-hot-toast";
 export default function SpotMarker({ cluster, map }) {
   const { locations, isLoading } = useSavedLocationsStore();
   const { uuid, username, isInitialized } = useUserStore();
-  const { toggleSavedLocation, calculateRoute, isCalculatingRoute } =
-    useMarkerStore();
+  const { toggleSavedLocation, calculateRoute, isCalculatingRoute } = useMarkerStore();
 
   // Only initialize once if not already done
   useEffect(() => {
@@ -43,8 +42,7 @@ export default function SpotMarker({ cluster, map }) {
   } = cluster.properties;
   const [longitude, latitude] = cluster.geometry.coordinates;
 
-  const isSaved =
-    !isLoading && locations.some((loc) => loc.location_id === spotId);
+  const isSaved = !isLoading && locations.some((loc) => loc.location_id === spotId);
 
   const handleSaveLocation = async () => {
     if (!uuid) {
@@ -120,8 +118,7 @@ export default function SpotMarker({ cluster, map }) {
           <div className="flex flex-col font-bold">
             <div className="flex items-center">
               <p className="!m-0 !p-0 text-base font-extrabold font-sans">
-                {rackType ||
-                  (spotType === "shelter" ? "Bike Shelter" : "Street Sign")}
+                {rackType || (spotType === "shelter" ? "Bike Shelter" : "Street Sign")}
               </p>
             </div>
             {spotId && (
@@ -158,9 +155,7 @@ export default function SpotMarker({ cluster, map }) {
                   width={700}
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/85 rounded-md opacity-0 hover:opacity-100 duration-500 ease-in-out transition-opacity overflow-auto select-text pointer-events-auto">
-                  <p className="text-xs text-white font-mono px-2">
-                    {signDescription}
-                  </p>
+                  <p className="text-xs text-white font-mono px-2">{signDescription}</p>
                 </div>
               </>
             ) : (
