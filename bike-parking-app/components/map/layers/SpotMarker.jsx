@@ -191,7 +191,7 @@ export default function SpotMarker({ cluster, map }) {
                   isSaved ? "fill-yellow-300" : "fill-transparent"
                 }`}
               />
-              Save
+              {isSaved ? "Unsave" : "Save"}
             </button>
             <button
               onClick={() => handleGetDirections({ x, y })}
