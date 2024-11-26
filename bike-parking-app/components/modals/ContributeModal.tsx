@@ -38,7 +38,7 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     >
       <Dialog
         as="div"
-        className="relative z-[888]"
+        className="relative z-[1000]"
         onClose={handleClose}
       >
         <Transition.Child

@@ -273,7 +273,7 @@ const ReportComponent: React.FC<ModalProps> = ({ siteId, x, y, spot_type, rack_t
       >
         <Dialog
           as="div"
-          className="relative z-[888]"
+          className="relative z-[1000]"
           onClose={handleClose}
         >
           <Transition.Child
