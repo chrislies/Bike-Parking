@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import L from "leaflet";
 import useSupercluster from "use-supercluster";
 import { Marker, useMap } from "react-leaflet";
@@ -44,12 +44,7 @@ const fetchIcon = (count) => {
 
   return icons[iconKey];
 };
-export default function SuperClusterLayer({
-  data,
-  showRacks,
-  showShelters,
-  showSigns,
-}) {
+export default function SuperClusterLayer({ data, showRacks, showShelters, showSigns }) {
   const maxZoom = 22;
   const map = useMap();
   const [bounds, setBounds] = useState(null);
@@ -127,8 +122,7 @@ export default function SuperClusterLayer({
     <>
       {clusters.map((cluster) => {
         const [longitude, latitude] = cluster.geometry.coordinates;
-        const { cluster: isCluster, point_count: pointCount } =
-          cluster.properties;
+        const { cluster: isCluster, point_count: pointCount } = cluster.properties;
 
         if (isCluster) {
           return (
