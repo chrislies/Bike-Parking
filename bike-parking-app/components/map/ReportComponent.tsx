@@ -1,27 +1,12 @@
 "use client";
-import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
-import useSession from "@/utils/supabase/use-session";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { formatDate } from "@/lib/formatDate";
 import { Spinner } from "../svgs";
 import axios from "axios";
-
-interface Report {
-  option: string;
-  description: string;
-  username: string;
-  created_at: string;
-}
-
-interface ReportData {
-  username: string;
-  option: string;
-  site_id?: string;
-  description: string;
-  x?: number;
-  y?: number;
-}
+import { useUserStore } from "@/app/stores/userStore";
+import { useReportsStore } from "@/app/stores/reportsStore";
+import toast from "react-hot-toast";
 
 interface ModalProps {
   siteId?: string;
@@ -32,67 +17,62 @@ interface ModalProps {
   address?: string;
 }
 
-const ReportComponent: React.FC<ModalProps> = ({
-  siteId,
-  x,
-  y,
-  spot_type,
-  rack_type,
-  address,
-}) => {
-  const supabase = createSupabaseBrowserClient();
-  const session = useSession();
-  const username = session?.user.user_metadata.username;
-  const uuid = session?.user.id;
-  const email = session?.user.email;
+const ReportComponent: React.FC<ModalProps> = ({ siteId, x, y, spot_type, rack_type, address }) => {
+  const { reports, isLoading, fetchReports, addReport } = useReportsStore();
+  const { uuid, username, email } = useUserStore();
 
-  const [isCommunityReportsModalOpen, setIsCommunityReportsModalOpen] =
-    useState(false);
+  const [isCommunityReportsModalOpen, setIsCommunityReportsModalOpen] = useState(false);
   const [reportView, setReportView] = useState(false);
   const [deleteView, setDeleteView] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [otherText, setOtherText] = useState("");
   const [reportDescription, setReportDescription] = useState("");
   const [deleteDescription, setDeleteDescription] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [spotReports, setSpotReports] = useState<Report[]>([]);
-  const [reportFormOptionError, setReportFormOptionError] = useState("");
-  const [reportFormDescriptionError, setReportFormDescriptionError] =
-    useState("");
-  const [reportFormSuccess, setReportFormSuccess] = useState("");
+  const [formErrors, setFormErrors] = useState({
+    option: "",
+    description: "",
+  });
   const [reportFormLoading, setReportFormLoading] = useState(false);
+  const [reportFormSuccess, setReportFormSuccess] = useState("");
   const [deleteFormSuccess, setDeleteFormSuccess] = useState("");
   const [deleteFormLoading, setDeleteFormLoading] = useState(false);
-  const [deleteFormDescriptionError, setDeleteFormDescriptionError] =
-    useState("");
+  const [deleteFormDescriptionError, setDeleteFormDescriptionError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // Fetch reports once
+  useEffect(() => {
+    if (siteId) {
+      fetchReports(siteId, x, y);
+    }
+  }, [siteId]);
+
+  const spotReports = reports[siteId!] || [];
+  const isLoadingReports = isLoading[siteId!];
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (uuid) {
       setSelectedOption(event.target.value);
       setOtherText(""); // Clear the text input when a radio button is selected
-      setReportFormOptionError("");
-      setReportFormDescriptionError("");
+      setFormErrors({ option: "", description: "" });
     } else {
-      alert("Sign in to file a report!");
+      toast.error("Please sign in to file a report", { id: "signInToReport" });
+
       return;
     }
   };
 
   const handleTextFocus = () => {
     setSelectedOption(""); // Deselect radio buttons when text input is focused
-    setReportFormOptionError("");
-    setReportFormDescriptionError("");
+    setFormErrors({ option: "", description: "" });
   };
 
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (uuid) {
       setOtherText(event.target.value);
-      setReportFormOptionError("");
-      setReportFormDescriptionError("");
+      setFormErrors({ option: "", description: "" });
     } else {
-      alert("Sign in to file a report!");
+      toast.error("Please sign in to file a report", { id: "signInToReport" });
       return;
     }
   };
@@ -103,40 +83,6 @@ const ReportComponent: React.FC<ModalProps> = ({
     setIsCommunityReportsModalOpen(false);
     setSelectedImage(null);
   };
-
-  const fetchSpotReports = async () => {
-    if (siteId) {
-      const { data, error } = await supabase
-        .from("Report")
-        .select("created_at, username, option, description")
-        .eq("location_id", siteId)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching reports:", error);
-      } else {
-        setSpotReports(data);
-      }
-    } else {
-      const { data, error } = await supabase
-        .from("Report")
-        .select("created_at, username, option, description")
-        .eq("x", x)
-        .eq("y", y)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching reports:", error);
-      } else {
-        setSpotReports(data);
-      }
-    }
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    fetchSpotReports();
-  }, []);
 
   //Generate button text based on the number of reports
   const numSpotReports = spotReports.length;
@@ -159,70 +105,63 @@ const ReportComponent: React.FC<ModalProps> = ({
 
   const handleReportFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (uuid) {
-      const option = selectedOption || otherText.trim();
-      if (!option) {
-        setReportFormOptionError("Please select or enter an option.");
-        return;
-      }
-      if (!reportDescription.trim()) {
-        setReportFormDescriptionError("Please provide a description.");
-        return;
-      }
-      // console.log(`${option}: ${reportDescription}`);
-      // reset the form state
-      setSelectedOption("");
-      setOtherText("");
-      setReportDescription("");
 
-      const reportData: ReportData = {
-        username: username,
-        option: option,
-        site_id: siteId,
-        description: reportDescription,
-        x: x,
-        y: y,
-      };
-
-      await addReport(reportData);
-    } else {
-      alert("Sign in to file a report!");
+    if (!uuid) {
+      toast.error("Please sign in to file a report", { id: "signInToReport" });
       return;
     }
-  };
 
-  const addReport = async (reportData: ReportData) => {
+    const option = selectedOption || otherText.trim();
+    const description = reportDescription.trim();
+
+    // Validate form
+    const errors = {
+      option: !option ? "Please select or enter an option" : "",
+      description: !description ? "Please provide a description" : "",
+    };
+
+    setFormErrors(errors);
+    if (errors.option || errors.description) return;
+
     try {
       setReportFormLoading(true);
-      const { username, option, site_id, description, x, y } = reportData;
-
-      const requestData = {
-        username: username,
-        option: option,
-        site_id: site_id,
-        description: description,
-        x: x,
-        y: y,
-      };
 
       const response = await fetch("/api/report", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: username!,
+          option,
+          site_id: siteId,
+          description,
+          x,
+          y,
+        }),
       });
 
-      if (response.ok) {
-        setReportFormSuccess("Report filed.");
-        setReportFormLoading(false);
-        fetchSpotReports();
-      } else {
-        console.error("Error adding report:", response.statusText);
-        setReportFormLoading(false);
-      }
+      if (!response.ok) throw new Error("Failed to submit report");
+
+      // Add new report to store
+      addReport(siteId!, {
+        option,
+        description,
+        username: username!,
+        created_at: new Date().toISOString(),
+      });
+
+      // Reset form
+      setSelectedOption("");
+      setOtherText("");
+      setReportDescription("");
+      setFormErrors({ option: "", description: "" });
+      setReportFormSuccess("Report filed successfully");
+
+      // Clear success message after delay
+      setTimeout(() => setReportFormSuccess(""), 5000);
     } catch (error) {
-      console.error("Server error when adding report:", error);
+      console.error("Error submitting report:", error);
+      toast.error("Error submitting report");
+    } finally {
       setReportFormLoading(false);
     }
   };
@@ -258,9 +197,7 @@ const ReportComponent: React.FC<ModalProps> = ({
             setDeleteDescription("");
             setSelectedImage("");
             setDeleteFormLoading(false);
-            setDeleteFormSuccess(
-              "Deletion request submitted. Our team will promptly review."
-            );
+            setDeleteFormSuccess("Deletion request submitted. Our team will promptly review.");
             // console.log("Request successfully added:", response.data);
           } else {
             // console.log("Error adding request:", response.statusText);
@@ -277,7 +214,7 @@ const ReportComponent: React.FC<ModalProps> = ({
       };
       updatePending();
     } else {
-      alert("Sign in to submit a deletion request!");
+      toast.error("Please sign in to submit a deletion request!", { id: "signInToDelete" });
       return;
     }
   };
@@ -301,7 +238,9 @@ const ReportComponent: React.FC<ModalProps> = ({
         };
         reader.readAsDataURL(file);
       } else {
-        alert("Only JPG, JPEG, PNG, and HEIC files are allowed.");
+        toast.error("Only JPG, JPEG, PNG, and HEIC files are allowed", {
+          id: "invalidFileType",
+        });
       }
     }
   };
@@ -334,7 +273,7 @@ const ReportComponent: React.FC<ModalProps> = ({
       >
         <Dialog
           as="div"
-          className="relative z-[9999]"
+          className="relative z-[888]"
           onClose={handleClose}
         >
           <Transition.Child
@@ -394,26 +333,17 @@ const ReportComponent: React.FC<ModalProps> = ({
                         </button>
                       )}
                       <h1 className="bg-gray-300 rounded-xl py-1 px-4 shadow-inner text-xl font-bold tracking-wider uppercase max-w-fit">
-                        {reportView
-                          ? "File a Report"
-                          : deleteView
-                          ? "Delete Spot"
-                          : "Reports"}
+                        {reportView ? "File a Report" : deleteView ? "Delete Spot" : "Reports"}
                       </h1>
                     </div>
                     {reportView || deleteView ? (
                       <div className="font-sans text-center mt-1 mb-4">
                         <p className="font-extrabold">{`${
-                          rack_type ||
-                          (spot_type === "sign"
-                            ? "Street Sign"
-                            : "Bike Shelter")
+                          rack_type || (spot_type === "sign" ? "Street Sign" : "Bike Shelter")
                         } ${siteId}`}</p>
                         <p
                           className={`${
-                            address && address.length > 30
-                              ? "lowercase text-sm"
-                              : null
+                            address && address.length > 30 ? "lowercase text-sm" : null
                           } `}
                         >
                           {address}
@@ -426,9 +356,7 @@ const ReportComponent: React.FC<ModalProps> = ({
                       <form action="">
                         <p
                           className={`font-bold underline ${
-                            reportFormOptionError
-                              ? "text-red-500"
-                              : "text-black"
+                            formErrors.option ? "text-red-500" : "text-black"
                           }`}
                         >
                           Choose option:
@@ -491,9 +419,7 @@ const ReportComponent: React.FC<ModalProps> = ({
                           <label htmlFor="reportDescription">
                             <span
                               className={`font-bold ${
-                                reportFormDescriptionError
-                                  ? "text-red-500"
-                                  : "text-black"
+                                formErrors.description ? "text-red-500" : "text-black"
                               }`}
                             >{`Description: `}</span>
                           </label>
@@ -501,9 +427,11 @@ const ReportComponent: React.FC<ModalProps> = ({
                             onChange={(event) => {
                               if (uuid) {
                                 setReportDescription(event.target.value);
-                                setReportFormDescriptionError("");
+                                setFormErrors({ option: "", description: "" });
                               } else {
-                                alert("Sign in to file a report!");
+                                toast.error("Please sign in to file a report", {
+                                  id: "signInToReport",
+                                });
                               }
                             }}
                             value={reportDescription}
@@ -517,31 +445,23 @@ const ReportComponent: React.FC<ModalProps> = ({
                             maxLength={250}
                             placeholder="Enter your report here..."
                             className={`border-2 rounded px-1 ${
-                              reportFormDescriptionError
-                                ? "border-red-500"
-                                : "border-black/20"
+                              formErrors.description ? "border-red-500" : "border-black/20"
                             }`}
                           ></textarea>
                         </div>
-                        {reportFormOptionError && (
+                        {formErrors.option && (
                           <span className="flex justify-center w-full bg-red-500/80 mb-2">
-                            <p className="py-2 text-white">
-                              {reportFormOptionError}
-                            </p>
+                            <p className="py-2 text-white">{formErrors.option}</p>
                           </span>
                         )}
-                        {reportFormDescriptionError && (
+                        {formErrors.description && (
                           <span className="flex justify-center w-full bg-red-500/80 mb-2">
-                            <p className="py-2 text-white">
-                              {reportFormDescriptionError}
-                            </p>
+                            <p className="py-2 text-white">{formErrors.description}</p>
                           </span>
                         )}
                         {reportFormSuccess && (
                           <span className="flex justify-center w-full bg-green-500 mb-2">
-                            <p className="py-2 text-white">
-                              {reportFormSuccess}
-                            </p>
+                            <p className="py-2 text-white">{reportFormSuccess}</p>
                           </span>
                         )}
                         <div className="flex justify-center my-1">
@@ -570,9 +490,7 @@ const ReportComponent: React.FC<ModalProps> = ({
                           <label htmlFor="deleteDescription">
                             <span
                               className={`font-bold ${
-                                deleteFormDescriptionError
-                                  ? "text-red-500"
-                                  : "text-black"
+                                deleteFormDescriptionError ? "text-red-500" : "text-black"
                               }`}
                             >{`Reason: `}</span>
                           </label>
@@ -582,7 +500,9 @@ const ReportComponent: React.FC<ModalProps> = ({
                                 setDeleteDescription(event.target.value);
                                 setDeleteFormDescriptionError("");
                               } else {
-                                alert("Sign in to submit a deletion request!");
+                                toast.error("Sign in to submit a deletion request!", {
+                                  id: "signInToDelete",
+                                });
                               }
                             }}
                             value={deleteDescription}
@@ -596,9 +516,7 @@ const ReportComponent: React.FC<ModalProps> = ({
                             maxLength={250}
                             placeholder="Please explain why you want this spot removed..."
                             className={`border-2 rounded px-1 ${
-                              deleteFormDescriptionError
-                                ? "border-red-500"
-                                : "border-black/20"
+                              deleteFormDescriptionError ? "border-red-500" : "border-black/20"
                             }`}
                           ></textarea>
                           <div className="flex flex-col mt-2">
@@ -631,16 +549,12 @@ const ReportComponent: React.FC<ModalProps> = ({
                         )}
                         {deleteFormDescriptionError && (
                           <span className="flex justify-center w-full bg-red-500/80 mb-2">
-                            <p className="py-2 text-white">
-                              {deleteFormDescriptionError}
-                            </p>
+                            <p className="py-2 text-white">{deleteFormDescriptionError}</p>
                           </span>
                         )}
                         {deleteFormSuccess && (
                           <span className="flex justify-center max-w-xs mx-auto text-center bg-green-500 mb-2">
-                            <p className="py-2 text-white">
-                              {deleteFormSuccess}
-                            </p>
+                            <p className="py-2 text-white">{deleteFormSuccess}</p>
                           </span>
                         )}
                         <div className="flex justify-center mb-1">
@@ -662,12 +576,12 @@ const ReportComponent: React.FC<ModalProps> = ({
                         </div>
                       </div>
                     </form>
-                  ) : isLoading ? (
+                  ) : isLoadingReports ? (
                     <div className="min-h-[15vh] flex justify-center items-center gap-2">
-                      <Spinner className="animate-spin h-6 fill-blue-700"></Spinner>
-                      <p className="text-base">Loading... </p>
+                      <Spinner className="animate-spin h-6 fill-blue-700" />
+                      <p className="text-base">Loading reports...</p>
                     </div>
-                  ) : numSpotReports != 0 ? (
+                  ) : spotReports.length > 0 ? (
                     <div className="my-5 max-h-[45vh] overflow-auto">
                       {spotReports.map((report, index) => (
                         <div key={index}>
@@ -688,9 +602,7 @@ const ReportComponent: React.FC<ModalProps> = ({
                                   ${formatDate(report.created_at)}`}
                             </p>
                           </div>
-                          {index === numSpotReports ? null : (
-                            <div className="border-t-2" />
-                          )}
+                          {index === numSpotReports ? null : <div className="border-t-2" />}
                         </div>
                       ))}
                     </div>
@@ -700,9 +612,7 @@ const ReportComponent: React.FC<ModalProps> = ({
                         {`There are currently no reports for `}
                         <span className="font-bold">
                           {rack_type?.toLowerCase() ||
-                            (spot_type === "sign"
-                              ? "street sign"
-                              : "bike shelter")}{" "}
+                            (spot_type === "sign" ? "street sign" : "bike shelter")}{" "}
                           {siteId}
                         </span>
                       </p>
