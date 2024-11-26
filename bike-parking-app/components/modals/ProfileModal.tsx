@@ -44,10 +44,7 @@ const ProfileModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
       if (!uuid) {
         return;
       }
-      const { data, error } = await supabase
-        .from("admins")
-        .select()
-        .eq("id", uuid);
+      const { data, error } = await supabase.from("admins").select().eq("id", uuid);
       if (error) {
         throw new Error(`Error fetching saved spots: ${error.message}`);
       }
@@ -64,8 +61,16 @@ const ProfileModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-[9999]" onClose={onClose}>
+    <Transition
+      appear
+      show={isOpen}
+      as={Fragment}
+    >
+      <Dialog
+        as="div"
+        className="relative z-[888]"
+        onClose={onClose}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -140,9 +145,7 @@ const ProfileModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                                 <span className="font-bold">{` ${username}`}</span>
                               </div>
                             )}
-                            {createdAt && (
-                              <p>Joined on: {formatDate(createdAt)}</p>
-                            )}
+                            {createdAt && <p>Joined on: {formatDate(createdAt)}</p>}
                             {isAdmin && (
                               <button className="bg-gray-800 text-white p-4 rounded-xl hover:opacity-80">
                                 <Link href="/admin">Admin Dashboard</Link>

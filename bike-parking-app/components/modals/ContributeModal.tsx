@@ -31,8 +31,16 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-[9999]" onClose={handleClose}>
+    <Transition
+      appear
+      show={isOpen}
+      as={Fragment}
+    >
+      <Dialog
+        as="div"
+        className="relative z-[888]"
+        onClose={handleClose}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -137,33 +145,27 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                               <button
                                 onClick={() =>
                                   setYourReportsModalView(
-                                    (prevYourReportsModalView) =>
-                                      !prevYourReportsModalView
+                                    (prevYourReportsModalView) => !prevYourReportsModalView
                                   )
                                 }
                                 className="py-2 rounded-md bg-red-500 text-white w-full hover:opacity-80"
                               >
                                 Your Reports
                               </button>
-                              <p className="text-sm">
-                                View all the reports you have submitted.
-                              </p>
+                              <p className="text-sm">View all the reports you have submitted.</p>
                             </div>
                             <div className="w-full flex flex-col gap-1">
                               <button
                                 onClick={() =>
                                   setYourRequestsModalView(
-                                    (prevYourRequestsModalView) =>
-                                      !prevYourRequestsModalView
+                                    (prevYourRequestsModalView) => !prevYourRequestsModalView
                                   )
                                 }
                                 className="py-2 rounded-md bg-green-600 text-white w-full hover:opacity-80"
                               >
                                 Your Requests
                               </button>
-                              <p className="text-sm">
-                                View your requests for map changes.
-                              </p>
+                              <p className="text-sm">View your requests for map changes.</p>
                             </div>
                           </div>
                         </>

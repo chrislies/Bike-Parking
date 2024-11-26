@@ -28,9 +28,7 @@ interface Favorites {
 
 const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [listOfFavorites, setListOfFavorites] = useState<Favorites[] | null>(
-    null
-  );
+  const [listOfFavorites, setListOfFavorites] = useState<Favorites[] | null>(null);
 
   const [loginView, setLoginView] = useState(true);
 
@@ -88,21 +86,25 @@ const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     (favoriteMarker: Favorites) => {
       onClose(); // close the modal
       const currentZoom = map.getZoom() > 19 ? map.getZoom() : 20;
-      map.flyTo(
-        [favoriteMarker.y_coord!, favoriteMarker.x_coord!],
-        currentZoom,
-        {
-          animate: true,
-          duration: 1.5,
-        }
-      );
+      map.flyTo([favoriteMarker.y_coord!, favoriteMarker.x_coord!], currentZoom, {
+        animate: true,
+        duration: 1.5,
+      });
     },
     [map, onClose]
   );
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-[9999]" onClose={onClose}>
+    <Transition
+      appear
+      show={isOpen}
+      as={Fragment}
+    >
+      <Dialog
+        as="div"
+        className="relative z-[888]"
+        onClose={onClose}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -186,39 +188,35 @@ const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                         </div>
                       ) : (
                         <div className="flex flex-col justify-center">
-                          {listOfFavorites.map(
-                            (favorite: Favorites, index: number) => (
-                              <div key={index}>
-                                <div className="grid grid-flow-col grid-cols-12 w-full items-center">
-                                  <button onClick={() => handleFlyTo(favorite)}>
-                                    <span className="col-span-1 justify-self-center font-bold text-xl">{`${
-                                      index + 1
-                                    })`}</span>
-                                  </button>
-                                  <ol className="col-span-10 justify-self-center">
-                                    <button
-                                      className="appearance-none"
-                                      onClick={() => handleFlyTo(favorite)}
-                                    >
-                                      <li className="underline">
-                                        {favorite.location_id}
-                                      </li>
-                                      <li>{favorite.location_address}</li>
-                                    </button>
-                                  </ol>
+                          {listOfFavorites.map((favorite: Favorites, index: number) => (
+                            <div key={index}>
+                              <div className="grid grid-flow-col grid-cols-12 w-full items-center">
+                                <button onClick={() => handleFlyTo(favorite)}>
+                                  <span className="col-span-1 justify-self-center font-bold text-xl">{`${
+                                    index + 1
+                                  })`}</span>
+                                </button>
+                                <ol className="col-span-10 justify-self-center">
                                   <button
-                                    className="col-span-1 justify-self-center p-2 hover:bg-red-100 hover:rounded-full"
-                                    onClick={() => removeFavorite(favorite)}
+                                    className="appearance-none"
+                                    onClick={() => handleFlyTo(favorite)}
                                   >
-                                    <BsTrash3Fill className="fill-red-500 h-6 w-6" />
+                                    <li className="underline">{favorite.location_id}</li>
+                                    <li>{favorite.location_address}</li>
                                   </button>
-                                </div>
-                                {index != listOfFavorites.length - 1 && (
-                                  <div className="border-[1px] w-full my-3" />
-                                )}
+                                </ol>
+                                <button
+                                  className="col-span-1 justify-self-center p-2 hover:bg-red-100 hover:rounded-full"
+                                  onClick={() => removeFavorite(favorite)}
+                                >
+                                  <BsTrash3Fill className="fill-red-500 h-6 w-6" />
+                                </button>
                               </div>
-                            )
-                          )}
+                              {index != listOfFavorites.length - 1 && (
+                                <div className="border-[1px] w-full my-3" />
+                              )}
+                            </div>
+                          ))}
                         </div>
                       )}
                     </>
