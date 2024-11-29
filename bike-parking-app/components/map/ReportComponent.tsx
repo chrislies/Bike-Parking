@@ -130,6 +130,7 @@ const ReportComponent: React.FC<ModalProps> = ({ siteId, x, y, spot_type, rack_t
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          user_id: uuid!,
           username: username!,
           option,
           site_id: siteId,

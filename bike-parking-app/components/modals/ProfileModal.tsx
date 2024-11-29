@@ -1,6 +1,5 @@
 "use client";
-import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
-import useSession from "@/utils/supabase/use-session";
+import { useUserStore } from "@/app/stores/userStore";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -16,21 +15,13 @@ interface ModalProps {
 }
 
 const ProfileModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
-  const supabase = createSupabaseBrowserClient();
-  const session = useSession();
-  const username = session?.user.user_metadata.username;
-  const uuid = session?.user.id;
-  const createdAt = session?.user.created_at;
+  const { username, uuid, createdAt, isAdmin, signOut } = useUserStore();
   const router = useRouter();
 
   const [loginView, setLoginView] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+
   const signOutUser = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.log(error);
-      return;
-    }
+    await signOut();
     toast.success("Sign out successful", {
       duration: 5000,
       id: "signOutSuccess",
@@ -38,27 +29,6 @@ const ProfileModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     router.push("/login");
     router.refresh();
   };
-
-  const fetchAdmins = async () => {
-    try {
-      if (!uuid) {
-        return;
-      }
-      const { data, error } = await supabase.from("admins").select().eq("id", uuid);
-      if (error) {
-        throw new Error(`Error fetching saved spots: ${error.message}`);
-      }
-      setIsAdmin(data.length === 1);
-    } catch (error) {
-      toast.error(`Something went wrong: ${error}`);
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchAdmins();
-    }
-  }, [isOpen]);
 
   return (
     <Transition
