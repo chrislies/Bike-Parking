@@ -4,11 +4,12 @@ const supabase = createSupabaseBrowserClient();
 
 export async function POST(req: Request) {
   try {
-    const { username, option, site_id, description, x, y } = await req.json();
+    const { user_id, username, option, site_id, description, x, y } = await req.json();
 
     const { data, error } = await supabase.from("Report").insert(
       [
         {
+          user_id: user_id,
           username: username,
           option: option,
           description: description,
