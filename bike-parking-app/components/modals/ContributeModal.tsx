@@ -132,7 +132,7 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                       ) : yourReportsModalView ? (
                         <YourReportsModal onClose={handleClose}></YourReportsModal>
                       ) : yourRequestsModalView ? (
-                        <YourRequestsModal></YourRequestsModal>
+                        <YourRequestsModal onClose={handleClose}></YourRequestsModal>
                       ) : (
                         <>
                           <div className="flex justify-evenly text-center gap-[24px] mt-5">
