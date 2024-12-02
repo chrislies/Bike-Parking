@@ -7,7 +7,11 @@ import { Spinner } from "../svgs";
 import { formatDate } from "@/lib/formatDate";
 import { useMapEvents } from "react-leaflet";
 
-export default function YourReportsModal() {
+interface YourReportsModalProps {
+  onClose: () => void;
+}
+
+export default function YourReportsModal({ onClose }: YourReportsModalProps) {
   const { reports, isLoading, fetchUserReports, removeUserReport, hasFetched } =
     useUserReportsStore();
   const { uuid, username } = useUserStore();
@@ -22,6 +26,7 @@ export default function YourReportsModal() {
   const handleFlyTo = useCallback(
     (report: UserReport) => {
       if (report.y && report.x) {
+        onClose(); // close the modal
         const currentZoom = map.getZoom() > 19 ? map.getZoom() : 20;
         map.flyTo([report.y, report.x], currentZoom, {
           animate: true,
@@ -29,7 +34,7 @@ export default function YourReportsModal() {
         });
       }
     },
-    [map]
+    [map, onClose]
   );
 
   return (

@@ -130,7 +130,7 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                           )}
                         </div>
                       ) : yourReportsModalView ? (
-                        <YourReportsModal></YourReportsModal>
+                        <YourReportsModal onClose={handleClose}></YourReportsModal>
                       ) : yourRequestsModalView ? (
                         <YourRequestsModal></YourRequestsModal>
                       ) : (
