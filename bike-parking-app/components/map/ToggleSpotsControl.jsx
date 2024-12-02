@@ -4,9 +4,11 @@ import { useMap } from "react-leaflet";
 
 export default function ToggleSpotsControl({
   showRacks,
+  showShelters,
   showSigns,
   handleToggleRacks,
   handleToggleSigns,
+  handleToggleShelters,
 }) {
   const map = useMap();
 
@@ -26,6 +28,12 @@ export default function ToggleSpotsControl({
               Bike Racks
             </label>
             <label>
+              <input type="checkbox" id="toggleShelters" ${
+                showShelters ? "checked" : ""
+              } />
+              Bike Shelters
+            </label>
+            <label>
               <input type="checkbox" id="toggleSigns" ${
                 showSigns ? "checked" : ""
               } />
@@ -41,6 +49,9 @@ export default function ToggleSpotsControl({
           .querySelector("#toggleRacks")
           .addEventListener("change", handleToggleRacks);
         container
+          .querySelector("#toggleShelters")
+          .addEventListener("change", handleToggleShelters);
+        container
           .querySelector("#toggleSigns")
           .addEventListener("change", handleToggleSigns);
 
@@ -54,7 +65,15 @@ export default function ToggleSpotsControl({
     return () => {
       map.removeControl(controlInstance);
     };
-  }, [map, showRacks, showSigns, handleToggleRacks, handleToggleSigns]);
+  }, [
+    map,
+    showRacks,
+    showShelters,
+    showSigns,
+    handleToggleRacks,
+    handleToggleShelters,
+    handleToggleSigns,
+  ]);
 
   return null;
 }

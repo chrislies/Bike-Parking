@@ -1,6 +1,5 @@
 "use client";
-import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
-import useSession from "@/utils/supabase/use-session";
+import { useUserStore } from "@/app/stores/userStore";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import LoginModal from "../auth/LoginModal";
@@ -14,11 +13,7 @@ interface ModalProps {
 }
 
 const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
-  const supabase = createSupabaseBrowserClient();
-  const session = useSession();
-  const username = session?.user.user_metadata.username;
-  const uuid = session?.user.id;
-  const createdAt = session?.user.created_at;
+  const { uuid } = useUserStore();
 
   const [loginView, setLoginView] = useState(true);
   const [yourReportsModalView, setYourReportsModalView] = useState(false);
@@ -31,8 +26,16 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-[9999]" onClose={handleClose}>
+    <Transition
+      appear
+      show={isOpen}
+      as={Fragment}
+    >
+      <Dialog
+        as="div"
+        className="relative z-[1000]"
+        onClose={handleClose}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -127,9 +130,9 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                           )}
                         </div>
                       ) : yourReportsModalView ? (
-                        <YourReportsModal></YourReportsModal>
+                        <YourReportsModal onClose={handleClose}></YourReportsModal>
                       ) : yourRequestsModalView ? (
-                        <YourRequestsModal></YourRequestsModal>
+                        <YourRequestsModal onClose={handleClose}></YourRequestsModal>
                       ) : (
                         <>
                           <div className="flex justify-evenly text-center gap-[24px] mt-5">
@@ -137,33 +140,27 @@ const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                               <button
                                 onClick={() =>
                                   setYourReportsModalView(
-                                    (prevYourReportsModalView) =>
-                                      !prevYourReportsModalView
+                                    (prevYourReportsModalView) => !prevYourReportsModalView
                                   )
                                 }
                                 className="py-2 rounded-md bg-red-500 text-white w-full hover:opacity-80"
                               >
                                 Your Reports
                               </button>
-                              <p className="text-sm">
-                                View all the reports you have submitted.
-                              </p>
+                              <p className="text-sm">View all the reports you have submitted.</p>
                             </div>
                             <div className="w-full flex flex-col gap-1">
                               <button
                                 onClick={() =>
                                   setYourRequestsModalView(
-                                    (prevYourRequestsModalView) =>
-                                      !prevYourRequestsModalView
+                                    (prevYourRequestsModalView) => !prevYourRequestsModalView
                                   )
                                 }
                                 className="py-2 rounded-md bg-green-600 text-white w-full hover:opacity-80"
                               >
                                 Your Requests
                               </button>
-                              <p className="text-sm">
-                                View your requests for map changes.
-                              </p>
+                              <p className="text-sm">View your requests for map changes.</p>
                             </div>
                           </div>
                         </>

@@ -1,108 +1,59 @@
 "use client";
-import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
-import useSession from "@/utils/supabase/use-session";
+import { useUserStore } from "@/app/stores/userStore";
+import { SavedLocation, useSavedLocationsStore } from "@/app/stores/savedLocationsStore";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 import { BsTrash3Fill } from "react-icons/bs";
 import { useMapEvents } from "react-leaflet";
-import toast from "react-hot-toast";
 import { Spinner } from "../svgs";
 import LoginModal from "../auth/LoginModal";
 import RegisterModal from "../auth/RegisterModal";
+import toast from "react-hot-toast";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-interface Favorites {
-  created_at: string;
-  id: number;
-  location_address: string;
-  location_id: string;
-  user_id: string;
-  username: string;
-  x_coord: number;
-  y_coord: number;
-}
-
 const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [listOfFavorites, setListOfFavorites] = useState<Favorites[] | null>(
-    null
-  );
-
+  const { uuid } = useUserStore();
+  const { isLoading, locations, removeLocation } = useSavedLocationsStore();
   const [loginView, setLoginView] = useState(true);
-
-  const supabase = createSupabaseBrowserClient();
-  const session = useSession();
-  const uuid = session?.user.id;
-
-  const fetchSavedLocations = useCallback(async () => {
-    try {
-      if (!uuid) {
-        setIsLoading(false);
-        return;
-      }
-      const { data: savedSpots, error } = await supabase
-        .from("Favorites")
-        .select()
-        .eq("user_id", uuid);
-      if (error) {
-        throw new Error(`Error fetching saved spots: ${error.message}`);
-      }
-      setListOfFavorites(savedSpots || []);
-      setIsLoading(false);
-    } catch (error) {
-      toast.error(`Something went wrong: ${error}`);
-      setIsLoading(false);
-    }
-  }, [supabase, uuid]);
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchSavedLocations();
-    }
-  }, [isOpen, fetchSavedLocations]);
-
-  const removeFavorite = async (favorite: Favorites) => {
-    const { data, error } = await supabase
-      .from("Favorites")
-      .delete()
-      .eq("user_id", uuid)
-      .eq("location_id", favorite.location_id);
-
-    if (error) {
-      console.log(`Error removing spot from favortes: ${error}`);
-    } else {
-      // Filter out the removed favorite from the list
-      setListOfFavorites((prevList) =>
-        prevList ? prevList.filter((f) => f.id !== favorite.id) : []
-      );
-    }
-  };
 
   const map = useMapEvents({});
 
   const handleFlyTo = useCallback(
-    (favoriteMarker: Favorites) => {
+    (favoriteMarker: SavedLocation) => {
       onClose(); // close the modal
       const currentZoom = map.getZoom() > 19 ? map.getZoom() : 20;
-      map.flyTo(
-        [favoriteMarker.y_coord!, favoriteMarker.x_coord!],
-        currentZoom,
-        {
-          animate: true,
-          duration: 1.5,
-        }
-      );
+      map.flyTo([favoriteMarker.y_coord!, favoriteMarker.x_coord!], currentZoom, {
+        animate: true,
+        duration: 1.5,
+      });
     },
     [map, onClose]
   );
 
+  const handleRemoveLocation = async (locationId: string) => {
+    try {
+      await removeLocation(locationId, uuid!);
+      toast.success("Location unsaved", { id: "locationUnsaved" });
+    } catch (error) {
+      toast.error(`Something went wrong: ${error}`, { id: "locationUnsavedError" });
+    }
+  };
+
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-[9999]" onClose={onClose}>
+    <Transition
+      appear
+      show={isOpen}
+      as={Fragment}
+    >
+      <Dialog
+        as="div"
+        className="relative z-[1000]"
+        onClose={onClose}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -175,50 +126,46 @@ const SavedModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                             <p className="text-base">Loading... </p>
                           </div>
                         </div>
-                      ) : listOfFavorites === null ? (
+                      ) : locations === null ? (
                         <div className="flex justify-center items-center gap-2">
                           <Spinner className="animate-spin h-6 fill-blue-700"></Spinner>
                           <p className="text-base">Loading... </p>
                         </div>
-                      ) : listOfFavorites.length === 0 ? (
+                      ) : locations.length === 0 ? (
                         <div className="text-center">
                           <div className="text-base">No spots saved yet!</div>
                         </div>
                       ) : (
                         <div className="flex flex-col justify-center">
-                          {listOfFavorites.map(
-                            (favorite: Favorites, index: number) => (
-                              <div key={index}>
-                                <div className="grid grid-flow-col grid-cols-12 w-full items-center">
-                                  <button onClick={() => handleFlyTo(favorite)}>
-                                    <span className="col-span-1 justify-self-center font-bold text-xl">{`${
-                                      index + 1
-                                    })`}</span>
-                                  </button>
-                                  <ol className="col-span-10 justify-self-center">
-                                    <button
-                                      className="appearance-none"
-                                      onClick={() => handleFlyTo(favorite)}
-                                    >
-                                      <li className="underline">
-                                        {favorite.location_id}
-                                      </li>
-                                      <li>{favorite.location_address}</li>
-                                    </button>
-                                  </ol>
+                          {locations.map((favorite, index: number) => (
+                            <div key={index}>
+                              <div className="grid grid-flow-col grid-cols-12 w-full items-center">
+                                <button onClick={() => handleFlyTo(favorite)}>
+                                  <span className="col-span-1 justify-self-center font-bold text-xl">{`${
+                                    index + 1
+                                  })`}</span>
+                                </button>
+                                <ol className="col-span-10 justify-self-center">
                                   <button
-                                    className="col-span-1 justify-self-center p-2 hover:bg-red-100 hover:rounded-full"
-                                    onClick={() => removeFavorite(favorite)}
+                                    className="appearance-none"
+                                    onClick={() => handleFlyTo(favorite)}
                                   >
-                                    <BsTrash3Fill className="fill-red-500 h-6 w-6" />
+                                    <li className="underline">{favorite.location_id}</li>
+                                    <li>{favorite.location_address}</li>
                                   </button>
-                                </div>
-                                {index != listOfFavorites.length - 1 && (
-                                  <div className="border-[1px] w-full my-3" />
-                                )}
+                                </ol>
+                                <button
+                                  className="col-span-1 justify-self-center p-2 hover:bg-red-100 hover:rounded-full"
+                                  onClick={() => handleRemoveLocation(favorite.location_id)}
+                                >
+                                  <BsTrash3Fill className="fill-red-500 h-6 w-6" />
+                                </button>
                               </div>
-                            )
-                          )}
+                              {index != locations.length - 1 && (
+                                <div className="border-[1px] w-full my-3" />
+                              )}
+                            </div>
+                          ))}
                         </div>
                       )}
                     </>

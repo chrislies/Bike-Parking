@@ -14,11 +14,14 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     let allData: any[] = [];
     let offset = 0;
     let bikeRacksData: MarkerData[] = [];
+    let bikeSheltersData: MarkerData[] = [];
 
     try {
       const bikeRacksResponse = await fetch(
         `https://data.cityofnewyork.us/resource/592z-n7dk.json?$limit=50000&$offset=${offset}`
-        // `https://data.cityofnewyork.us/resource/592z-n7dk.json?$limit=10000&$offset=${offset}`
+      );
+      const bikeSheltersResponse = await fetch(
+        `https://data.cityofnewyork.us/resource/dimy-qyej.json`
       );
 
       if (bikeRacksResponse.ok) {
@@ -29,8 +32,17 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
           bikeRacksResponse.status
         );
       }
+
+      if (bikeSheltersResponse.ok) {
+        bikeSheltersData = await bikeSheltersResponse.json();
+      } else {
+        console.error(
+          "Failed to fetch bike shelters data:",
+          bikeSheltersResponse.status
+        );
+      }
     } catch (error) {
-      console.error("Error fetching bike racks data:", error);
+      console.error("Error fetching bike data:", error);
     }
 
     // Count the different types of racks
@@ -73,7 +85,7 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
     //   }
     // });
 
-    allData = [...allData, ...bikeRacksData];
+    allData = [...bikeRacksData, ...bikeSheltersData];
 
     const startSign = window.performance.now();
     const streetSignsResponse = await fetch(
@@ -96,16 +108,16 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
       const tertiaryAddress = [item.on_street, item.from_street, item.to_street].filter(Boolean).join(" ");
     
       return {
-        x: item.x || item.X || item.longitude,
-        y: item.y || item.Y || item.latitude,
-        id: item.site_id ? `R${item.site_id.slice(1)}` : `S.${item.index}`,
-        address: primaryAddress || secondaryAddress || tertiaryAddress,
+        x: item.the_geom?.coordinates[0] || item.x || item.X || item.longitude,
+        y: item.the_geom?.coordinates[1] || item.y || item.Y || item.latitude,
+        id: item.site_id ? `R${item.site_id.slice(1)}` : item.shelter_id || `S.${item.index}`,
+        address: primaryAddress || secondaryAddress || tertiaryAddress || item.location,
         rack_type: item.racktype,
-        date_inst: item.date_inst,
+        date_inst: item.date_inst || item.build_date,
         sign_description: item.sign_description,
         sign_code: item.sign_code,
         favorite: false,
-        type: item.racktype ? "rack" : "sign",
+        type: item.racktype ? "rack" : item.shelter_id ? "shelter" : "sign",
       };
     });
 

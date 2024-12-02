@@ -9,6 +9,7 @@ interface UserStore {
   username: string | null;
   uuid: string | null;
   email: string | null;
+  createdAt: string | null;
   isAdmin: boolean;
   isInitialized: boolean;
   setSession: (session: Session | null) => void;
@@ -27,6 +28,7 @@ export const useUserStore = create<UserStore>((set, get) => {
       username: session?.user?.user_metadata?.username || null,
       uuid: session?.user?.id || null,
       email: session?.user?.email || null,
+      createdAt: session?.user?.created_at || null,
     });
 
     // Fetch locations when auth state changes
@@ -41,6 +43,7 @@ export const useUserStore = create<UserStore>((set, get) => {
     username: null,
     uuid: null,
     email: null,
+    createdAt: null,
     isAdmin: false,
     isInitialized: false,
 
@@ -72,6 +75,7 @@ export const useUserStore = create<UserStore>((set, get) => {
           username: session.user.user_metadata.username,
           uuid: session.user.id,
           email: session.user.email,
+          createdAt: session.user.created_at,
           isAdmin: !!data,
           isInitialized: true,
         });
@@ -82,12 +86,13 @@ export const useUserStore = create<UserStore>((set, get) => {
     },
 
     signOut: async () => {
-      await get().supabase.auth.signOut();
+      await supabase.auth.signOut();
       set({
         session: null,
         username: null,
         uuid: null,
         email: null,
+        createdAt: null,
         isAdmin: false,
       });
     },

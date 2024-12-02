@@ -16,6 +16,7 @@ const { BaseLayer } = LayersControl;
 export default function SuperClusterMap() {
   const [showRacks, setShowRacks] = useState(true);
   const [showSigns, setShowSigns] = useState(true);
+  const [showShelters, setShowShelters] = useState(true);
 
   const { isLoading, error, data } = useQuery("coordinates", getCoordinates, {
     staleTime: 5 * 60 * 1000, // Keep the data fresh for 5 minutes
@@ -26,6 +27,7 @@ export default function SuperClusterMap() {
   if (error) return <div>An error has occurred: {error.message}</div>;
 
   const handleToggleRacks = () => setShowRacks((prev) => !prev);
+  const handleToggleShelters = () => setShowShelters((prev) => !prev);
   const handleToggleSigns = () => setShowSigns((prev) => !prev);
 
   return (
@@ -43,7 +45,10 @@ export default function SuperClusterMap() {
       }}
     >
       <LayersControl position="bottomleft">
-        <BaseLayer checked name="Street Layer">
+        <BaseLayer
+          checked
+          name="Street Layer"
+        >
           <TileLayer
             maxZoom={24}
             maxNativeZoom={19}
@@ -62,6 +67,7 @@ export default function SuperClusterMap() {
           <SuperClusterLayer
             data={data}
             showRacks={showRacks}
+            showShelters={showShelters}
             showSigns={showSigns}
           />
         )}
@@ -72,9 +78,11 @@ export default function SuperClusterMap() {
       <Toolbar />
       <ToggleSpotsControl
         showRacks={showRacks}
+        showShelters={showShelters}
         showSigns={showSigns}
         handleToggleRacks={handleToggleRacks}
         handleToggleSigns={handleToggleSigns}
+        handleToggleShelters={handleToggleShelters}
       />
     </MapContainer>
   );

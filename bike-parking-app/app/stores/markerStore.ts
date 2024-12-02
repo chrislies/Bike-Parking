@@ -40,7 +40,9 @@ export const useMarkerStore = create<MarkerState>((set, get) => ({
 
   toggleSavedLocation: async (location) => {
     if (!location.user_id) {
-      toast.error("Please sign in to save locations");
+      toast.error("Please sign in to save locations", {
+        id: "signInToSave",
+      });
       return;
     }
 
@@ -53,14 +55,14 @@ export const useMarkerStore = create<MarkerState>((set, get) => ({
     try {
       if (isSaved) {
         await removeLocation(location.location_id, location.user_id);
-        toast.success("Location removed from saved spots");
+        toast.success("Location unsaved", { id: "locationUnsaved" });
       } else {
         await addLocation(location);
-        toast.success("Location saved successfully");
+        toast.success("Location saved", { id: "locationUnsaved" });
       }
       // No need to fetch locations again, state is updated in savedLocationsStore
     } catch (error) {
-      toast.error("Error saving location");
+      toast.error("Error saving location", { id: "errorSavingLocation" });
     }
   },
 
@@ -68,7 +70,9 @@ export const useMarkerStore = create<MarkerState>((set, get) => ({
     set({ isCalculatingRoute: true });
 
     if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser");
+      toast.error("Geolocation is not supported by your browser", {
+        id: "geolocationNotSupported",
+      });
       set({ isCalculatingRoute: false });
       return;
     }
@@ -114,13 +118,17 @@ export const useMarkerStore = create<MarkerState>((set, get) => ({
 
         newRoutingControl.on("routingerror", () => {
           set({ isCalculatingRoute: false });
-          toast.error("Error calculating route");
+          toast.error("Error calculating route", {
+            id: "errorCalculatingRoute",
+          });
         });
 
         set({ routingControl: newRoutingControl });
       },
       (error) => {
-        toast.error(`Error getting location: ${error.message}`);
+        toast.error(`Error getting location: ${error.message}`, {
+          id: "errorGettingLocation",
+        });
         set({ isCalculatingRoute: false });
       }
     );

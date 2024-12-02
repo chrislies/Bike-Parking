@@ -3,7 +3,7 @@ import { useMarkerStore } from "@/app/stores/markerStore";
 import { useSavedLocationsStore } from "@/app/stores/savedLocationsStore";
 import { useUserStore } from "@/app/stores/userStore";
 import React, { useEffect } from "react";
-import { Marker, Popup, Tooltip } from "react-leaflet";
+import { Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import ReportComponent from "../ReportComponent";
 import BusyComponent from "../BusyComponent";
 import Image from "next/image";
@@ -19,8 +19,7 @@ import toast from "react-hot-toast";
 export default function SpotMarker({ cluster, map }) {
   const { locations, isLoading } = useSavedLocationsStore();
   const { uuid, username, isInitialized } = useUserStore();
-  const { toggleSavedLocation, calculateRoute, isCalculatingRoute } =
-    useMarkerStore();
+  const { toggleSavedLocation, calculateRoute, isCalculatingRoute } = useMarkerStore();
 
   // Only initialize once if not already done
   useEffect(() => {
@@ -43,12 +42,13 @@ export default function SpotMarker({ cluster, map }) {
   } = cluster.properties;
   const [longitude, latitude] = cluster.geometry.coordinates;
 
-  const isSaved =
-    !isLoading && locations.some((loc) => loc.location_id === spotId);
+  const isSaved = !isLoading && locations.some((loc) => loc.location_id === spotId);
 
   const handleSaveLocation = async () => {
     if (!uuid) {
-      toast.error("Please sign in to save locations");
+      toast.error("Please sign in to save locations", {
+        id: "signInToSaveError",
+      });
       return;
     }
 
@@ -67,10 +67,28 @@ export default function SpotMarker({ cluster, map }) {
   };
 
   const handleMarkerClick = () => {
-    const currentZoom = map.getZoom() > 19 ? map.getZoom() : 20;
-    map.setView([latitude, longitude], currentZoom, {
-      animate: true,
-    });
+    const targetZoom = map.getZoom() > 19 ? map.getZoom() : 20;
+
+    // Wait for the popup to mount before adjusting
+    setTimeout(() => {
+      const popup = map._popup;
+      if (popup) {
+        // Get the popup dimensions and adjust the target position
+        const popupHeight = popup._container.clientHeight;
+        const targetPoint = map.project([latitude, longitude], targetZoom);
+
+        targetPoint.y -= popupHeight / 2;
+
+        // Unproject the new adjusted point
+        const adjustedLatLng = map.unproject(targetPoint, targetZoom);
+
+        // Set the view to the adjusted position and zoom level
+        map.setView(adjustedLatLng, targetZoom, { animate: true });
+      } else {
+        // Fallback if no popup (just zoom and center marker)
+        map.setView([latitude, longitude], targetZoom, { animate: true });
+      }
+    }, 50);
   };
 
   return (
@@ -82,17 +100,25 @@ export default function SpotMarker({ cluster, map }) {
           ? MAP_ICONS.favoriteIcon
           : spotType === "rack"
           ? MAP_ICONS.rackIcon
+          : spotType === "shelter"
+          ? MAP_ICONS.shelterIcon
           : MAP_ICONS.signIcon
       }
       eventHandlers={{ click: handleMarkerClick }}
     >
-      <Tooltip className="desktop-tooltip">{rackType || "Street Sign"}</Tooltip>
-      <Popup minWidth={170} autoPan={false}>
+      <Tooltip className="desktop-tooltip">
+        {rackType || (spotType === "shelter" ? "Bike Shelter" : "Street Sign")}
+      </Tooltip>
+      <Popup
+        minWidth={170}
+        autoPan={false}
+        closeOnEscapeKey={true}
+      >
         <div className="flex flex-col">
           <div className="flex flex-col font-bold">
             <div className="flex items-center">
               <p className="!m-0 !p-0 text-base font-extrabold font-sans">
-                {rackType || "Street Sign"}
+                {rackType || (spotType === "shelter" ? "Bike Shelter" : "Street Sign")}
               </p>
             </div>
             {spotId && (
@@ -100,11 +126,15 @@ export default function SpotMarker({ cluster, map }) {
                 siteId={spotId}
                 x={x}
                 y={y}
+                spot_type={spotType}
                 rack_type={rackType}
                 address={spotAddress}
               />
             )}
-            <BusyComponent x={x} y={y} />
+            <BusyComponent
+              x={x}
+              y={y}
+            />
           </div>
           <div className="relative my-1 flex justify-center items-center select-none pointer-events-none">
             {rackType && getImageSource(rackType) ? (
@@ -125,9 +155,7 @@ export default function SpotMarker({ cluster, map }) {
                   width={700}
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/85 rounded-md opacity-0 hover:opacity-100 duration-500 ease-in-out transition-opacity overflow-auto select-text pointer-events-auto">
-                  <p className="text-xs text-white font-mono px-2">
-                    {signDescription}
-                  </p>
+                  <p className="text-xs text-white font-mono px-2">{signDescription}</p>
                 </div>
               </>
             ) : (
@@ -163,7 +191,7 @@ export default function SpotMarker({ cluster, map }) {
                   isSaved ? "fill-yellow-300" : "fill-transparent"
                 }`}
               />
-              Save
+              {isSaved ? "Unsave" : "Save"}
             </button>
             <button
               onClick={() => handleGetDirections({ x, y })}
