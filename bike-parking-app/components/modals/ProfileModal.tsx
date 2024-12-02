@@ -1,7 +1,7 @@
 "use client";
 import { useUserStore } from "@/app/stores/userStore";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { formatDate } from "@/lib/formatDate";
