@@ -1,6 +1,5 @@
 "use client";
-import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
-import useSession from "@/utils/supabase/use-session";
+import { useUserStore } from "@/app/stores/userStore";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import LoginModal from "../auth/LoginModal";
@@ -14,11 +13,7 @@ interface ModalProps {
 }
 
 const ContributeModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
-  const supabase = createSupabaseBrowserClient();
-  const session = useSession();
-  const username = session?.user.user_metadata.username;
-  const uuid = session?.user.id;
-  const createdAt = session?.user.created_at;
+  const { uuid } = useUserStore();
 
   const [loginView, setLoginView] = useState(true);
   const [yourReportsModalView, setYourReportsModalView] = useState(false);
