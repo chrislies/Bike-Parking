@@ -187,6 +187,7 @@ const ReportComponent: React.FC<ModalProps> = ({ siteId, x, y, spot_type, rack_t
             request_type: "Delete",
             selectedOption: rack_type,
             email: email,
+            user_id: uuid,
             username: username,
             description: deleteDescription.trim(),
             image: selectedImage,
