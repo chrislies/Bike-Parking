@@ -27,19 +27,13 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
       if (bikeRacksResponse.ok) {
         bikeRacksData = await bikeRacksResponse.json();
       } else {
-        console.error(
-          "Failed to fetch bike racks data:",
-          bikeRacksResponse.status
-        );
+        console.error("Failed to fetch bike racks data:", bikeRacksResponse.status);
       }
 
       if (bikeSheltersResponse.ok) {
         bikeSheltersData = await bikeSheltersResponse.json();
       } else {
-        console.error(
-          "Failed to fetch bike shelters data:",
-          bikeSheltersResponse.status
-        );
+        console.error("Failed to fetch bike shelters data:", bikeSheltersResponse.status);
       }
     } catch (error) {
       console.error("Error fetching bike data:", error);
@@ -92,8 +86,7 @@ async function getCoordinates(): Promise<MarkerData[] | null> {
       `https://raw.githubusercontent.com/chrislies/Bike-Parking/backend_streetsigns/backend/db.json`
     );
 
-    const streetSignsData: { street_signs: MarkerData[] } =
-      await streetSignsResponse.json();
+    const streetSignsData: { street_signs: MarkerData[] } = await streetSignsResponse.json();
     // const limitData = streetSignsData.street_signs.slice(0, 20000);
     // const limitData = streetSignsData.street_signs.slice(0, 1000);
 
