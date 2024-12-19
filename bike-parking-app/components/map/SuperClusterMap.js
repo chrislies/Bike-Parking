@@ -1,6 +1,6 @@
 "use client";
 import { useQuery } from "react-query";
-import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
+import { MapContainer, LayersControl } from "react-leaflet";
 import getCoordinates from "@/lib/getCoordinates";
 import SuperClusterLayer from "./layers/SuperClusterLayer";
 import Loader from "../Loader";
@@ -9,14 +9,14 @@ import ControlGeocoder from "./LeafletControlGeocoder";
 import Toolbar from "../toolbar/Toolbar";
 import UserLocationMarker from "./UserLocationMarker";
 import { useState } from "react";
-import ToggleSpotsControl from "./ToggleSpotsControl";
-
-const { BaseLayer } = LayersControl;
+import ToggleLayerControl from "./ToggleLayerControl";
 
 export default function SuperClusterMap() {
   const [showRacks, setShowRacks] = useState(true);
   const [showSigns, setShowSigns] = useState(true);
   const [showShelters, setShowShelters] = useState(true);
+  const [showStreetLayer, setShowStreetLayer] = useState(true);
+  const [showSatelliteLayer, setShowSatelliteLayer] = useState(false);
 
   const { isLoading, error, data } = useQuery("coordinates", getCoordinates, {
     staleTime: 5 * 60 * 1000, // Keep the data fresh for 5 minutes
@@ -29,6 +29,8 @@ export default function SuperClusterMap() {
   const handleToggleRacks = () => setShowRacks((prev) => !prev);
   const handleToggleShelters = () => setShowShelters((prev) => !prev);
   const handleToggleSigns = () => setShowSigns((prev) => !prev);
+  const handleToggleStreetLayer = () => setShowStreetLayer((prev) => !prev);
+  const handleToggleSatelliteLayer = () => setShowSatelliteLayer((prev) => !prev);
 
   return (
     <MapContainer
@@ -44,45 +46,29 @@ export default function SuperClusterMap() {
         closeOnZeroBearing: false,
       }}
     >
-      <LayersControl position="bottomleft">
-        <BaseLayer
-          checked
-          name="Street Layer"
-        >
-          <TileLayer
-            maxZoom={24}
-            maxNativeZoom={19}
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            // url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          />
-        </BaseLayer>
-        <BaseLayer name="Satellite Layer">
-          <TileLayer
-            maxZoom={24}
-            maxNativeZoom={20}
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-          />
-        </BaseLayer>
-        {!isLoading && data && (
-          <SuperClusterLayer
-            data={data}
-            showRacks={showRacks}
-            showShelters={showShelters}
-            showSigns={showSigns}
-          />
-        )}
-      </LayersControl>
+      {!isLoading && data && (
+        <SuperClusterLayer
+          data={data}
+          showRacks={showRacks}
+          showShelters={showShelters}
+          showSigns={showSigns}
+        />
+      )}
       {isLoading && <Loader />}
       <UserLocationMarker />
       <ControlGeocoder />
       <Toolbar />
-      <ToggleSpotsControl
+      <ToggleLayerControl
         showRacks={showRacks}
         showShelters={showShelters}
         showSigns={showSigns}
         handleToggleRacks={handleToggleRacks}
-        handleToggleSigns={handleToggleSigns}
         handleToggleShelters={handleToggleShelters}
+        handleToggleSigns={handleToggleSigns}
+        showStreetLayer={showStreetLayer}
+        showSatelliteLayer={showSatelliteLayer}
+        handleToggleStreetLayer={handleToggleStreetLayer}
+        handleToggleSatelliteLayer={handleToggleSatelliteLayer}
       />
     </MapContainer>
   );
