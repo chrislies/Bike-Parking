@@ -42,7 +42,7 @@
     "components/map/layers/PruneMarkerClusterLayer.js",
     "components/map/SuperClusterMap.tsx",
     "components/map/layers/SpotMaker.jsx",
-    "components/map/ToggleSpotsControl.jsx"
+    "components/map/ToggleLayerControl.tsx"
   ],
   "exclude": ["node_modules"]
 }
