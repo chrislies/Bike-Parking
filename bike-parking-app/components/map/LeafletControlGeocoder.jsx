@@ -21,11 +21,7 @@ export default function ControlGeocoder() {
       let geocoder = L.Control.Geocoder.nominatim();
 
       // Check if location object is available
-      if (
-        typeof window !== "undefined" &&
-        window.location &&
-        window.location.search
-      ) {
+      if (typeof window !== "undefined" && window.location && window.location.search) {
         // parse /?geocoder=nominatim from URL
         const params = new URLSearchParams(window.location.search);
         const geocoderString = params.get("geocoder");
@@ -36,7 +32,7 @@ export default function ControlGeocoder() {
         }
       }
 
-      L.Control.geocoder({
+      const geocoderControl = L.Control.geocoder({
         query: "",
         placeholder: "Search here...",
         defaultMarkGeocode: false,
@@ -57,6 +53,12 @@ export default function ControlGeocoder() {
           map.fitBounds(e.geocode.bbox, { animate: true, duration: 1 });
         })
         .addTo(map);
+
+      const geocoderContainer = geocoderControl.getContainer();
+      const input = geocoderContainer.querySelector("input");
+      if (input) {
+        input.classList.add("!text-lg");
+      }
     };
 
     initializeGeocoder();
