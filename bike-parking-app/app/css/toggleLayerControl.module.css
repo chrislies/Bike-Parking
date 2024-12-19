@@ -1,0 +1,42 @@
+.control_container {
+  @apply bg-white rounded-[4px] overflow-hidden transition-all duration-[.2] select-none border-2 border-[rgba(0,0,0,0.2)] bg-clip-padding shadow-md;
+}
+
+.control_container:hover,
+.control_container:active {
+  @apply w-full h-auto;
+}
+
+.control_content {
+  @apply hidden;
+}
+
+.control_container:hover .control_content,
+.control_container:active .control_content {
+  @apply flex flex-col gap-1 p-2;
+}
+
+.layers_icon {
+  @apply h-full w-full p-2;
+}
+
+.control_container:hover .layers_icon,
+.control_container:active .layers_icon {
+  @apply hidden;
+}
+
+.svg {
+  @apply h-full w-full;
+}
+
+.label {
+  @apply cursor-pointer text-sm;
+}
+
+.label * {
+  @apply cursor-pointer items-center;
+}
+
+.input {
+  @apply mr-[3px] align-baseline;
+}
