@@ -86,6 +86,7 @@ const ToolBar = () => {
               key={index}
               // href={navItem.href}
               onClick={navItem.handleClick}
+              tabIndex={0}
               className="cursor-pointer flex flex-col items-center justify-center py-1 hover:shadow-inner hover:bg-gray-300 hover:rounded-xl"
             >
               <span>{navItem.svg}</span>

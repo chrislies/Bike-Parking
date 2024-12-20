@@ -35,6 +35,8 @@ export default function ToggleLayerControl({
 
   useEffect(() => {
     const container = L.DomUtil.create("div", styles.control_container);
+    container.setAttribute("role", "button");
+    container.setAttribute("tabindex", "0");
 
     const layers_icon = L.DomUtil.create("div", styles.layers_icon, container);
     layers_icon.innerHTML = ReactDOMServer.renderToString(<Layers className={styles.svg} />);
