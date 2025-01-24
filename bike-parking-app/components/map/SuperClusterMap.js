@@ -18,13 +18,11 @@ export default function SuperClusterMap() {
   const [showStreetLayer, setShowStreetLayer] = useState(true);
   const [showSatelliteLayer, setShowSatelliteLayer] = useState(false);
 
-  const { isLoading, error, data } = useQuery("coordinates", getCoordinates, {
+  const { isLoading, data } = useQuery("coordinates", getCoordinates, {
     staleTime: 5 * 60 * 1000, // Keep the data fresh for 5 minutes
     cacheTime: 10 * 60 * 1000, // Cache the data for 10 minutes
     refetchOnWindowFocus: false, // Prevent refetch on window/tab focus
   });
-
-  if (error) return <div>An error has occurred: {error.message}</div>;
 
   const handleToggleRacks = () => setShowRacks((prev) => !prev);
   const handleToggleShelters = () => setShowShelters((prev) => !prev);
