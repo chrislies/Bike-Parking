@@ -29,6 +29,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/register", request.url));
   }
 
+  // If user is not signed in and the current path is '/admin' redirect the user to '/'
+  // Or if user is signed in and not an admin and the current path is '/admin' redirect the user to '/'
+  if (
+    (!user && request.nextUrl.pathname === "/admin") ||
+    (user && user.role !== "admin" && request.nextUrl.pathname === "/admin")
+  ) {
+    console.log(user, user?.role);
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
   // If user is not signed in and the current path is '/account' redirect the user to '/'
   if (!user && request.nextUrl.pathname === "/account") {
     return NextResponse.redirect(new URL("/", request.url));
@@ -42,9 +52,10 @@ export async function middleware(request: NextRequest) {
 
       if (tokenHash) {
         // Verify the token hash using Supabase's verifyOtp method with type 'recovery'
-        const { data: verificationData, error } = await supabase.auth.verifyOtp(
-          { token_hash: tokenHash, type: "recovery" }
-        );
+        const { data: verificationData, error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: "recovery",
+        });
 
         if (error || !verificationData) {
           // if token hash is invalid or expired, redirect unauthenticated users to '/'
@@ -74,5 +85,6 @@ export const config = {
     "/login",
     "/register",
     "/reset-password",
+    "/admin",
   ],
 };
