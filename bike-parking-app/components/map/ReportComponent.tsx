@@ -7,6 +7,7 @@ import axios from "axios";
 import { useUserStore } from "@/app/stores/userStore";
 import { useReportsStore } from "@/app/stores/reportsStore";
 import toast from "react-hot-toast";
+import { useUserReportsStore } from "@/app/stores/userReportsStore";
 
 interface ModalProps {
   siteId?: string;
@@ -19,6 +20,7 @@ interface ModalProps {
 
 const ReportComponent: React.FC<ModalProps> = ({ siteId, x, y, spot_type, rack_type, address }) => {
   const { reports, isLoading, fetchReports, addReport } = useReportsStore();
+  const { addUserReport } = useUserReportsStore();
   const { uuid, username, email } = useUserStore();
 
   const [isCommunityReportsModalOpen, setIsCommunityReportsModalOpen] = useState(false);
@@ -126,28 +128,24 @@ const ReportComponent: React.FC<ModalProps> = ({ siteId, x, y, spot_type, rack_t
     try {
       setReportFormLoading(true);
 
-      const response = await fetch("/api/report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: uuid!,
-          username: username!,
-          option,
-          site_id: siteId,
-          description,
-          x,
-          y,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to submit report");
-
       // Add new report to store
       addReport(siteId!, {
         option,
         description,
         username: username!,
         created_at: new Date().toISOString(),
+      });
+
+      // Add user report to user's own reports store
+      await addUserReport({
+        user_id: uuid!,
+        username: username!,
+        location_id: siteId!,
+        option,
+        description,
+        created_at: new Date().toISOString(),
+        x: x!,
+        y: y!,
       });
 
       // Reset form
