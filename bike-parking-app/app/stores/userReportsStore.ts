@@ -3,12 +3,13 @@ import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export interface UserReport {
+  id?: number;
   user_id: string;
   username: string;
-  created_at: string;
-  id: number;
+  location_id: string;
   option: string;
   description: string;
+  created_at: string;
   x: number;
   y: number;
 }
@@ -19,6 +20,7 @@ interface UserReportsStore {
   isLoading: boolean;
   hasFetched: boolean;
   fetchUserReports: (userId: string, username: string) => Promise<void>;
+  addUserReport: (report: UserReport) => void;
   removeUserReport: (reportId: number) => Promise<void>;
 }
 
@@ -51,6 +53,15 @@ export const useUserReportsStore = create<UserReportsStore>((set, get) => {
       } catch (error) {
         console.error("Error fetching user reports:", error);
         set({ reports: [], isLoading: false });
+      }
+    },
+
+    addUserReport: async (report: UserReport) => {
+      const { data, error } = await get().supabase.from("Report").insert(report).select().single();
+      if (!error && data) {
+        set((state) => ({
+          reports: [data, ...state.reports],
+        }));
       }
     },
 

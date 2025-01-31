@@ -1,32 +1,36 @@
-import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
+import { cookies } from "next/headers";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse } from "next/server";
-const supabase = createSupabaseBrowserClient();
 
 export async function POST(req: Request) {
   try {
+    const supabase = createRouteHandlerClient({ cookies });
     const { user_id, username, option, site_id, description, x, y } = await req.json();
 
-    const { data, error } = await supabase.from("Report").insert(
-      [
-        {
-          user_id: user_id,
-          username: username,
-          option: option,
-          description: description,
-          location_id: site_id,
-          x: x,
-          y: y,
-        },
-      ],
-      { returning: "minimal" } as any
-    );
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user || user.id !== user_id) {
+      return new NextResponse("You must be authenticated to add a report", { status: 403 });
+    }
+
+    const { data, error } = await supabase.from("Report").insert([
+      {
+        user_id,
+        username,
+        option,
+        description,
+        location_id: site_id,
+        x,
+        y,
+      },
+    ]);
 
     if (error) {
       console.error("Error inserting report:", error);
       return new NextResponse("Error adding report", { status: 500 });
     }
 
-    console.log("Report successfully inserted:", data);
     return NextResponse.json(data);
   } catch (error) {
     console.error("Server error:", error);

@@ -74,7 +74,7 @@ export default function YourReportsModal({ onClose }: YourReportsModalProps) {
                   )}`}</p>
                 </div>
                 <button
-                  onClick={() => removeUserReport(report.id)}
+                  onClick={() => removeUserReport(report.id!)}
                   className="col-span-1 justify-self-center p-2 hover:bg-red-100 hover:rounded-full"
                 >
                   <BsTrash3Fill className="fill-red-500 h-6 w-6" />

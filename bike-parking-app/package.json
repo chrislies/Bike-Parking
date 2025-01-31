@@ -12,6 +12,7 @@
     "@headlessui/react": "^1.7.18",
     "@hookform/resolvers": "^3.3.4",
     "@react-leaflet/core": "^2.1.0",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "axios": "^1.6.8",
