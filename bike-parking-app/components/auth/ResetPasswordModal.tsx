@@ -26,10 +26,25 @@ export default function ResetPasswordModal() {
   const supabase = createSupabaseBrowserClient();
 
   const [loading, setLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const form = useForm<z.infer<typeof PasswordSchema>>({
     resolver: zodResolver(PasswordSchema),
     defaultValues: { password: "" },
   });
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+      
+      if (!session) {
+        toast.error("You need to click the reset link from your email first.");
+        router.push("/forgot-password");
+      }
+    };
+
+    checkAuth();
+  }, [supabase, router]);
 
   const onSubmit: SubmitHandler<z.infer<typeof PasswordSchema>> = async (
     values
@@ -39,20 +54,56 @@ export default function ResetPasswordModal() {
       const { data, error } = await supabase.auth.updateUser({
         password: values.password,
       });
+      
+      if (error) {
+        toast.error(`Error updating password: ${error.message}`, { 
+          id: "updateUserError",
+          duration: 10000 
+        });
+        setLoading(false);
+        return;
+      }
+
       if (data) {
         toast.success("Password successfully reset!", {
           duration: 10000,
           id: "updateUserSuccessful",
         });
+        
+        // Sign out the user to force them to log in with new password
+        await supabase.auth.signOut();
         router.push("/login");
         router.refresh();
       }
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      toast.error(`Error ${error}`, { id: "updateUserError" });
+      toast.error(`Unexpected error: ${error}`, { 
+        id: "updateUserUnexpectedError",
+        duration: 10000 
+      });
     }
   };
+
+  // Show loading while checking authentication
+  if (isAuthenticated === null) {
+    return (
+      <>
+        <Toaster position="top-right" />
+        <div className="w-full max-w-sm">
+          <div className="bg-white shadow-md rounded px-8 py-6 text-center">
+            <Spinner className="animate-spin h-8 mx-auto mb-4" />
+            <p>Verifying your reset link...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Don't render the form if not authenticated (will redirect)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <>

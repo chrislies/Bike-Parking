@@ -28,13 +28,22 @@ export async function GET(request: Request) {
   // https://supabase.com/docs/guides/auth/server-side/nextjs
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
+  const redirectTo = requestUrl.searchParams.get("redirect_to");
   const origin = requestUrl.origin;
 
   if (code) {
     const supabase = createSupabaseServerClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    
+    if (error) {
+      console.error("Error exchanging code for session:", error);
+      // Redirect to error page or login page if code exchange fails
+      return NextResponse.redirect(`${origin}/forgot-password?error=invalid_link`);
+    }
   }
 
-  // URL to redirect to after sign up process completes
-  return NextResponse.redirect(`${origin}/map`);
+  // If there's a redirect_to parameter (e.g., for password reset), use it
+  // Otherwise, redirect to the default map page
+  const redirectUrl = redirectTo ? `${origin}${redirectTo}` : `${origin}/map`;
+  return NextResponse.redirect(redirectUrl);
 }
