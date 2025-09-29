@@ -3,7 +3,7 @@ import { createSupabaseBrowserClient } from "@/utils/supabase/browser-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Spinner } from "../svgs";
@@ -23,6 +23,19 @@ export default function ForgotPasswordModal() {
     defaultValues: { email: "" },
   });
 
+  useEffect(() => {
+    // Check for error parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+    
+    if (error === 'invalid_link') {
+      toast.error('The reset link is invalid or has expired. Please request a new one.', {
+        duration: 10000,
+        id: 'invalidLink'
+      });
+    }
+  }, []);
+
   const onSubmit: SubmitHandler<z.infer<typeof EmailSchema>> = async (
     values
   ) => {
@@ -31,7 +44,7 @@ export default function ForgotPasswordModal() {
       const { data, error } = await supabase.auth.resetPasswordForEmail(
         values.email,
         {
-          redirectTo: `${window.location.href}reset-password`,
+          redirectTo: `${window.location.origin}/auth/callback?redirect_to=/reset-password`,
         }
       );
       toast.success(
