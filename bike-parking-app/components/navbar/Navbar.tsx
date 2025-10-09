@@ -80,61 +80,30 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        isScrolled ? "shadow-3xl" : "shadow-none"
-      }`}
-    >
-      <div
-        id="navHeader"
-        className={`sticky top-0 z-40 bg-white ${
-          isMenuOpen ? "shadow-md" : "shadow-none"
-        } transition-all duration-[900ms]`}
-      >
+    <div className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? "shadow-3xl" : "shadow-none"}`}>
+      <div id="navHeader" className={`sticky top-0 z-40 bg-white ${isMenuOpen ? "shadow-md" : "shadow-none"} transition-all duration-[900ms]`}>
         <nav className="flex justify-between items-center px-4 h-[--header-height] max-lg:padding-container mx-auto max-w-screen-lg py-1">
           <Link href="/">
-            <Image
-              src="/images/bike_parking_logo.png"
-              alt="logo"
-              width={70}
-              height={70}
-            />
+            <Image src="/images/bike_parking_logo.png" alt="logo" width={70} height={70} />
           </Link>
           <ul className="hidden gap-16 lg:flex items-center">
             {NAV_LINKS.map((link) => (
               <li key={link.key}>
-                <Navlink
-                  href={link.href}
-                  className={`text-base font-semibold text-grey-50 flex justify-center cursor-pointer border-y-2 border-transparent hover:border-b-green-600/60 transition-all duration-300 ease-in-out`}
-                  activeClasses={`border-b-green-600/70`}
-                  label={link.label}
-                />
+                <Navlink href={link.href} className={`text-base font-semibold text-grey-50 flex justify-center cursor-pointer border-y-2 border-transparent hover:border-b-green-600/60 transition-all duration-300 ease-in-out`} activeClasses={`border-b-green-600/70`} label={link.label} />
               </li>
             ))}
             <li>
               {session ? (
-                <button
-                  onClick={handleSignOut}
-                  className="bg-red-600/80 text-base font-semibold text-grey-50 py-2 px-3 rounded-md text-white hover:bg-red-600/70 transition-all duration-100 ease-in-out"
-                >
+                <button onClick={handleSignOut} className="bg-red-600/80 text-base font-semibold text-grey-50 py-2 px-3 rounded-md text-white hover:bg-red-600/70 transition-all duration-100 ease-in-out">
                   Sign out
                 </button>
               ) : (
-                <Navlink
-                  href="/login"
-                  className="bg-green-600/80 text-base font-semibold text-grey-50 py-2 px-3 rounded-md text-white hover:bg-green-600/70 transition-all duration-100 ease-in-out"
-                  activeClasses=""
-                  label="Log in"
-                />
+                <Navlink href="/login" className="bg-green-600/80 text-base font-semibold text-grey-50 py-2 px-3 rounded-md text-white hover:bg-green-600/70 transition-all duration-100 ease-in-out" activeClasses="" label="Log in" />
               )}
             </li>
           </ul>
 
-          <div
-            id="menu-button"
-            onClick={toggleMenu}
-            className="lg:hidden cursor-pointer"
-          >
+          <div id="menu-button" onClick={toggleMenu} className="lg:hidden cursor-pointer">
             <span
               className={`bar 
               ${isMenuOpen ? "rotate-45 translate-y-[8px]" : ""} 
@@ -154,10 +123,7 @@ const Navbar = () => {
         </nav>
       </div>
 
-      <div
-        id="navMenu"
-        className="lg:hidden z-30"
-      >
+      <div id="navMenu" className="lg:hidden z-30">
         <div
           className={`fixed z-30 w-full flex flex-col shadow-3xl 
           ${isMenuOpen ? "top-[--header-height]" : "-top-[calc(3*var(--header-height))]"} 
@@ -166,29 +132,16 @@ const Navbar = () => {
           <ul>
             {NAV_LINKS.map((link, index) => (
               <li key={link.key}>
-                <Link
-                  href={link.href}
-                  onClick={closeMenu}
-                  className={
-                    "bg-white border-b-2 py-4 text-xl text-grey-50 flex justify-center cursor-pointer font-[500] tracking-tight hover:text-green-700 transition-all duration-100 ease-in-out active:text-green-600/70"
-                  }
-                >
+                <Link href={link.href} onClick={closeMenu} className={"bg-white border-b-2 py-4 text-xl text-grey-50 flex justify-center cursor-pointer font-[500] tracking-tight hover:text-green-700 transition-all duration-100 ease-in-out active:text-green-600/70"}>
                   {link.label}
                 </Link>
               </li>
             ))}
-            <li
-              className={`${
-                session ? "hover:text-red-500" : "hover:text-green-700"
-              } bg-white py-4 text-xl text-grey-50 flex justify-center cursor-pointer font-[500] tracking-tight transition-all duration-100 ease-in-out active:text-green-600/70 border-t`}
-            >
+            <li className={`${session ? "hover:text-red-500" : "hover:text-green-700"} bg-white py-4 text-xl text-grey-50 flex justify-center cursor-pointer font-[500] tracking-tight transition-all duration-100 ease-in-out active:text-green-600/70 border-t`}>
               {session ? (
                 <button onClick={handleSignOut}>Sign out</button>
               ) : (
-                <Link
-                  href="/login"
-                  onClick={closeMenu}
-                >
+                <Link href="/login" onClick={closeMenu}>
                   Log in
                 </Link>
               )}
@@ -197,25 +150,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      <div
-        className={`lg:hidden absolute h-screen z-10 inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity duration-[350ms] ease-in-out ${
-          isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-      />
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          className: "",
-          style: {
-            zIndex: 9999999,
-            position: "relative",
-          },
-        }}
-        containerStyle={{
-          zIndex: 9999999,
-          position: "fixed",
-        }}
-      />
+      <div className={`lg:hidden absolute h-screen z-10 inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity duration-[350ms] ease-in-out ${isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} />
     </div>
   );
 };

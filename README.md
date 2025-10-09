@@ -39,7 +39,16 @@ git clone https://github.com/chrislies/Bike-Parking.git && cd Bike-Parking/bike-
 ```
 npm run dev
 ```
+
+To make a user an admin, add their user ID to the admins table in your Supabase database:
+
+```
+INSERT INTO admins (id, email)
+VALUES ('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', 'test@email.com');
+```
+
 ## Dependencies
+
 - `@headlessui/react`: `^1.7.18`
 - `@hookform/resolvers`: `^3.3.4`
 - `@react-leaflet/core`: `^2.1.0`
@@ -75,6 +84,7 @@ npm run dev
 - `zod`: `^3.22.4`
 
 ## DevDependencies
+
 - `@svgr/webpack`: `^8.1.0`
 - `@types/leaflet`: `^1.9.8`
 - `@types/leaflet-rotate`: `^0.1.4`
