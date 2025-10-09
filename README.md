@@ -40,7 +40,7 @@ git clone https://github.com/chrislies/Bike-Parking.git && cd Bike-Parking/bike-
 npm run dev
 ```
 
-To make a user an admin, you need to add their user ID to the admins table in your Supabase database:
+To make a user an admin, add their user ID to the admins table in your Supabase database:
 
 ```
 INSERT INTO admins (id, email)
