@@ -13,7 +13,7 @@ jobs:
       - name: Submit a test contact form
         run: |
           response=$(curl -s -o response.json -w "%{http_code}" -X POST \
-            "https://www.bike-parking.vercel.app/api/contact" \
+            "https://bike-parking.vercel.app/api/contact" \
             -H "Content-Type: application/json" \
             -d '{
               "name": "Automated Health Check",
