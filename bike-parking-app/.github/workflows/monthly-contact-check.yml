@@ -1,0 +1,32 @@
+name: Monthly Contact Form Check
+
+on:
+  schedule:
+    # 09:00 UTC on the 1st of every month
+    - cron: "0 9 1 * *"
+  workflow_dispatch: {}
+
+jobs:
+  submit-dummy-contact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit a test contact form
+        run: |
+          response=$(curl -s -o response.json -w "%{http_code}" -X POST \
+            "https://www.bike-parking.vercel.app/api/contact" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "Automated Health Check",
+              "email": "healthcheck@example.com",
+              "phone": "0000000000",
+              "message": "This is an automated monthly test submission to verify the contact form pipeline is working and to prevent MongoDB cluster from sleeping. No action needed."
+            }')
+
+          echo "HTTP status: $response"
+          echo "Response body:"
+          cat response.json
+
+          if [ "$response" -ge 400 ]; then
+            echo "Contact form submission failed."
+            exit 1
+          fi
